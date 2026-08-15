@@ -5,21 +5,21 @@ export default {
     extend: {
       colors: {
         ink: {
-          DEFAULT: '#211C17',
-          light: '#33291F',
+          DEFAULT: '#1B2A1C',
+          light: '#2A3F29',
         },
         saffron: {
           DEFAULT: '#B8860B',
           light: '#D4AF37',
           dark: '#8A6508',
         },
-        paprika: {
-          DEFAULT: '#A6421F',
-          light: '#C1552B',
+        moss: {
+          DEFAULT: '#5B7052',
+          light: '#7C9470',
         },
         cream: {
           DEFAULT: '#FBF6EC',
-          soft: '#F5EEE0',
+          soft: '#F2EEDF',
         },
       },
       fontFamily: {
@@ -33,9 +33,14 @@ export default {
           '90%': { opacity: 'var(--drift-opacity, 0.55)' },
           '100%': { transform: 'translate3d(var(--drift-x, 12px), var(--drift-y, -120px), 0) rotate(180deg)', opacity: '0' },
         },
+        'spice-float': {
+          '0%, 100%': { transform: 'translateY(0px) rotate(var(--rot-a, -6deg))' },
+          '50%': { transform: 'translateY(-18px) rotate(var(--rot-b, 5deg))' },
+        },
       },
       animation: {
         drift: 'drift linear infinite',
+        'spice-float': 'spice-float ease-in-out infinite',
       },
     },
   },

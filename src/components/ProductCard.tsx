@@ -26,7 +26,7 @@ export default function ProductCard({ product, variants, images, onClick }: Prod
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-ink to-paprika font-serif text-cream text-lg font-medium">
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-ink to-moss font-serif text-cream text-lg font-medium">
             {product.name}
           </div>
         )}
@@ -39,7 +39,7 @@ export default function ProductCard({ product, variants, images, onClick }: Prod
       </div>
 
       <div className="p-4">
-        <h3 className="font-serif font-semibold text-lg text-ink mb-2 group-hover:text-paprika transition-colors line-clamp-1">
+        <h3 className="font-serif font-semibold text-lg text-ink mb-2 group-hover:text-moss transition-colors line-clamp-1">
           {product.name}
         </h3>
 

@@ -105,7 +105,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-[#211C17] to-[#6B3A1F] text-white py-12 px-4">
+      <div className="bg-gradient-to-r from-[#211C17] to-[#3F5A34] text-white py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl font-bold mb-2">Shop Our Collection</h1>
           <p className="text-white/90 text-lg">

@@ -539,7 +539,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                         className="w-20 h-20 object-cover rounded-lg"
                       />
                     ) : (
-                      <div className="w-20 h-20 bg-gradient-to-br from-[#211C17] to-[#6B3A1F] rounded-lg flex items-center justify-center text-white font-bold">
+                      <div className="w-20 h-20 bg-gradient-to-br from-[#211C17] to-[#3F5A34] rounded-lg flex items-center justify-center text-white font-bold">
                         {item.product.name[0]}
                       </div>
                     )}

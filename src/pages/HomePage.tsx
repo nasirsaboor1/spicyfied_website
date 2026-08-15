@@ -5,7 +5,8 @@ import CategoryCard from '../components/CategoryCard';
 import ProductCard from '../components/ProductCard';
 import Reveal from '../components/Reveal';
 import SpiceDrift from '../components/SpiceDrift';
-import { ChevronRight, Leaf, Gem, Flame, Crown } from 'lucide-react';
+import SpiceOrbit from '../components/SpiceElements';
+import { ChevronRight, Leaf, Gem, Flame, Sparkles } from 'lucide-react';
 
 interface HomePageProps {
   onNavigateToProduct: (slug: string) => void;
@@ -29,9 +30,9 @@ const PILLARS = [
     copy: 'Sun-ripened and freshly ground close to harvest, so the aroma survives the journey to your pantry.',
   },
   {
-    icon: Crown,
-    title: 'Luxury',
-    copy: 'The quality of a private spice merchant, priced for the everyday cook, not just special occasions.',
+    icon: Sparkles,
+    title: 'Richness',
+    copy: 'The quality of a private spice merchant, brought to the everyday kitchen without the special-occasion price tag.',
   },
 ];
 
@@ -95,8 +96,9 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
 
   return (
     <div className="min-h-screen bg-cream">
-      <section className="relative overflow-hidden bg-gradient-to-b from-ink via-ink to-[#3A2A1D] text-cream py-28 px-4">
+      <section className="relative overflow-hidden bg-gradient-to-b from-ink via-ink to-[#223822] text-cream py-28 px-4">
         <SpiceDrift />
+        <SpiceOrbit />
         <div
           className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[900px] rounded-full opacity-20 blur-3xl"
           style={{ background: 'radial-gradient(circle, #B8860B 0%, transparent 65%)' }}
@@ -108,13 +110,12 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
             Hand-Selected &middot; Small-Batch &middot; Unadulterated
           </p>
           <h1 className="font-serif text-5xl md:text-7xl font-semibold leading-[1.1] mb-6">
-            Where Purity <br className="hidden sm:block" />
-            Meets <span className="italic text-saffron-light">Luxury</span>
+            Grown in Purity, <br className="hidden sm:block" />
+            <span className="italic text-saffron-light">Refined by Hand</span>
           </h1>
           <p className="text-lg md:text-xl mb-10 text-cream/80 max-w-2xl mx-auto leading-relaxed font-light">
-            From sun-dried Kashmiri chillies to hand-cracked cardamom, every batch of Spicyfied
-            is sourced, cleaned, and packed to honour the taste nature intended — no fillers,
-            no shortcuts, no compromise.
+            Every batch is sourced with care, cleaned by hand, and packed to honour the taste
+            nature intended — no fillers, no shortcuts, no compromise.
           </p>
           <button
             onClick={() => onNavigateToShop()}
@@ -182,7 +183,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
                 </div>
                 <button
                   onClick={() => onNavigateToShop()}
-                  className="flex items-center gap-2 text-ink font-semibold hover:gap-3 hover:text-paprika transition-all"
+                  className="flex items-center gap-2 text-ink font-semibold hover:gap-3 hover:text-moss transition-all"
                 >
                   View All <ChevronRight className="w-5 h-5" />
                 </button>
@@ -211,7 +212,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
                 </div>
                 <button
                   onClick={() => onNavigateToShop('whole-spices')}
-                  className="flex items-center gap-2 text-ink font-semibold hover:gap-3 hover:text-paprika transition-all"
+                  className="flex items-center gap-2 text-ink font-semibold hover:gap-3 hover:text-moss transition-all"
                 >
                   View All <ChevronRight className="w-5 h-5" />
                 </button>
@@ -240,7 +241,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
                 </div>
                 <button
                   onClick={() => onNavigateToShop('seeds')}
-                  className="flex items-center gap-2 text-ink font-semibold hover:gap-3 hover:text-paprika transition-all"
+                  className="flex items-center gap-2 text-ink font-semibold hover:gap-3 hover:text-moss transition-all"
                 >
                   View All <ChevronRight className="w-5 h-5" />
                 </button>

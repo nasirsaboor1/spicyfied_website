@@ -38,7 +38,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#211C17] to-[#6B3A1F] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#211C17] to-[#3F5A34] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <div className="text-center mb-8">

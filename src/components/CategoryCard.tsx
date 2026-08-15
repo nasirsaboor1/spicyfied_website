@@ -23,7 +23,7 @@ export default function CategoryCard({ title, imageUrl, onClick, comingSoon }: C
             className={`w-full h-full object-cover ${!comingSoon ? 'group-hover:scale-110' : ''} transition-transform duration-700 ease-out`}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-ink to-paprika flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-ink to-moss flex items-center justify-center">
             <span className="font-serif text-cream text-3xl font-semibold">{title[0]}</span>
           </div>
         )}
@@ -40,7 +40,7 @@ export default function CategoryCard({ title, imageUrl, onClick, comingSoon }: C
       </div>
       <h3
         className={`mt-4 font-serif text-lg font-semibold text-center ${
-          comingSoon ? 'text-gray-400' : 'text-ink group-hover:text-paprika'
+          comingSoon ? 'text-gray-400' : 'text-ink group-hover:text-moss'
         } transition-colors`}
       >
         {title}

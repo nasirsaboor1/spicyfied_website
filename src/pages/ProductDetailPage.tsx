@@ -142,7 +142,7 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#211C17] to-[#6B3A1F] text-white text-4xl font-bold">
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#211C17] to-[#3F5A34] text-white text-4xl font-bold">
                     {product.name[0]}
                   </div>
                 )}
