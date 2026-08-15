@@ -1,0 +1,25 @@
+# Legacy Wix URL preservation
+# Old Wix product pages used /product-page/<slug> — map them to the new structure.
+/product-page/*          /product/:splat           301
+
+# Wix shop/category routes
+/shop-1                  /shop                     301
+/shop-1/*                /shop                     301
+/category/*              /shop                     301
+
+# Wix default pages
+/home                    /                         301
+/about                   /                         301
+/about-1                 /                         301
+/contact-us              /contact                  301
+/privacy-policy          /privacy                  301
+/terms-and-conditions    /terms                    301
+/shipping-policy         /shipping                 301
+/refund-policy           /refund                   301
+
+# Force apex canonical (host-level redirect from www is handled by DNS/host,
+# but this acts as a safety net if requests arrive with alternate paths).
+/index.html              /                         301
+
+# SPA fallback — every other unknown route renders the React app shell.
+/*                       /index.html               200

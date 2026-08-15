@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /checkout
+Disallow: /orders
+Disallow: /dashboard
+Disallow: /login
+Disallow: /signup
+
+Sitemap: https://spicyfied.in/sitemap.xml
+Sitemap: https://spicyfied.in/merchant-feed.xml
