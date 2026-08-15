@@ -329,7 +329,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader className="w-8 h-8 animate-spin text-[#2d5016]" />
+        <Loader className="w-8 h-8 animate-spin text-[#211C17]" />
       </div>
     );
   }
@@ -341,7 +341,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
           <p className="text-xl text-gray-600 mb-4">{error}</p>
           <button
             onClick={() => window.history.back()}
-            className="px-6 py-3 bg-[#2d5016] text-white rounded-lg font-semibold hover:bg-[#1f3910] transition-colors"
+            className="px-6 py-3 bg-[#211C17] text-white rounded-lg font-semibold hover:bg-[#140F0C] transition-colors"
           >
             Continue Shopping
           </button>
@@ -366,13 +366,13 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
             <div className="bg-white rounded-xl shadow-md p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-[#2d5016]" />
+                  <MapPin className="w-5 h-5 text-[#211C17]" />
                   Delivery Address
                 </h2>
                 {addresses.length > 0 && !showAddressForm && (
                   <button
                     onClick={() => setShowAddressForm(true)}
-                    className="flex items-center gap-2 text-[#2d5016] hover:underline font-medium"
+                    className="flex items-center gap-2 text-[#211C17] hover:underline font-medium"
                   >
                     <Plus className="w-4 h-4" />
                     Add New
@@ -396,7 +396,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                         required
                         value={addressForm.full_name}
                         onChange={(e) => setAddressForm({ ...addressForm, full_name: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                       />
                     </div>
                     <div>
@@ -406,7 +406,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                         required
                         value={addressForm.phone}
                         onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                       />
                     </div>
                   </div>
@@ -418,7 +418,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                       required
                       value={addressForm.address_line1}
                       onChange={(e) => setAddressForm({ ...addressForm, address_line1: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                     />
                   </div>
 
@@ -428,7 +428,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                       type="text"
                       value={addressForm.address_line2}
                       onChange={(e) => setAddressForm({ ...addressForm, address_line2: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                     />
                   </div>
 
@@ -440,7 +440,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                         required
                         value={addressForm.city}
                         onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                       />
                     </div>
                     <div>
@@ -450,7 +450,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                         required
                         value={addressForm.state}
                         onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                       />
                     </div>
                     <div>
@@ -461,7 +461,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                         pattern="[0-9]{6}"
                         value={addressForm.postal_code}
                         onChange={(e) => setAddressForm({ ...addressForm, postal_code: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                       />
                     </div>
                   </div>
@@ -469,7 +469,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                   <div className="flex gap-4">
                     <button
                       type="submit"
-                      className="flex-1 bg-[#2d5016] text-white py-2 rounded-lg font-semibold hover:bg-[#1f3910] transition-colors"
+                      className="flex-1 bg-[#211C17] text-white py-2 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors"
                     >
                       Save Address
                     </button>
@@ -491,7 +491,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                       key={address.id}
                       className={`block p-4 border-2 rounded-lg cursor-pointer transition-all ${
                         selectedAddress === address.id
-                          ? 'border-[#2d5016] bg-[#2d5016]/5'
+                          ? 'border-[#211C17] bg-[#211C17]/5'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -508,7 +508,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                           <div className="flex items-center gap-2 mb-1">
                             <p className="font-semibold text-gray-900">{address.full_name}</p>
                             {address.is_default && (
-                              <span className="px-2 py-1 bg-[#2d5016] text-white text-xs rounded">Default</span>
+                              <span className="px-2 py-1 bg-[#211C17] text-white text-xs rounded">Default</span>
                             )}
                           </div>
                           <p className="text-sm text-gray-600">{address.phone}</p>
@@ -518,7 +518,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                           </p>
                         </div>
                         {selectedAddress === address.id && (
-                          <CheckCircle className="w-5 h-5 text-[#2d5016]" />
+                          <CheckCircle className="w-5 h-5 text-[#211C17]" />
                         )}
                       </div>
                     </label>
@@ -539,7 +539,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                         className="w-20 h-20 object-cover rounded-lg"
                       />
                     ) : (
-                      <div className="w-20 h-20 bg-gradient-to-br from-[#2d5016] to-[#4a7c24] rounded-lg flex items-center justify-center text-white font-bold">
+                      <div className="w-20 h-20 bg-gradient-to-br from-[#211C17] to-[#6B3A1F] rounded-lg flex items-center justify-center text-white font-bold">
                         {item.product.name[0]}
                       </div>
                     )}
@@ -548,7 +548,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                       <p className="text-sm text-gray-500">{item.variant.size}</p>
                       <div className="flex items-center justify-between mt-2">
                         <span className="text-sm text-gray-600">Qty: {item.quantity}</span>
-                        <span className="font-semibold text-[#2d5016]">
+                        <span className="font-semibold text-[#211C17]">
                           ₹{Math.round(item.variant.price * item.quantity)}
                         </span>
                       </div>
@@ -564,7 +564,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Any special instructions for delivery?"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                 rows={3}
               />
             </div>
@@ -602,12 +602,12 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                         value={couponCode}
                         onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                         placeholder="Enter code"
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent uppercase"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent uppercase"
                       />
                       <button
                         onClick={handleApplyCoupon}
                         disabled={applyingCoupon || !couponCode.trim()}
-                        className="px-4 py-2 bg-[#2d5016] text-white rounded-lg font-semibold hover:bg-[#1f3910] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-4 py-2 bg-[#211C17] text-white rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {applyingCoupon ? 'Applying...' : 'Apply'}
                       </button>
@@ -653,7 +653,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                 )}
                 <div className="border-t border-gray-200 pt-3 flex justify-between text-lg font-bold text-gray-900">
                   <span>Total</span>
-                  <span className="text-[#2d5016]">₹{Math.round(totalAmount)}</span>
+                  <span className="text-[#211C17]">₹{Math.round(totalAmount)}</span>
                 </div>
               </div>
 
@@ -669,7 +669,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
               <button
                 onClick={handlePlaceOrder}
                 disabled={processing || !selectedAddress || deliveryFeeLoading}
-                className="w-full bg-[#2d5016] text-white py-3 rounded-lg font-semibold hover:bg-[#1f3910] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-[#211C17] text-white py-3 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {processing ? (
                   <>

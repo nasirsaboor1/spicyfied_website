@@ -10,26 +10,26 @@ export default function TermsConditionsPage({ onNavigateHome }: TermsConditionsP
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <button
           onClick={onNavigateHome}
-          className="flex items-center gap-2 text-[#2d5016] hover:text-[#d4af37] mb-8 transition-colors"
+          className="flex items-center gap-2 text-[#211C17] hover:text-[#d4af37] mb-8 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Home
         </button>
 
         <div className="bg-white rounded-lg shadow-lg p-8 md:p-12">
-          <h1 className="text-4xl font-bold text-[#2d5016] mb-4">Terms & Conditions</h1>
+          <h1 className="text-4xl font-bold text-[#211C17] mb-4">Terms & Conditions</h1>
           <p className="text-gray-600 mb-8">Last Updated: January 2026</p>
 
           <div className="space-y-8 text-gray-700 leading-relaxed">
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Agreement to Terms</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Agreement to Terms</h2>
               <p>
                 By accessing and using the SPICYFIED website, you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to these Terms & Conditions, please do not use our website or purchase our products.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Use of Website</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Use of Website</h2>
               <p className="mb-3">By using this website, you warrant that:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>You are at least 18 years of age or have parental/guardian consent</li>
@@ -41,7 +41,7 @@ export default function TermsConditionsPage({ onNavigateHome }: TermsConditionsP
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Account Registration</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Account Registration</h2>
               <p className="mb-3">
                 When you create an account with SPICYFIED, you are responsible for:
               </p>
@@ -54,7 +54,7 @@ export default function TermsConditionsPage({ onNavigateHome }: TermsConditionsP
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Product Information and Availability</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Product Information and Availability</h2>
               <p className="mb-3">
                 We strive to provide accurate product descriptions, images, and pricing. However:
               </p>
@@ -68,7 +68,7 @@ export default function TermsConditionsPage({ onNavigateHome }: TermsConditionsP
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Orders and Payment</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Orders and Payment</h2>
               <p className="mb-3">
                 When placing an order:
               </p>
@@ -83,7 +83,7 @@ export default function TermsConditionsPage({ onNavigateHome }: TermsConditionsP
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Intellectual Property Rights</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Intellectual Property Rights</h2>
               <p className="mb-3">
                 All content on this website, including but not limited to:
               </p>
@@ -98,7 +98,7 @@ export default function TermsConditionsPage({ onNavigateHome }: TermsConditionsP
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Product Usage and Safety</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Product Usage and Safety</h2>
               <p className="mb-3">
                 Our spice products are intended for culinary use. Please note:
               </p>
@@ -112,7 +112,7 @@ export default function TermsConditionsPage({ onNavigateHome }: TermsConditionsP
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Limitation of Liability</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Limitation of Liability</h2>
               <p className="mb-3">
                 To the fullest extent permitted by law:
               </p>
@@ -125,7 +125,7 @@ export default function TermsConditionsPage({ onNavigateHome }: TermsConditionsP
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">User Reviews and Content</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">User Reviews and Content</h2>
               <p className="mb-3">
                 If you submit reviews, comments, or other content to our website:
               </p>
@@ -138,35 +138,35 @@ export default function TermsConditionsPage({ onNavigateHome }: TermsConditionsP
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Links to Third-Party Websites</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Links to Third-Party Websites</h2>
               <p>
                 Our website may contain links to third-party websites. These links are provided for your convenience only. We do not endorse or assume responsibility for the content, privacy policies, or practices of third-party sites.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Governing Law</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Governing Law</h2>
               <p>
                 These Terms & Conditions shall be governed by and construed in accordance with the laws of the jurisdiction in which SPICYFIED operates, without regard to conflict of law provisions.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Changes to Terms</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Changes to Terms</h2>
               <p>
                 We reserve the right to update or modify these Terms & Conditions at any time without prior notice. Changes will be effective immediately upon posting to the website. Your continued use of the website after changes constitutes acceptance of the modified terms.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Severability</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Severability</h2>
               <p>
                 If any provision of these Terms & Conditions is found to be invalid or unenforceable, the remaining provisions shall continue in full force and effect.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Contact Information</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Contact Information</h2>
               <p>
                 For any questions or concerns regarding these Terms & Conditions, please contact us at:
               </p>

@@ -119,7 +119,7 @@ export default function AdminInventoryView() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader className="w-8 h-8 animate-spin text-[#2d5016]" />
+        <Loader className="w-8 h-8 animate-spin text-[#211C17]" />
       </div>
     );
   }
@@ -146,13 +146,13 @@ export default function AdminInventoryView() {
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
             />
           </div>
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
           >
             <option value="all">All Categories</option>
             <option value="whole-spices">Whole Spices</option>
@@ -166,7 +166,7 @@ export default function AdminInventoryView() {
             <div key={product.id} className="border border-gray-200 rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <Package className="w-5 h-5 text-[#2d5016]" />
+                  <Package className="w-5 h-5 text-[#211C17]" />
                   <div>
                     <h3 className="font-semibold text-gray-900">{product.name}</h3>
                     <p className="text-sm text-gray-500 capitalize">{product.category.replace('-', ' ')}</p>
@@ -203,7 +203,7 @@ export default function AdminInventoryView() {
                             setSelectedVariant(variant);
                             setStockUpdate(variant.stock_quantity.toString());
                           }}
-                          className="p-1 text-[#2d5016] hover:bg-[#2d5016]/10 rounded"
+                          className="p-1 text-[#211C17] hover:bg-[#211C17]/10 rounded"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
@@ -262,7 +262,7 @@ export default function AdminInventoryView() {
                   min="0"
                   value={stockUpdate}
                   onChange={(e) => setStockUpdate(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                 />
               </div>
 
@@ -270,7 +270,7 @@ export default function AdminInventoryView() {
                 <button
                   onClick={handleUpdateStock}
                   disabled={updating}
-                  className="flex-1 bg-[#2d5016] text-white py-2 rounded-lg font-semibold hover:bg-[#1f3910] transition-colors disabled:opacity-50"
+                  className="flex-1 bg-[#211C17] text-white py-2 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50"
                 >
                   {updating ? 'Updating...' : 'Update Stock'}
                 </button>

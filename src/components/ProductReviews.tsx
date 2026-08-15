@@ -194,7 +194,7 @@ export default function ProductReviews({ productId, averageRating, totalReviews 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader className="w-8 h-8 animate-spin text-[#2d5016]" />
+        <Loader className="w-8 h-8 animate-spin text-[#211C17]" />
       </div>
     );
   }
@@ -213,7 +213,7 @@ export default function ProductReviews({ productId, averageRating, totalReviews 
         {user && canReview && !hasReviewed && (
           <button
             onClick={() => setShowReviewForm(!showReviewForm)}
-            className="flex items-center gap-2 px-4 py-2 bg-[#2d5016] text-white rounded-lg font-semibold hover:bg-[#1f3910] transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-[#211C17] text-white rounded-lg font-semibold hover:bg-[#140F0C] transition-colors"
           >
             <MessageSquare className="w-5 h-5" />
             Write Review
@@ -222,7 +222,7 @@ export default function ProductReviews({ productId, averageRating, totalReviews 
       </div>
 
       {showReviewForm && (
-        <div className="bg-white rounded-xl shadow-md p-6 border-2 border-[#2d5016]">
+        <div className="bg-white rounded-xl shadow-md p-6 border-2 border-[#211C17]">
           <h3 className="text-lg font-bold text-gray-900 mb-4">Write Your Review</h3>
           <form onSubmit={handleSubmitReview} className="space-y-4">
             <div>
@@ -246,7 +246,7 @@ export default function ProductReviews({ productId, averageRating, totalReviews 
                 rows={4}
                 value={reviewForm.comment}
                 onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                 placeholder="Share your experience with this product..."
               />
             </div>
@@ -255,7 +255,7 @@ export default function ProductReviews({ productId, averageRating, totalReviews 
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex-1 bg-[#2d5016] text-white py-2 rounded-lg font-semibold hover:bg-[#1f3910] transition-colors disabled:opacity-50"
+                className="flex-1 bg-[#211C17] text-white py-2 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50"
               >
                 {submitting ? 'Submitting...' : 'Submit Review'}
               </button>
@@ -283,7 +283,7 @@ export default function ProductReviews({ productId, averageRating, totalReviews 
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as 'recent' | 'helpful')}
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
         >
           <option value="recent">Most Recent</option>
           <option value="helpful">Most Helpful</option>

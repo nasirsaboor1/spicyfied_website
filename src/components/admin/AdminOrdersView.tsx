@@ -137,7 +137,7 @@ export default function AdminOrdersView() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader className="w-8 h-8 animate-spin text-[#2d5016]" />
+        <Loader className="w-8 h-8 animate-spin text-[#211C17]" />
       </div>
     );
   }
@@ -153,13 +153,13 @@ export default function AdminOrdersView() {
               placeholder="Search by order number, customer name, or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
           >
             <option value="all">All Orders</option>
             <option value="pending">Pending</option>
@@ -216,7 +216,7 @@ export default function AdminOrdersView() {
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => setSelectedOrder(order)}
-                        className="p-2 text-[#2d5016] hover:bg-[#2d5016]/10 rounded-lg transition-colors"
+                        className="p-2 text-[#211C17] hover:bg-[#211C17]/10 rounded-lg transition-colors"
                         title="View Details"
                       >
                         <Eye className="w-4 h-4" />
@@ -276,7 +276,7 @@ export default function AdminOrdersView() {
                   value={selectedOrder.status}
                   onChange={(e) => handleUpdateStatus(selectedOrder.id, e.target.value)}
                   disabled={updatingStatus}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent disabled:opacity-50"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent disabled:opacity-50"
                 >
                   <option value="pending">Pending</option>
                   <option value="confirmed">Confirmed</option>
@@ -329,7 +329,7 @@ export default function AdminOrdersView() {
               <div className="border-t border-gray-200 pt-4">
                 <div className="flex justify-between text-lg font-bold text-gray-900">
                   <span>Total Amount</span>
-                  <span className="text-[#2d5016]">₹{Math.round(selectedOrder.total_amount)}</span>
+                  <span className="text-[#211C17]">₹{Math.round(selectedOrder.total_amount)}</span>
                 </div>
               </div>
             </div>

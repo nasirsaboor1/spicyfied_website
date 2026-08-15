@@ -138,7 +138,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader className="w-8 h-8 animate-spin text-[#2d5016]" />
+        <Loader className="w-8 h-8 animate-spin text-[#211C17]" />
       </div>
     );
   }
@@ -147,7 +147,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
-          <Package className="w-8 h-8 text-[#2d5016]" />
+          <Package className="w-8 h-8 text-[#211C17]" />
           <h1 className="text-3xl font-bold text-gray-900">My Orders</h1>
         </div>
 
@@ -158,7 +158,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
             <p className="text-gray-600 mb-6">Start shopping to see your orders here</p>
             <button
               onClick={() => window.history.back()}
-              className="px-6 py-3 bg-[#2d5016] text-white rounded-lg font-semibold hover:bg-[#1f3910] transition-colors"
+              className="px-6 py-3 bg-[#211C17] text-white rounded-lg font-semibold hover:bg-[#140F0C] transition-colors"
             >
               Continue Shopping
             </button>
@@ -203,7 +203,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
                   <div className="flex items-center gap-4">
                     <div className="text-right">
                       <p className="text-sm text-gray-600">Total Amount</p>
-                      <p className="text-xl font-bold text-[#2d5016]">
+                      <p className="text-xl font-bold text-[#211C17]">
                         ₹{Math.round(order.total_amount)}
                       </p>
                     </div>
@@ -232,7 +232,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
             <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
               {detailsLoading ? (
                 <div className="p-12 flex items-center justify-center">
-                  <Loader className="w-8 h-8 animate-spin text-[#2d5016]" />
+                  <Loader className="w-8 h-8 animate-spin text-[#211C17]" />
                 </div>
               ) : (
                 <>
@@ -289,7 +289,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
                     {selectedOrder.address && (
                       <div className="bg-gray-50 rounded-lg p-4">
                         <div className="flex items-start gap-2 mb-2">
-                          <MapPin className="w-5 h-5 text-[#2d5016] mt-0.5" />
+                          <MapPin className="w-5 h-5 text-[#211C17] mt-0.5" />
                           <div>
                             <p className="font-semibold text-gray-900">
                               {selectedOrder.address.full_name}
@@ -321,7 +321,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
                               <p className="text-sm text-gray-600">{item.variant_size}</p>
                               <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                             </div>
-                            <p className="font-semibold text-[#2d5016]">
+                            <p className="font-semibold text-[#211C17]">
                               ₹{Math.round(item.subtotal)}
                             </p>
                           </div>
@@ -354,7 +354,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
                       )}
                       <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t border-gray-200">
                         <span>Total</span>
-                        <span className="text-[#2d5016]">
+                        <span className="text-[#211C17]">
                           ₹{Math.round(selectedOrder.total_amount)}
                         </span>
                       </div>

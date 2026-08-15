@@ -157,7 +157,7 @@ export default function AdminCouponsView() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader className="w-8 h-8 animate-spin text-[#2d5016]" />
+        <Loader className="w-8 h-8 animate-spin text-[#211C17]" />
       </div>
     );
   }
@@ -169,7 +169,7 @@ export default function AdminCouponsView() {
           <h2 className="text-xl font-bold text-gray-900">Manage Coupons</h2>
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-[#2d5016] text-white rounded-lg font-semibold hover:bg-[#1f3910] transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-[#211C17] text-white rounded-lg font-semibold hover:bg-[#140F0C] transition-colors"
           >
             <Plus className="w-5 h-5" />
             Create Coupon
@@ -184,8 +184,8 @@ export default function AdminCouponsView() {
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3 flex-1">
-                  <div className="p-2 bg-[#2d5016]/10 rounded-lg">
-                    <Tag className="w-5 h-5 text-[#2d5016]" />
+                  <div className="p-2 bg-[#211C17]/10 rounded-lg">
+                    <Tag className="w-5 h-5 text-[#211C17]" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
@@ -241,7 +241,7 @@ export default function AdminCouponsView() {
                 <div className="flex gap-2 ml-4">
                   <button
                     onClick={() => handleEdit(coupon)}
-                    className="p-2 text-[#2d5016] hover:bg-[#2d5016]/10 rounded-lg transition-colors"
+                    className="p-2 text-[#211C17] hover:bg-[#211C17]/10 rounded-lg transition-colors"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
@@ -287,7 +287,7 @@ export default function AdminCouponsView() {
                   required
                   value={formData.code}
                   onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent uppercase"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent uppercase"
                   placeholder="SUMMER2024"
                 />
               </div>
@@ -300,7 +300,7 @@ export default function AdminCouponsView() {
                   <select
                     value={formData.discount_type}
                     onChange={(e) => setFormData({ ...formData, discount_type: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                   >
                     <option value="percentage">Percentage</option>
                     <option value="fixed">Fixed Amount</option>
@@ -317,7 +317,7 @@ export default function AdminCouponsView() {
                     step="0.01"
                     value={formData.discount_value}
                     onChange={(e) => setFormData({ ...formData, discount_value: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                     placeholder={formData.discount_type === 'percentage' ? '10' : '100'}
                   />
                 </div>
@@ -335,7 +335,7 @@ export default function AdminCouponsView() {
                     step="0.01"
                     value={formData.min_order_value}
                     onChange={(e) => setFormData({ ...formData, min_order_value: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -348,7 +348,7 @@ export default function AdminCouponsView() {
                     step="0.01"
                     value={formData.max_discount}
                     onChange={(e) => setFormData({ ...formData, max_discount: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                     placeholder="No limit"
                   />
                 </div>
@@ -364,7 +364,7 @@ export default function AdminCouponsView() {
                     required
                     value={formData.valid_from}
                     onChange={(e) => setFormData({ ...formData, valid_from: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -375,7 +375,7 @@ export default function AdminCouponsView() {
                     type="date"
                     value={formData.valid_until}
                     onChange={(e) => setFormData({ ...formData, valid_until: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                     placeholder="No expiry"
                   />
                 </div>
@@ -390,7 +390,7 @@ export default function AdminCouponsView() {
                   min="1"
                   value={formData.usage_limit}
                   onChange={(e) => setFormData({ ...formData, usage_limit: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2d5016] focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                   placeholder="Unlimited"
                 />
               </div>
@@ -401,7 +401,7 @@ export default function AdminCouponsView() {
                   id="is_active"
                   checked={formData.is_active}
                   onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  className="w-4 h-4 text-[#2d5016] border-gray-300 rounded focus:ring-[#2d5016]"
+                  className="w-4 h-4 text-[#211C17] border-gray-300 rounded focus:ring-[#211C17]"
                 />
                 <label htmlFor="is_active" className="text-sm font-medium text-gray-700">
                   Active
@@ -412,7 +412,7 @@ export default function AdminCouponsView() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex-1 bg-[#2d5016] text-white py-2 rounded-lg font-semibold hover:bg-[#1f3910] transition-colors disabled:opacity-50"
+                  className="flex-1 bg-[#211C17] text-white py-2 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50"
                 >
                   {saving ? 'Saving...' : editingCoupon ? 'Update Coupon' : 'Create Coupon'}
                 </button>

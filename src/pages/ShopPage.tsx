@@ -105,7 +105,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-[#2d5016] to-[#4a7c24] text-white py-12 px-4">
+      <div className="bg-gradient-to-r from-[#211C17] to-[#6B3A1F] text-white py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl font-bold mb-2">Shop Our Collection</h1>
           <p className="text-white/90 text-lg">
@@ -139,7 +139,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
                       onClick={() => setSelectedCategory(category.id)}
                       className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
                         selectedCategory === category.id
-                          ? 'bg-[#2d5016] text-white'
+                          ? 'bg-[#211C17] text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -157,7 +157,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
                       type="number"
                       value={priceRange[0]}
                       onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2d5016]"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#211C17]"
                       placeholder="Min"
                     />
                     <span className="text-gray-500">-</span>
@@ -165,7 +165,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
                       type="number"
                       value={priceRange[1]}
                       onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#2d5016]"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#211C17]"
                       placeholder="Max"
                     />
                   </div>
@@ -180,7 +180,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
                   setSelectedCategory('all');
                   setPriceRange([0, 10000]);
                 }}
-                className="w-full py-2 text-[#2d5016] border border-[#2d5016] rounded-lg font-medium hover:bg-[#2d5016] hover:text-white transition-colors"
+                className="w-full py-2 text-[#211C17] border border-[#211C17] rounded-lg font-medium hover:bg-[#211C17] hover:text-white transition-colors"
               >
                 Reset Filters
               </button>
@@ -194,7 +194,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
               </p>
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="lg:hidden flex items-center gap-2 px-4 py-2 bg-[#2d5016] text-white rounded-lg"
+                className="lg:hidden flex items-center gap-2 px-4 py-2 bg-[#211C17] text-white rounded-lg"
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 Filters
@@ -203,7 +203,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
 
             {loading ? (
               <div className="text-center py-20">
-                <div className="inline-block w-12 h-12 border-4 border-[#2d5016] border-t-transparent rounded-full animate-spin"></div>
+                <div className="inline-block w-12 h-12 border-4 border-[#211C17] border-t-transparent rounded-full animate-spin"></div>
               </div>
             ) : filteredProducts.length === 0 ? (
               <div className="text-center py-20">

@@ -85,14 +85,14 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <button
           onClick={onNavigateHome}
-          className="flex items-center gap-2 text-[#2d5016] hover:text-[#d4af37] mb-8 transition-colors"
+          className="flex items-center gap-2 text-[#211C17] hover:text-[#d4af37] mb-8 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Home
         </button>
 
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-[#2d5016] mb-4">Contact Us</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-[#211C17] mb-4">Contact Us</h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Have a question or want to learn more about our premium spices? We'd love to hear from you!
           </p>
@@ -102,11 +102,11 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
           {/* Contact Information */}
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-[#2d5016] mb-6">Get In Touch</h2>
+              <h2 className="text-2xl font-bold text-[#211C17] mb-6">Get In Touch</h2>
 
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
-                  <div className="bg-[#2d5016] p-3 rounded-lg flex-shrink-0">
+                  <div className="bg-[#211C17] p-3 rounded-lg flex-shrink-0">
                     <MapPin className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -121,7 +121,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="bg-[#2d5016] p-3 rounded-lg flex-shrink-0">
+                  <div className="bg-[#211C17] p-3 rounded-lg flex-shrink-0">
                     <Phone className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -133,7 +133,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="bg-[#2d5016] p-3 rounded-lg flex-shrink-0">
+                  <div className="bg-[#211C17] p-3 rounded-lg flex-shrink-0">
                     <Mail className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -151,7 +151,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
 
             {/* Social Media */}
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-[#2d5016] mb-6">Follow Us</h2>
+              <h2 className="text-2xl font-bold text-[#211C17] mb-6">Follow Us</h2>
               <p className="text-gray-600 mb-6">
                 Stay connected with us on social media for the latest updates, recipes, and special offers.
               </p>
@@ -160,7 +160,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
                   href="https://x.com/spicyfiedsme"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-[#2d5016] hover:bg-[#d4af37] p-3 rounded-lg transition-colors"
+                  className="bg-[#211C17] hover:bg-[#d4af37] p-3 rounded-lg transition-colors"
                   aria-label="Follow us on Twitter"
                 >
                   <Twitter className="w-6 h-6 text-white" />
@@ -169,7 +169,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
                   href="https://www.instagram.com/spicyfiedsme/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-[#2d5016] hover:bg-[#d4af37] p-3 rounded-lg transition-colors"
+                  className="bg-[#211C17] hover:bg-[#d4af37] p-3 rounded-lg transition-colors"
                   aria-label="Follow us on Instagram"
                 >
                   <Instagram className="w-6 h-6 text-white" />
@@ -178,7 +178,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
                   href="https://www.facebook.com/spicyfiedsme"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-[#2d5016] hover:bg-[#d4af37] p-3 rounded-lg transition-colors"
+                  className="bg-[#211C17] hover:bg-[#d4af37] p-3 rounded-lg transition-colors"
                   aria-label="Follow us on Facebook"
                 >
                   <Facebook className="w-6 h-6 text-white" />
@@ -188,7 +188,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
 
             {/* Business Hours */}
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-[#2d5016] mb-6">Business Hours</h2>
+              <h2 className="text-2xl font-bold text-[#211C17] mb-6">Business Hours</h2>
               <div className="space-y-3 text-gray-600">
                 <div className="flex justify-between">
                   <span className="font-medium">Monday - Friday:</span>
@@ -208,7 +208,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
 
           {/* Contact Form */}
           <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-[#2d5016] mb-6">Send Us a Message</h2>
+            <h2 className="text-2xl font-bold text-[#211C17] mb-6">Send Us a Message</h2>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
@@ -223,7 +223,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
                   onChange={handleInputChange}
                   required
                   maxLength={100}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#2d5016] focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#211C17] focus:border-transparent outline-none transition-all"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -240,7 +240,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
                   onChange={handleInputChange}
                   required
                   maxLength={100}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#2d5016] focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#211C17] focus:border-transparent outline-none transition-all"
                   placeholder="your.email@example.com"
                 />
               </div>
@@ -256,7 +256,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
                   value={formData.phone}
                   onChange={handleInputChange}
                   maxLength={20}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#2d5016] focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#211C17] focus:border-transparent outline-none transition-all"
                   placeholder="+91 XXXXX XXXXX"
                 />
               </div>
@@ -273,7 +273,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
                   required
                   maxLength={2000}
                   rows={6}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#2d5016] focus:border-transparent outline-none transition-all resize-none"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#211C17] focus:border-transparent outline-none transition-all resize-none"
                   placeholder="Tell us how we can help you..."
                 />
                 <p className="text-sm text-gray-500 mt-1">
@@ -298,7 +298,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-[#2d5016] hover:bg-[#d4af37] text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#211C17] hover:bg-[#d4af37] text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <>

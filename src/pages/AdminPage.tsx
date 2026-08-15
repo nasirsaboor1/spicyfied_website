@@ -51,7 +51,7 @@ export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader className="w-8 h-8 animate-spin text-[#2d5016]" />
+        <Loader className="w-8 h-8 animate-spin text-[#211C17]" />
       </div>
     );
   }
@@ -69,7 +69,7 @@ export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
           </p>
           <button
             onClick={() => window.history.back()}
-            className="px-6 py-3 bg-[#2d5016] text-white rounded-lg font-semibold hover:bg-[#1f3910] transition-colors"
+            className="px-6 py-3 bg-[#211C17] text-white rounded-lg font-semibold hover:bg-[#140F0C] transition-colors"
           >
             Go Back
           </button>
@@ -105,7 +105,7 @@ export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
                     onClick={() => setCurrentView(item.id as AdminView)}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-colors ${
                       currentView === item.id
-                        ? 'bg-[#2d5016] text-white'
+                        ? 'bg-[#211C17] text-white'
                         : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >

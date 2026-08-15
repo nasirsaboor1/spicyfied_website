@@ -15,23 +15,23 @@ export default function ProductCard({ product, variants, images, onClick }: Prod
   return (
     <div
       onClick={onClick}
-      className="group bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer border border-gray-100"
+      className="group bg-white rounded-xl shadow-sm hover:shadow-2xl hover:shadow-ink/10 transition-all duration-500 overflow-hidden cursor-pointer border border-black/5"
     >
-      <div className="relative aspect-square overflow-hidden bg-gray-100">
+      <div className="relative aspect-square overflow-hidden bg-cream-soft">
         {firstImage ? (
           <img
             src={firstImage.image_url}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#2d5016] to-[#4a7c24] text-white text-lg font-medium">
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-ink to-paprika font-serif text-cream text-lg font-medium">
             {product.name}
           </div>
         )}
         {product.is_bestseller && (
-          <div className="absolute top-3 right-3 bg-[#d4af37] text-[#2d5016] px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
+          <div className="absolute top-3 right-3 bg-saffron-light text-ink px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
             <Star className="w-3 h-3 fill-current" />
             Bestseller
           </div>
@@ -39,14 +39,14 @@ export default function ProductCard({ product, variants, images, onClick }: Prod
       </div>
 
       <div className="p-4">
-        <h3 className="font-semibold text-lg text-gray-800 mb-2 group-hover:text-[#2d5016] transition-colors line-clamp-1">
+        <h3 className="font-serif font-semibold text-lg text-ink mb-2 group-hover:text-paprika transition-colors line-clamp-1">
           {product.name}
         </h3>
 
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-gray-500 mb-1">Starting from</p>
-            <p className="text-xl font-bold text-[#2d5016]">
+            <p className="text-xs text-gray-500 mb-1 tracking-wide uppercase">Starting from</p>
+            <p className="text-xl font-bold text-ink">
               ₹{Math.round(minPrice)}
             </p>
           </div>
@@ -55,7 +55,7 @@ export default function ProductCard({ product, variants, images, onClick }: Prod
               e.stopPropagation();
               if (onClick) onClick();
             }}
-            className="bg-[#2d5016] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#1f3910] transition-colors"
+            className="bg-ink text-cream px-4 py-2 rounded-lg text-sm font-medium hover:bg-saffron-dark transition-colors"
           >
             View Details
           </button>

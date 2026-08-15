@@ -10,26 +10,26 @@ export default function ShippingDeliveryPage({ onNavigateHome }: ShippingDeliver
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <button
           onClick={onNavigateHome}
-          className="flex items-center gap-2 text-[#2d5016] hover:text-[#d4af37] mb-8 transition-colors"
+          className="flex items-center gap-2 text-[#211C17] hover:text-[#d4af37] mb-8 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Home
         </button>
 
         <div className="bg-white rounded-lg shadow-lg p-8 md:p-12">
-          <h1 className="text-4xl font-bold text-[#2d5016] mb-4">Shipping & Delivery Policy</h1>
+          <h1 className="text-4xl font-bold text-[#211C17] mb-4">Shipping & Delivery Policy</h1>
           <p className="text-gray-600 mb-8">Last Updated: January 2026</p>
 
           <div className="space-y-8 text-gray-700 leading-relaxed">
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Shipping Overview</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Shipping Overview</h2>
               <p>
                 At SPICYFIED, we are committed to delivering your premium spice products in perfect condition. We process and ship orders promptly to ensure you receive your products as quickly as possible.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Order Processing Time</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Order Processing Time</h2>
               <p className="mb-3">
                 Orders are typically processed within 1-2 business days after payment confirmation. During peak seasons or promotional periods, processing may take up to 3-4 business days.
               </p>
@@ -39,11 +39,11 @@ export default function ShippingDeliveryPage({ onNavigateHome }: ShippingDeliver
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Shipping Methods and Delivery Times</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Shipping Methods and Delivery Times</h2>
               <p className="mb-3">We offer the following shipping options:</p>
               <div className="space-y-4">
                 <div className="bg-green-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-[#2d5016] mb-2">Standard Shipping</h3>
+                  <h3 className="font-semibold text-[#211C17] mb-2">Standard Shipping</h3>
                   <ul className="list-disc pl-6 space-y-1">
                     <li>Delivery Time: 5-7 business days</li>
                     <li>Best for regular orders with no time constraints</li>
@@ -52,7 +52,7 @@ export default function ShippingDeliveryPage({ onNavigateHome }: ShippingDeliver
                 </div>
 
                 <div className="bg-green-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-[#2d5016] mb-2">Express Shipping</h3>
+                  <h3 className="font-semibold text-[#211C17] mb-2">Express Shipping</h3>
                   <ul className="list-disc pl-6 space-y-1">
                     <li>Delivery Time: 2-3 business days</li>
                     <li>Ideal for faster delivery needs</li>
@@ -61,7 +61,7 @@ export default function ShippingDeliveryPage({ onNavigateHome }: ShippingDeliver
                 </div>
 
                 <div className="bg-green-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-[#2d5016] mb-2">Overnight Shipping</h3>
+                  <h3 className="font-semibold text-[#211C17] mb-2">Overnight Shipping</h3>
                   <ul className="list-disc pl-6 space-y-1">
                     <li>Delivery Time: 1 business day</li>
                     <li>For urgent orders (subject to availability)</li>
@@ -75,7 +75,7 @@ export default function ShippingDeliveryPage({ onNavigateHome }: ShippingDeliver
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Shipping Costs</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Shipping Costs</h2>
               <p className="mb-3">
                 Shipping costs are calculated based on:
               </p>
@@ -88,13 +88,13 @@ export default function ShippingDeliveryPage({ onNavigateHome }: ShippingDeliver
                 Final shipping costs will be displayed at checkout before you complete your purchase.
               </p>
               <div className="bg-[#d4af37] bg-opacity-10 border border-[#d4af37] p-4 rounded-lg mt-4">
-                <p className="font-semibold text-[#2d5016]">Free Shipping Available!</p>
+                <p className="font-semibold text-[#211C17]">Free Shipping Available!</p>
                 <p className="mt-1">Orders over a certain amount may qualify for free standard shipping. Check our promotions page for current offers.</p>
               </div>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Shipping Locations</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Shipping Locations</h2>
               <p className="mb-3">
                 We currently ship to addresses within our service areas. Some remote or restricted locations may not be available for delivery.
               </p>
@@ -108,7 +108,7 @@ export default function ShippingDeliveryPage({ onNavigateHome }: ShippingDeliver
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Order Tracking</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Order Tracking</h2>
               <p className="mb-3">
                 Once your order ships, you will receive:
               </p>
@@ -123,7 +123,7 @@ export default function ShippingDeliveryPage({ onNavigateHome }: ShippingDeliver
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Delivery Attempts and Failed Deliveries</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Delivery Attempts and Failed Deliveries</h2>
               <p className="mb-3">
                 Our courier partners will typically make 2-3 delivery attempts if you are not available to receive the package.
               </p>
@@ -138,7 +138,7 @@ export default function ShippingDeliveryPage({ onNavigateHome }: ShippingDeliver
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Damaged or Lost Packages</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Damaged or Lost Packages</h2>
               <p className="mb-3">
                 If your package arrives damaged or goes missing:
               </p>
@@ -155,14 +155,14 @@ export default function ShippingDeliveryPage({ onNavigateHome }: ShippingDeliver
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Delivery Responsibility</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Delivery Responsibility</h2>
               <p>
                 Once the package leaves our facility and is handed to the courier, SPICYFIED is not liable for delays, damages, or losses caused by the shipping carrier. However, we will assist you in filing claims and resolving issues with the courier to ensure customer satisfaction.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Special Delivery Instructions</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Special Delivery Instructions</h2>
               <p className="mb-3">
                 During checkout, you may provide special delivery instructions such as:
               </p>
@@ -177,14 +177,14 @@ export default function ShippingDeliveryPage({ onNavigateHome }: ShippingDeliver
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Holiday Shipping</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Holiday Shipping</h2>
               <p>
                 During major holidays, shipping times may be extended due to high order volumes and courier schedules. We recommend placing orders well in advance during holiday seasons to ensure timely delivery.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[#2d5016] mb-4">Contact Us</h2>
+              <h2 className="text-2xl font-semibold text-[#211C17] mb-4">Contact Us</h2>
               <p>
                 For any questions about shipping, delivery, or to track your order, please contact our customer support team:
               </p>

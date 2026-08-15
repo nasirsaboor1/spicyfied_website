@@ -96,7 +96,7 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-[#2d5016] border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-[#211C17] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -108,7 +108,7 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Product not found</h2>
           <button
             onClick={onNavigateBack}
-            className="text-[#2d5016] hover:underline font-medium"
+            className="text-[#211C17] hover:underline font-medium"
           >
             Go back to shop
           </button>
@@ -125,7 +125,7 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <button
           onClick={onNavigateBack}
-          className="flex items-center gap-2 text-[#2d5016] hover:underline font-medium mb-6"
+          className="flex items-center gap-2 text-[#211C17] hover:underline font-medium mb-6"
         >
           <ChevronLeft className="w-5 h-5" />
           Back to shop
@@ -142,7 +142,7 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#2d5016] to-[#4a7c24] text-white text-4xl font-bold">
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#211C17] to-[#6B3A1F] text-white text-4xl font-bold">
                     {product.name[0]}
                   </div>
                 )}
@@ -173,7 +173,7 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
                       onClick={() => setCurrentImageIndex(index)}
                       className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
                         index === currentImageIndex
-                          ? 'border-[#2d5016]'
+                          ? 'border-[#211C17]'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -192,14 +192,14 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
               <div>
                 <h1 className="text-4xl font-bold text-gray-800 mb-2">{product.name}</h1>
                 {product.is_bestseller && (
-                  <span className="inline-block bg-[#d4af37] text-[#2d5016] px-3 py-1 rounded-full text-sm font-bold">
+                  <span className="inline-block bg-[#d4af37] text-[#211C17] px-3 py-1 rounded-full text-sm font-bold">
                     Bestseller
                   </span>
                 )}
               </div>
 
               <div>
-                <p className="text-4xl font-bold text-[#2d5016]">
+                <p className="text-4xl font-bold text-[#211C17]">
                   ₹{selectedVariant ? Math.round(selectedVariant.price) : '0'}
                 </p>
               </div>
@@ -214,8 +214,8 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
                         onClick={() => setSelectedVariantIndex(index)}
                         className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${
                           selectedVariantIndex === index
-                            ? 'border-[#2d5016] bg-[#2d5016] text-white'
-                            : 'border-gray-300 hover:border-[#2d5016] text-gray-700'
+                            ? 'border-[#211C17] bg-[#211C17] text-white'
+                            : 'border-gray-300 hover:border-[#211C17] text-gray-700'
                         }`}
                       >
                         <div className="text-sm">{variant.size}</div>
@@ -252,7 +252,7 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
               <div className="flex gap-3">
                 <button
                   onClick={handleAddToCart}
-                  className="flex-1 bg-[#2d5016] text-white py-4 rounded-lg font-semibold text-lg hover:bg-[#1f3910] transition-all shadow-lg flex items-center justify-center gap-2"
+                  className="flex-1 bg-[#211C17] text-white py-4 rounded-lg font-semibold text-lg hover:bg-[#140F0C] transition-all shadow-lg flex items-center justify-center gap-2"
                 >
                   {addedToCart ? (
                     <>
@@ -269,7 +269,7 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
                 {addedToCart && (
                   <button
                     onClick={() => setIsCartOpen(true)}
-                    className="px-6 py-4 bg-[#d4af37] text-[#2d5016] rounded-lg font-semibold hover:bg-[#c49d2e] transition-colors"
+                    className="px-6 py-4 bg-[#d4af37] text-[#211C17] rounded-lg font-semibold hover:bg-[#B8860B] transition-colors"
                   >
                     View Cart
                   </button>
