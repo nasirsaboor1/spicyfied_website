@@ -4,6 +4,7 @@ import { ProductWithDetails } from '../types';
 import { useCart } from '../context/CartContext';
 import { ChevronLeft, ChevronRight, Check, ShoppingCart } from 'lucide-react';
 import ProductReviews from '../components/ProductReviews';
+import BulkPricingNote from '../components/BulkPricingNote';
 
 interface ProductDetailPageProps {
   productSlug: string;
@@ -245,6 +246,8 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
                   </div>
                 </div>
               </div>
+
+              <BulkPricingNote />
 
               <div className="flex gap-3">
                 <button

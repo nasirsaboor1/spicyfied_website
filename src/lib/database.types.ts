@@ -98,7 +98,10 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_delivery_fee: {
+        Args: { p_postal_code: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never

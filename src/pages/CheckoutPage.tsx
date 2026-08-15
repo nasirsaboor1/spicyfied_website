@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { MapPin, Plus, CreditCard, Loader, CheckCircle, Tag, X } from 'lucide-react';
+import { MapPin, Plus, CreditCard, Loader, CheckCircle, Tag, X, Truck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { supabase } from '../lib/supabase';
+import { getDeliveryFee } from '../lib/delivery';
+import BulkPricingNote from '../components/BulkPricingNote';
 
 interface Address {
   id: string;
@@ -37,6 +39,8 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [couponError, setCouponError] = useState('');
   const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [deliveryFee, setDeliveryFee] = useState<number | null>(null);
+  const [deliveryFeeLoading, setDeliveryFeeLoading] = useState(false);
 
   const [addressForm, setAddressForm] = useState({
     address_type: 'home',
@@ -65,6 +69,28 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
 
     loadAddresses();
   }, [user, cart]);
+
+  useEffect(() => {
+    const address = addresses.find((addr) => addr.id === selectedAddress);
+    if (!address) {
+      setDeliveryFee(null);
+      return;
+    }
+
+    let cancelled = false;
+    setDeliveryFeeLoading(true);
+    getDeliveryFee(address.postal_code)
+      .then((fee) => {
+        if (!cancelled) setDeliveryFee(fee);
+      })
+      .finally(() => {
+        if (!cancelled) setDeliveryFeeLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedAddress, addresses]);
 
   const loadAddresses = async () => {
     try {
@@ -215,6 +241,12 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
       return;
     }
 
+    const address = addresses.find((addr) => addr.id === selectedAddress);
+    if (!address) {
+      setError('Please select a delivery address');
+      return;
+    }
+
     setProcessing(true);
     setError('');
 
@@ -222,7 +254,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
       const subtotal = getTotalPrice();
       const discountAmount = calculateDiscount();
       const taxAmount = subtotal * 0.05;
-      const shippingFee = subtotal >= 500 ? 0 : 40;
+      const shippingFee = await getDeliveryFee(address.postal_code);
       const totalAmount = subtotal + taxAmount + shippingFee - discountAmount;
 
       const { data: orderNumberData } = await supabase
@@ -321,7 +353,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
   const subtotal = getTotalPrice();
   const discountAmount = calculateDiscount();
   const taxAmount = subtotal * 0.05;
-  const shippingFee = subtotal >= 500 ? 0 : 40;
+  const shippingFee = deliveryFee ?? 0;
   const totalAmount = subtotal + taxAmount + shippingFee - discountAmount;
 
   return (
@@ -597,12 +629,22 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                   <span>₹{Math.round(taxAmount)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
-                  <span>Shipping</span>
-                  <span>{shippingFee === 0 ? 'FREE' : `₹${shippingFee}`}</span>
+                  <span className="flex items-center gap-1">
+                    <Truck className="w-4 h-4" />
+                    Delivery
+                  </span>
+                  <span>
+                    {deliveryFeeLoading
+                      ? '...'
+                      : shippingFee === 0
+                      ? 'FREE'
+                      : `₹${shippingFee}`}
+                  </span>
                 </div>
-                {subtotal < 500 && (
-                  <p className="text-xs text-gray-500">Free shipping on orders above ₹500</p>
-                )}
+                <p className="text-xs text-gray-500">
+                  Free delivery within 5km of Varanasi (221001) &middot; ₹50 delivery charge
+                  elsewhere in India
+                </p>
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-green-600 font-medium">
                     <span>Discount</span>
@@ -615,6 +657,8 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                 </div>
               </div>
 
+              <BulkPricingNote className="mb-4" />
+
               <div className="mb-4 p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <CreditCard className="w-4 h-4" />
@@ -624,7 +668,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
 
               <button
                 onClick={handlePlaceOrder}
-                disabled={processing || !selectedAddress}
+                disabled={processing || !selectedAddress || deliveryFeeLoading}
                 className="w-full bg-[#2d5016] text-white py-3 rounded-lg font-semibold hover:bg-[#1f3910] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {processing ? (

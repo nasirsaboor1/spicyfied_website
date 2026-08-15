@@ -1,5 +1,6 @@
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import BulkPricingNote from './BulkPricingNote';
 
 interface CartProps {
   onNavigateToCheckout?: () => void;
@@ -102,6 +103,7 @@ export default function Cart({ onNavigateToCheckout }: CartProps) {
 
           {cart.length > 0 && (
             <div className="border-t border-gray-200 p-6 space-y-4">
+              <BulkPricingNote />
               <div className="flex justify-between items-center text-xl font-bold">
                 <span className="text-gray-800">Total:</span>
                 <span className="text-[#2d5016]">₹{Math.round(getTotalPrice())}</span>
