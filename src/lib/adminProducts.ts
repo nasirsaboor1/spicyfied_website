@@ -153,7 +153,6 @@ export async function deleteVariant(id: string): Promise<void> {
 }
 
 const IMAGE_BUCKET = 'Product Image';
-const IMAGE_FOLDER = 'Product Image';
 
 export async function uploadProductImage(
   productId: string,
@@ -162,11 +161,10 @@ export async function uploadProductImage(
   displayOrder: number
 ): Promise<void> {
   const safeName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
-  const storagePath = `${IMAGE_FOLDER}/${safeName}`;
 
   const { error: uploadError } = await supabase.storage
     .from(IMAGE_BUCKET)
-    .upload(storagePath, file, { cacheControl: '3600', upsert: false });
+    .upload(safeName, file, { cacheControl: '3600', upsert: false });
   if (uploadError) throw uploadError;
 
   if (isPrimary) {

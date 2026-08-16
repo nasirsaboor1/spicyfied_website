@@ -2,11 +2,10 @@ import { supabase } from './supabase';
 import { Product, ProductVariant, ProductImage, ProductWithDetails } from '../types';
 
 const IMAGE_BUCKET = 'Product Image';
-const IMAGE_FOLDER = 'Product Image';
 
 export function resolveImageUrl(path: string | null | undefined): string {
   if (!path) return '';
-  const objectPath = `${IMAGE_FOLDER}${path.startsWith('/') ? path : `/${path}`}`;
+  const objectPath = path.startsWith('/') ? path.slice(1) : path;
   return supabase.storage.from(IMAGE_BUCKET).getPublicUrl(objectPath).data.publicUrl;
 }
 
