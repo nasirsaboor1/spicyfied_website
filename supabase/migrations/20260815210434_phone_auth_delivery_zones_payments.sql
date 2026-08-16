@@ -1,69 +1,39 @@
 /*
-  # Phone Auth, Delivery Zones, and Payment Gateway Support
+  # Delivery Zones and Payment Gateway Support
 
-  1. Customers / Auth
-    - `customers.email` becomes nullable (phone-only signups have no email)
-    - `customers.phone` gets a UNIQUE constraint (it's now the primary login identifier)
-    - `handle_new_user()` trigger updated to populate `phone` from `auth.users.phone`
-      (set by Supabase phone-OTP auth), falling back to metadata, and to tolerate
-      a null email
+  Rewritten to target the live database's actual schema (orders.user_id,
+  no separate customers table, no admin_users table yet - those land in
+  later migrations once auth/admin are built against the real schema).
 
-  2. Delivery Zones
+  1. Delivery Zones
     - `delivery_zones` table: admin-editable pincode -> delivery fee mapping.
       Seeded with only 221001 (Varanasi GPO, the pincode given as the delivery
       base) at fee 0. Any other pincode not listed falls back to the flat
-      pan-India fee via `get_delivery_fee()`. The shop owner should add the
-      remaining pincodes that actually fall inside the 5km radius via the
-      admin panel — pincode boundaries don't line up neatly with a radius,
-      so this is deliberately not guessed here.
+      pan-India fee via `get_delivery_fee()`. Pincode boundaries don't line
+      up neatly with a radius, so the remaining zone pincodes are left for
+      the shop owner to add via the admin panel once it exists.
     - `get_delivery_fee(text)` function: returns the fee for a postal code,
       defaulting to the outside-zone flat fee when not listed.
     - `delivery_settings` table: single-row config for the flat outside-zone
       fee (defaults to 50), editable by admins instead of hardcoded.
 
-  3. Payments (Razorpay)
+  2. Payments (Razorpay)
     - `orders.razorpay_order_id` - Razorpay order id created before checkout
-    - `payment_transactions.gateway` - which payment gateway processed it
+      (orders already has payment_method/payment_id for the completed charge)
+
+  3. Product images
+    - The real storage bucket is "Product Image" (not "product-images"),
+      currently private with no read policy at all, so no product photo
+      is viewable by anyone. Make it public - product photos aren't
+      sensitive data for a public storefront.
 
   4. Security
-    - RLS enabled on new tables; delivery zone/settings are publicly readable
-      (needed to price checkout) but only admin-writable.
+    - RLS enabled on the new tables; delivery zone/settings are publicly
+      readable (needed to price checkout). Admin-only write policies are
+      deferred until an admin-role mechanism exists (see the admin CRUD work).
 */
 
--- 1. Customers: make email optional, phone unique -------------------------
-
-ALTER TABLE customers ALTER COLUMN email DROP NOT NULL;
-
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'customers_phone_key'
-  ) THEN
-    ALTER TABLE customers ADD CONSTRAINT customers_phone_key UNIQUE (phone);
-  END IF;
-END $$;
-
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-BEGIN
-  INSERT INTO public.customers (id, email, full_name, phone)
-  VALUES (
-    NEW.id,
-    NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
-    COALESCE(NEW.phone, NEW.raw_user_meta_data->>'phone', NULL)
-  )
-  ON CONFLICT (id) DO NOTHING;
-
-  RETURN NEW;
-END;
-$$;
-
--- 2. Delivery zones ---------------------------------------------------------
+-- 1. Delivery zones ---------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS delivery_settings (
   id boolean PRIMARY KEY DEFAULT true,
@@ -117,27 +87,17 @@ GRANT EXECUTE ON FUNCTION get_delivery_fee(text) TO anon, authenticated;
 ALTER TABLE delivery_zones ENABLE ROW LEVEL SECURITY;
 ALTER TABLE delivery_settings ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can view delivery zones" ON delivery_zones;
 CREATE POLICY "Anyone can view delivery zones"
   ON delivery_zones FOR SELECT
   USING (true);
 
-CREATE POLICY "Admins can manage delivery zones"
-  ON delivery_zones FOR ALL
-  TO authenticated
-  USING (is_admin((select auth.uid())))
-  WITH CHECK (is_admin((select auth.uid())));
-
+DROP POLICY IF EXISTS "Anyone can view delivery settings" ON delivery_settings;
 CREATE POLICY "Anyone can view delivery settings"
   ON delivery_settings FOR SELECT
   USING (true);
 
-CREATE POLICY "Admins can manage delivery settings"
-  ON delivery_settings FOR ALL
-  TO authenticated
-  USING (is_admin((select auth.uid())))
-  WITH CHECK (is_admin((select auth.uid())));
-
--- 3. Payments ----------------------------------------------------------------
+-- 2. Payments ----------------------------------------------------------------
 
 DO $$
 BEGIN
@@ -147,101 +107,10 @@ BEGIN
   ) THEN
     ALTER TABLE orders ADD COLUMN razorpay_order_id text;
   END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'payment_transactions' AND column_name = 'gateway'
-  ) THEN
-    ALTER TABLE payment_transactions ADD COLUMN gateway text DEFAULT 'razorpay';
-  END IF;
 END $$;
 
 CREATE INDEX IF NOT EXISTS idx_orders_razorpay_order_id ON orders(razorpay_order_id);
 
--- 4. Product photo storage ---------------------------------------------------
+-- 3. Product photo storage ---------------------------------------------------
 
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('product-images', 'product-images', true)
-ON CONFLICT (id) DO NOTHING;
-
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE schemaname = 'storage' AND tablename = 'objects'
-    AND policyname = 'Public can view product images'
-  ) THEN
-    CREATE POLICY "Public can view product images"
-      ON storage.objects FOR SELECT
-      USING (bucket_id = 'product-images');
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE schemaname = 'storage' AND tablename = 'objects'
-    AND policyname = 'Admins can upload product images'
-  ) THEN
-    CREATE POLICY "Admins can upload product images"
-      ON storage.objects FOR INSERT
-      TO authenticated
-      WITH CHECK (bucket_id = 'product-images' AND is_admin((select auth.uid())));
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE schemaname = 'storage' AND tablename = 'objects'
-    AND policyname = 'Admins can update product images'
-  ) THEN
-    CREATE POLICY "Admins can update product images"
-      ON storage.objects FOR UPDATE
-      TO authenticated
-      USING (bucket_id = 'product-images' AND is_admin((select auth.uid())))
-      WITH CHECK (bucket_id = 'product-images' AND is_admin((select auth.uid())));
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE schemaname = 'storage' AND tablename = 'objects'
-    AND policyname = 'Admins can delete product images'
-  ) THEN
-    CREATE POLICY "Admins can delete product images"
-      ON storage.objects FOR DELETE
-      TO authenticated
-      USING (bucket_id = 'product-images' AND is_admin((select auth.uid())));
-  END IF;
-END $$;
-
--- 5. Admins need to manage products/variants/images directly ----------------
-
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'products' AND policyname = 'Admins can manage products'
-  ) THEN
-    CREATE POLICY "Admins can manage products"
-      ON products FOR ALL
-      TO authenticated
-      USING (is_admin((select auth.uid())))
-      WITH CHECK (is_admin((select auth.uid())));
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'product_variants' AND policyname = 'Admins can manage product variants'
-  ) THEN
-    CREATE POLICY "Admins can manage product variants"
-      ON product_variants FOR ALL
-      TO authenticated
-      USING (is_admin((select auth.uid())))
-      WITH CHECK (is_admin((select auth.uid())));
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'product_images' AND policyname = 'Admins can manage product images'
-  ) THEN
-    CREATE POLICY "Admins can manage product images"
-      ON product_images FOR ALL
-      TO authenticated
-      USING (is_admin((select auth.uid())))
-      WITH CHECK (is_admin((select auth.uid())));
-  END IF;
-END $$;
+UPDATE storage.buckets SET public = true WHERE id = 'Product Image';

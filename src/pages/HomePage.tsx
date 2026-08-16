@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { fetchProductsWithDetails } from '../lib/products';
 import { ProductWithDetails } from '../types';
 import CategoryCard from '../components/CategoryCard';
 import ProductCard from '../components/ProductCard';
@@ -48,34 +48,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
 
   const fetchProducts = async () => {
     try {
-      const { data: products, error: productsError } = await supabase
-        .from('products')
-        .select('*')
-
-      if (productsError) throw productsError;
-
-      const productsWithDetails = await Promise.all(
-        products.map(async (product) => {
-          const [variantsResult, imagesResult] = await Promise.all([
-            supabase
-              .from('product_variants')
-              .select('*')
-              .eq('product_id', product.id)
-              .order('sort_order', { ascending: true }),
-            supabase
-              .from('product_images')
-              .select('*')
-              .eq('product_id', product.id)
-              .order('sort_order', { ascending: true }),
-          ]);
-
-          return {
-            ...product,
-            variants: variantsResult.data || [],
-            images: imagesResult.data || [],
-          };
-        })
-      );
+      const productsWithDetails = await fetchProductsWithDetails();
 
       const bestsellersData = productsWithDetails.filter((p) => p.is_bestseller);
       setBestsellers(bestsellersData.slice(0, 8));

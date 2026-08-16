@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { fetchProductBySlug } from '../lib/products';
 import { ProductWithDetails } from '../types';
 import { useCart } from '../context/CartContext';
 import { ChevronLeft, ChevronRight, Check, ShoppingCart } from 'lucide-react';
@@ -26,37 +26,14 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
 
   const fetchProduct = async () => {
     try {
-      const { data: productData, error: productError } = await supabase
-        .from('products')
-        .select('*')
-        .eq('slug', productSlug)
-        .maybeSingle();
-
-      if (productError) throw productError;
+      const productData = await fetchProductBySlug(productSlug);
       if (!productData) {
         console.error('Product not found');
         setLoading(false);
         return;
       }
 
-      const [variantsResult, imagesResult] = await Promise.all([
-        supabase
-          .from('product_variants')
-          .select('*')
-          .eq('product_id', productData.id)
-          .order('sort_order', { ascending: true }),
-        supabase
-          .from('product_images')
-          .select('*')
-          .eq('product_id', productData.id)
-          .order('sort_order', { ascending: true }),
-      ]);
-
-      setProduct({
-        ...productData,
-        variants: variantsResult.data || [],
-        images: imagesResult.data || [],
-      });
+      setProduct(productData);
     } catch (error) {
       console.error('Error fetching product:', error);
     } finally {
@@ -296,11 +273,7 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
         </div>
 
         <div className="mt-8 bg-white rounded-2xl shadow-lg p-8">
-          <ProductReviews
-            productId={product.id}
-            averageRating={product.rating_average || 0}
-            totalReviews={product.rating_count || 0}
-          />
+          <ProductReviews productId={product.id} />
         </div>
       </div>
     </div>
