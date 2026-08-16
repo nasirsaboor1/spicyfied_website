@@ -101,22 +101,22 @@ export default function Header({
               )}
             </button>
 
-            {user && customer ? (
+            {user ? (
               <div className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center gap-2 p-2 hover:bg-white/10 rounded-full transition-colors"
                 >
                   <div className="w-8 h-8 bg-saffron-light rounded-full flex items-center justify-center text-ink font-bold">
-                    {customer.full_name[0].toUpperCase()}
+                    {(customer?.full_name || user.email || '?')[0].toUpperCase()}
                   </div>
                 </button>
 
                 {isUserMenuOpen && (
                   <div className="absolute right-0 top-full mt-2 w-56 bg-white text-ink rounded-lg shadow-xl py-2">
                     <div className="px-4 py-3 border-b border-gray-200">
-                      <p className="font-semibold text-ink">{customer.full_name}</p>
-                      <p className="text-sm text-gray-500">{customer.email}</p>
+                      <p className="font-semibold text-ink">{customer?.full_name || 'My Account'}</p>
+                      <p className="text-sm text-gray-500">{customer?.email || user.email}</p>
                     </div>
                     <button
                       onClick={() => {
@@ -218,7 +218,7 @@ export default function Header({
               Cart {totalItems > 0 && `(${totalItems})`}
             </button>
 
-            {user && customer ? (
+            {user ? (
               <>
                 <button
                   onClick={() => { onNavigateToDashboard?.(); setIsMenuOpen(false); }}
@@ -234,6 +234,15 @@ export default function Header({
                   <Package className="w-5 h-5" />
                   My Orders
                 </button>
+                {onNavigateToAdmin && (
+                  <button
+                    onClick={() => { onNavigateToAdmin(); setIsMenuOpen(false); }}
+                    className="flex items-center gap-2 hover:text-saffron-light transition-colors font-medium"
+                  >
+                    <Shield className="w-5 h-5" />
+                    Admin Panel
+                  </button>
+                )}
                 <button
                   onClick={() => { signOut(); setIsMenuOpen(false); }}
                   className="flex items-center gap-2 hover:text-saffron-light transition-colors font-medium text-red-400"

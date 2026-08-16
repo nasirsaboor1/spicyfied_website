@@ -86,22 +86,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Failed to create user account. Please try again.');
       }
 
-      // Customer profile is automatically created by database trigger
-      // Wait a moment to ensure trigger completes
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      // Verify customer profile was created
-      const { data: customerData, error: customerError } = await supabase
-        .from('customers')
-        .select('id')
-        .eq('id', authData.user.id)
-        .maybeSingle();
-
-      if (customerError || !customerData) {
-        console.error('Customer profile verification failed:', customerError);
-        throw new Error('Account created but profile setup incomplete. Please contact support.');
-      }
-
       return { error: null };
     } catch (error) {
       console.error('Signup error:', error);
