@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, ShoppingCart, Menu, X, User, Package, LogOut, Shield } from 'lucide-react';
+import { Search, ShoppingCart, Menu, X, User, Package, LogOut } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -10,7 +10,6 @@ interface HeaderProps {
   onNavigateToSignup?: () => void;
   onNavigateToOrders?: () => void;
   onNavigateToDashboard?: () => void;
-  onNavigateToAdmin?: () => void;
   onNavigateToContact?: () => void;
 }
 
@@ -21,7 +20,6 @@ export default function Header({
   onNavigateToSignup,
   onNavigateToOrders,
   onNavigateToDashboard,
-  onNavigateToAdmin,
   onNavigateToContact
 }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -138,18 +136,6 @@ export default function Header({
                       <Package className="w-4 h-4" />
                       My Orders
                     </button>
-                    {onNavigateToAdmin && (
-                      <button
-                        onClick={() => {
-                          onNavigateToAdmin();
-                          setIsUserMenuOpen(false);
-                        }}
-                        className="w-full px-4 py-2 text-left hover:bg-cream-soft flex items-center gap-2"
-                      >
-                        <Shield className="w-4 h-4" />
-                        Admin Panel
-                      </button>
-                    )}
                     <button
                       onClick={() => {
                         signOut();
@@ -234,15 +220,6 @@ export default function Header({
                   <Package className="w-5 h-5" />
                   My Orders
                 </button>
-                {onNavigateToAdmin && (
-                  <button
-                    onClick={() => { onNavigateToAdmin(); setIsMenuOpen(false); }}
-                    className="flex items-center gap-2 hover:text-saffron-light transition-colors font-medium"
-                  >
-                    <Shield className="w-5 h-5" />
-                    Admin Panel
-                  </button>
-                )}
                 <button
                   onClick={() => { signOut(); setIsMenuOpen(false); }}
                   className="flex items-center gap-2 hover:text-saffron-light transition-colors font-medium text-red-400"

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
+import { supabase } from './lib/supabase';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Cart from './components/Cart';
@@ -135,6 +136,24 @@ function App() {
     window.scrollTo(0, 0);
   };
 
+  const handleLoginSuccess = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: adminRow } = await supabase
+        .from('admin_users')
+        .select('id')
+        .eq('id', user.id)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (adminRow) {
+        navigateToAdmin();
+        return;
+      }
+    }
+    navigateToHome();
+  };
+
   const navigateToPrivacy = () => {
     setCurrentPage('privacy');
     window.history.pushState({}, '', '/privacy');
@@ -177,7 +196,6 @@ function App() {
               onNavigateToSignup={navigateToSignup}
               onNavigateToOrders={navigateToOrders}
               onNavigateToDashboard={navigateToDashboard}
-              onNavigateToAdmin={navigateToAdmin}
               onNavigateToContact={navigateToContact}
             />
           )}
@@ -210,7 +228,7 @@ function App() {
         {currentPage === 'login' && (
           <LoginPage
             onNavigateToSignup={navigateToSignup}
-            onLoginSuccess={navigateToHome}
+            onLoginSuccess={handleLoginSuccess}
           />
         )}
 
