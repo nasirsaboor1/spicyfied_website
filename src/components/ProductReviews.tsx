@@ -9,8 +9,8 @@ interface Review {
   rating: number;
   title: string | null;
   comment: string | null;
-  is_verified_purchase: boolean;
-  created_at: string;
+  is_verified_purchase: boolean | null;
+  created_at: string | null;
 }
 
 interface ProductReviewsProps {
@@ -203,7 +203,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                 <StarRating rating={review.rating} size="sm" />
               </div>
               <p className="text-sm text-gray-500">
-                {new Date(review.created_at).toLocaleDateString()}
+                {review.created_at ? new Date(review.created_at).toLocaleDateString() : ''}
               </p>
             </div>
 

@@ -1,0 +1,188 @@
+import { useState, useEffect } from 'react';
+import { Loader, Search, Package, Plus, Edit, Trash2, Star, EyeOff } from 'lucide-react';
+import {
+  AdminProduct,
+  AdminCategory,
+  listAdminProducts,
+  listCategories,
+  deleteProduct,
+} from '../../lib/adminProducts';
+import ProductFormModal from './ProductFormModal';
+
+export default function AdminProductsView() {
+  const [products, setProducts] = useState<AdminProduct[]>([]);
+  const [categories, setCategories] = useState<AdminCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [editingProduct, setEditingProduct] = useState<AdminProduct | null | 'new'>(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const [productsData, categoriesData] = await Promise.all([
+        listAdminProducts(),
+        listCategories(),
+      ]);
+      setProducts(productsData);
+      setCategories(categoriesData);
+    } catch (err: any) {
+      console.error('Error loading products:', err);
+      setError(err.message || 'Failed to load products');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaved = async (savedProductId: string) => {
+    const productsData = await listAdminProducts();
+    setProducts(productsData);
+    const fresh = productsData.find((p) => p.id === savedProductId);
+    if (fresh) setEditingProduct(fresh);
+  };
+
+  const handleDelete = async (product: AdminProduct) => {
+    if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
+    try {
+      await deleteProduct(product.id);
+      setProducts((p) => p.filter((x) => x.id !== product.id));
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete product');
+    }
+  };
+
+  const filteredProducts = products.filter((p) => {
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = categoryFilter === 'all' || p.category_id === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader className="w-8 h-8 animate-spin text-ink" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-600">
+          {error}
+        </div>
+      )}
+
+      <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+            />
+          </div>
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+          >
+            <option value="all">All Categories</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() => setEditingProduct('new')}
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-ink text-white rounded-lg font-semibold hover:bg-ink-light transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Add Product
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          {filteredProducts.map((product) => {
+            const primaryImage =
+              product.product_images.find((i) => i.is_primary) || product.product_images[0];
+            return (
+              <div
+                key={product.id}
+                className="flex items-center gap-4 border border-gray-200 rounded-lg p-3"
+              >
+                {primaryImage ? (
+                  <img
+                    src={primaryImage.resolved_url}
+                    alt={product.name}
+                    className="w-14 h-14 object-cover rounded-lg flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-14 h-14 bg-cream-soft rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Package className="w-6 h-6 text-gray-400" />
+                  </div>
+                )}
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-gray-900 truncate">{product.name}</h3>
+                    {product.is_featured && (
+                      <Star className="w-3.5 h-3.5 text-saffron flex-shrink-0" />
+                    )}
+                    {!product.is_active && (
+                      <span className="flex items-center gap-1 text-xs text-gray-500 flex-shrink-0">
+                        <EyeOff className="w-3 h-3" />
+                        Hidden
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    {product.categories?.name || 'Uncategorised'} &middot; ₹
+                    {Math.round(product.base_price)} &middot; {product.product_variants.length}{' '}
+                    size{product.product_variants.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setEditingProduct(product)}
+                  className="p-2 text-ink hover:bg-cream-soft rounded-lg transition-colors"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleDelete(product)}
+                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        {filteredProducts.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No products found</p>
+          </div>
+        )}
+      </div>
+
+      {editingProduct && (
+        <ProductFormModal
+          product={editingProduct === 'new' ? null : editingProduct}
+          categories={categories}
+          onClose={() => setEditingProduct(null)}
+          onSaved={handleSaved}
+        />
+      )}
+    </div>
+  );
+}

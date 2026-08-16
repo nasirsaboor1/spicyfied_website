@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { Loader, Package, ShoppingBag, Tag, BarChart3 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AdminOrdersView from '../components/admin/AdminOrdersView';
-import AdminInventoryView from '../components/admin/AdminInventoryView';
+import AdminProductsView from '../components/admin/AdminProductsView';
 import AdminCouponsView from '../components/admin/AdminCouponsView';
 import AdminDashboardView from '../components/admin/AdminDashboardView';
 
@@ -11,7 +11,7 @@ interface AdminPageProps {
   onNavigateToLogin: () => void;
 }
 
-type AdminView = 'dashboard' | 'orders' | 'inventory' | 'coupons';
+type AdminView = 'dashboard' | 'orders' | 'products' | 'coupons';
 
 export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
   const { user } = useAuth();
@@ -81,7 +81,7 @@ export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'orders', label: 'Orders', icon: ShoppingBag },
-    { id: 'inventory', label: 'Inventory', icon: Package },
+    { id: 'products', label: 'Products', icon: Package },
     { id: 'coupons', label: 'Coupons', icon: Tag },
   ];
 
@@ -120,7 +120,7 @@ export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
           <main className="flex-1">
             {currentView === 'dashboard' && <AdminDashboardView />}
             {currentView === 'orders' && <AdminOrdersView />}
-            {currentView === 'inventory' && <AdminInventoryView />}
+            {currentView === 'products' && <AdminProductsView />}
             {currentView === 'coupons' && <AdminCouponsView />}
           </main>
         </div>
