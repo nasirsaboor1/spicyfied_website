@@ -263,6 +263,36 @@ export type Database = {
           },
         ]
       }
+      contact_submissions: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          phone: string | null
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          phone?: string | null
+          subject: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          phone?: string | null
+          subject?: string
+        }
+        Relationships: []
+      }
       content_pages: {
         Row: {
           content: string | null
@@ -959,6 +989,23 @@ export type Database = {
     Functions: {
       get_delivery_fee: { Args: { p_postal_code: string }; Returns: number }
       is_admin: { Args: { user_id: string }; Returns: boolean }
+      promote_to_admin: {
+        Args: { target_email: string }
+        Returns: {
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          is_active: boolean
+          role: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "admin_users"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       [_ in never]: never

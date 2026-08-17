@@ -14,13 +14,14 @@ import CheckoutPage from './pages/CheckoutPage';
 import OrdersPage from './pages/OrdersPage';
 import DashboardPage from './pages/DashboardPage';
 import AdminPage from './pages/AdminPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsConditionsPage from './pages/TermsConditionsPage';
 import ShippingDeliveryPage from './pages/ShippingDeliveryPage';
 import RefundCancellationPage from './pages/RefundCancellationPage';
 import ContactPage from './pages/ContactPage';
 
-type Page = 'home' | 'shop' | 'product' | 'login' | 'signup' | 'checkout' | 'orders' | 'dashboard' | 'admin' | 'privacy' | 'terms' | 'shipping' | 'refund' | 'contact';
+type Page = 'home' | 'shop' | 'product' | 'login' | 'signup' | 'checkout' | 'orders' | 'dashboard' | 'admin' | 'reset-password' | 'privacy' | 'terms' | 'shipping' | 'refund' | 'contact';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
@@ -50,6 +51,8 @@ function App() {
         setCurrentPage('dashboard');
       } else if (path === '/admin') {
         setCurrentPage('admin');
+      } else if (path === '/reset-password') {
+        setCurrentPage('reset-password');
       } else if (path === '/privacy') {
         setCurrentPage('privacy');
       } else if (path === '/terms') {
@@ -188,7 +191,7 @@ function App() {
     <AuthProvider>
       <CartProvider>
         <div className="min-h-screen bg-gray-50">
-          {currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin' && (
+          {currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin' && currentPage !== 'reset-password' && (
             <Header
               onSearch={handleSearch}
               onCategoryChange={handleCategoryChange}
@@ -199,7 +202,7 @@ function App() {
               onNavigateToContact={navigateToContact}
             />
           )}
-          {currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin' && (
+          {currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin' && currentPage !== 'reset-password' && (
             <Cart onNavigateToCheckout={navigateToCheckout} />
           )}
 
@@ -265,6 +268,10 @@ function App() {
           />
         )}
 
+        {currentPage === 'reset-password' && (
+          <ResetPasswordPage onDone={handleLoginSuccess} />
+        )}
+
         {currentPage === 'privacy' && (
           <PrivacyPolicyPage
             onNavigateHome={navigateToHome}
@@ -295,7 +302,7 @@ function App() {
           />
         )}
 
-        {currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin' && (
+        {currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin' && currentPage !== 'reset-password' && (
           <Footer
             onNavigateToPrivacy={navigateToPrivacy}
             onNavigateToTerms={navigateToTerms}

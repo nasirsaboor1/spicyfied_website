@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Lock, LogIn } from 'lucide-react';
+import { Mail, Lock, LogIn, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface LoginPageProps {
@@ -8,11 +8,17 @@ interface LoginPageProps {
 }
 
 export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginPageProps) {
-  const { signIn } = useAuth();
+  const { signIn, requestPasswordReset } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSending, setResetSending] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+  const [resetError, setResetError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +42,104 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
       onLoginSuccess();
     }
   };
+
+  const handleSendReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetError('');
+    setResetSending(true);
+
+    const { error } = await requestPasswordReset(resetEmail);
+
+    setResetSending(false);
+    if (error) {
+      setResetError(error.message);
+    } else {
+      setResetSent(true);
+    }
+  };
+
+  if (showForgotPassword) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#211C17] to-[#3F5A34] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+          <div className="bg-white rounded-2xl shadow-2xl p-8">
+            <div className="text-center mb-8">
+              <div className="inline-block p-3 bg-[#211C17]/10 rounded-full mb-4">
+                <Mail className="w-12 h-12 text-[#211C17]" />
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900">Reset Password</h2>
+              <p className="text-gray-600 mt-2">
+                {resetSent
+                  ? "We've sent a reset link to your email."
+                  : "Enter your email and we'll send you a link to reset your password."}
+              </p>
+            </div>
+
+            {resetSent ? (
+              <div className="text-center space-y-6">
+                <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <p className="text-sm text-green-800 text-left">
+                    Check <strong>{resetEmail}</strong> for a password reset link. It may take a
+                    few minutes to arrive — check spam too.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowForgotPassword(false);
+                    setResetSent(false);
+                    setResetEmail('');
+                  }}
+                  className="text-[#211C17] font-semibold hover:underline"
+                >
+                  Back to Sign In
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSendReset} className="space-y-6">
+                {resetError && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-600">{resetError}</p>
+                  </div>
+                )}
+                <div>
+                  <label htmlFor="reset-email" className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      id="reset-email"
+                      type="email"
+                      required
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                      placeholder="you@example.com"
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  disabled={resetSending}
+                  className="w-full bg-[#211C17] text-white py-3 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {resetSending ? 'Sending...' : 'Send Reset Link'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(false)}
+                  className="w-full text-center text-[#211C17] font-semibold hover:underline"
+                >
+                  Back to Sign In
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#211C17] to-[#3F5A34] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -75,9 +179,21 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetEmail(email);
+                    setShowForgotPassword(true);
+                  }}
+                  className="text-sm text-[#211C17] font-medium hover:underline"
+                >
+                  Forgot password?
+                </button>
+              </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input

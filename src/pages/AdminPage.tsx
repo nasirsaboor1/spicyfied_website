@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Loader, Package, ShoppingBag, Tag, BarChart3 } from 'lucide-react';
+import { Loader, Package, ShoppingBag, Tag, BarChart3, Users } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AdminOrdersView from '../components/admin/AdminOrdersView';
 import AdminProductsView from '../components/admin/AdminProductsView';
 import AdminCouponsView from '../components/admin/AdminCouponsView';
 import AdminDashboardView from '../components/admin/AdminDashboardView';
+import AdminTeamView from '../components/admin/AdminTeamView';
 
 interface AdminPageProps {
   onNavigateToLogin: () => void;
 }
 
-type AdminView = 'dashboard' | 'orders' | 'products' | 'coupons';
+type AdminView = 'dashboard' | 'orders' | 'products' | 'coupons' | 'team';
 
 export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
   const { user } = useAuth();
@@ -83,6 +84,7 @@ export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
     { id: 'orders', label: 'Orders', icon: ShoppingBag },
     { id: 'products', label: 'Products', icon: Package },
     { id: 'coupons', label: 'Coupons', icon: Tag },
+    { id: 'team', label: 'Team', icon: Users },
   ];
 
   return (
@@ -122,6 +124,7 @@ export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
             {currentView === 'orders' && <AdminOrdersView />}
             {currentView === 'products' && <AdminProductsView />}
             {currentView === 'coupons' && <AdminCouponsView />}
+            {currentView === 'team' && <AdminTeamView />}
           </main>
         </div>
       </div>
