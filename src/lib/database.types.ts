@@ -329,6 +329,33 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_profiles: {
+        Row: {
+          created_at: string | null
+          full_name: string
+          id: string
+          phone: string | null
+          phone_verified: boolean
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          full_name?: string
+          id: string
+          phone?: string | null
+          phone_verified?: boolean
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          full_name?: string
+          id?: string
+          phone?: string | null
+          phone_verified?: boolean
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       delivery_settings: {
         Row: {
           base_pincode: string
@@ -497,6 +524,7 @@ export type Database = {
       orders: {
         Row: {
           created_at: string | null
+          delivery_type: string
           email: string
           id: string
           notes: string | null
@@ -517,6 +545,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          delivery_type?: string
           email: string
           id?: string
           notes?: string | null
@@ -537,6 +566,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          delivery_type?: string
           email?: string
           id?: string
           notes?: string | null

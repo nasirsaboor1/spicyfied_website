@@ -4,9 +4,9 @@ import type { User } from '@supabase/supabase-js';
 
 interface Customer {
   id: string;
-  email: string;
   full_name: string;
   phone: string | null;
+  phone_verified: boolean;
 }
 
 interface AuthContextType {
@@ -19,6 +19,8 @@ interface AuthContextType {
   updateProfile: (fullName: string, phone: string) => Promise<{ error: Error | null }>;
   requestPasswordReset: (email: string) => Promise<{ error: Error | null }>;
   updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
+  sendEmailOtp: (email: string) => Promise<{ error: Error | null }>;
+  verifyEmailOtp: (email: string, token: string) => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -55,7 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loadCustomerProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
-        .from('customers')
+        .from('customer_profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
@@ -118,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     try {
       const { error } = await supabase
-        .from('customers')
+        .from('customer_profiles')
         .update({
           full_name: fullName,
           phone,
@@ -156,6 +158,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const sendEmailOtp = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: true },
+      });
+      if (error) throw error;
+      return { error: null };
+    } catch (error) {
+      return { error: error as Error };
+    }
+  };
+
+  const verifyEmailOtp = async (email: string, token: string) => {
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token,
+        type: 'email',
+      });
+      if (error) throw error;
+      return { error: null };
+    } catch (error) {
+      return { error: error as Error };
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -168,6 +197,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateProfile,
         requestPasswordReset,
         updatePassword,
+        sendEmailOtp,
+        verifyEmailOtp,
       }}
     >
       {children}

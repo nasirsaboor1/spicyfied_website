@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MapPin, Plus, CreditCard, Loader, CheckCircle, Tag, X, Truck } from 'lucide-react';
+import { MapPin, Plus, CreditCard, Loader, CheckCircle, Truck, Store, Info } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { supabase } from '../lib/supabase';
@@ -8,7 +8,6 @@ import BulkPricingNote from '../components/BulkPricingNote';
 
 interface Address {
   id: string;
-  address_type: string;
   full_name: string;
   phone: string;
   address_line1: string;
@@ -17,7 +16,7 @@ interface Address {
   state: string;
   postal_code: string;
   country: string;
-  is_default: boolean;
+  is_default: boolean | null;
 }
 
 interface CheckoutPageProps {
@@ -25,8 +24,38 @@ interface CheckoutPageProps {
   onNavigateToLogin: () => void;
 }
 
+type DeliveryType = 'delivery' | 'pickup';
+type PaymentMethod = 'cod' | 'card' | 'upi';
+
+function generateOrderNumber() {
+  const date = new Date();
+  const ymd = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
+  const random = Math.floor(1000 + Math.random() * 9000);
+  return `SPZ-${ymd}-${random}`;
+}
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
+function loadRazorpayScript(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
 export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: CheckoutPageProps) {
-  const { user, customer } = useAuth();
+  const { user } = useAuth();
   const { cart, clearCart, getTotalPrice } = useCart();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
@@ -35,17 +64,18 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
   const [notes, setNotes] = useState('');
-  const [couponCode, setCouponCode] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
-  const [couponError, setCouponError] = useState('');
-  const [applyingCoupon, setApplyingCoupon] = useState(false);
+
+  const [deliveryType, setDeliveryType] = useState<DeliveryType>('delivery');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('upi');
   const [deliveryFee, setDeliveryFee] = useState<number | null>(null);
   const [deliveryFeeLoading, setDeliveryFeeLoading] = useState(false);
 
+  const [pickupName, setPickupName] = useState('');
+  const [pickupPhone, setPickupPhone] = useState('');
+
   const [addressForm, setAddressForm] = useState({
-    address_type: 'home',
-    full_name: customer?.full_name || '',
-    phone: customer?.phone || '',
+    full_name: '',
+    phone: '',
     address_line1: '',
     address_line2: '',
     city: '',
@@ -71,6 +101,14 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
   }, [user, cart]);
 
   useEffect(() => {
+    if (deliveryType === 'pickup') {
+      setDeliveryFee(0);
+      setPaymentMethod('cod');
+      return;
+    }
+
+    setPaymentMethod((prev) => (prev === 'cod' ? 'upi' : prev));
+
     const address = addresses.find((addr) => addr.id === selectedAddress);
     if (!address) {
       setDeliveryFee(null);
@@ -90,14 +128,14 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
     return () => {
       cancelled = true;
     };
-  }, [selectedAddress, addresses]);
+  }, [selectedAddress, addresses, deliveryType]);
 
   const loadAddresses = async () => {
     try {
       const { data, error } = await supabase
         .from('addresses')
         .select('*')
-        .eq('customer_id', user!.id)
+        .eq('user_id', user!.id)
         .order('is_default', { ascending: false });
 
       if (error) throw error;
@@ -124,7 +162,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
       const { data, error } = await supabase
         .from('addresses')
         .insert({
-          customer_id: user!.id,
+          user_id: user!.id,
           ...addressForm,
         })
         .select()
@@ -137,9 +175,8 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
       setShowAddressForm(false);
 
       setAddressForm({
-        address_type: 'home',
-        full_name: customer?.full_name || '',
-        phone: customer?.phone || '',
+        full_name: '',
+        phone: '',
         address_line1: '',
         address_line2: '',
         city: '',
@@ -153,96 +190,21 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
     }
   };
 
-  const handleApplyCoupon = async () => {
-    if (!couponCode.trim()) {
-      setCouponError('Please enter a coupon code');
-      return;
-    }
-
-    setApplyingCoupon(true);
-    setCouponError('');
-
-    try {
-      const { data: coupon, error: couponFetchError } = await supabase
-        .from('coupons')
-        .select('*')
-        .eq('code', couponCode.toUpperCase())
-        .eq('is_active', true)
-        .maybeSingle();
-
-      if (couponFetchError) throw couponFetchError;
-
-      if (!coupon) {
-        setCouponError('Invalid coupon code');
-        return;
-      }
-
-      const now = new Date();
-      const validFrom = new Date(coupon.valid_from);
-      const validUntil = coupon.valid_until ? new Date(coupon.valid_until) : null;
-
-      if (now < validFrom) {
-        setCouponError('This coupon is not yet valid');
-        return;
-      }
-
-      if (validUntil && now > validUntil) {
-        setCouponError('This coupon has expired');
-        return;
-      }
-
-      if (coupon.usage_limit && coupon.usage_count >= coupon.usage_limit) {
-        setCouponError('This coupon has reached its usage limit');
-        return;
-      }
-
-      const subtotal = getTotalPrice();
-      if (subtotal < coupon.min_order_value) {
-        setCouponError(`Minimum order value of ₹${Math.round(coupon.min_order_value)} required`);
-        return;
-      }
-
-      setAppliedCoupon(coupon);
-      setCouponCode('');
-    } catch (err: any) {
-      setCouponError('Failed to apply coupon');
-      console.error('Error applying coupon:', err);
-    } finally {
-      setApplyingCoupon(false);
-    }
-  };
-
-  const handleRemoveCoupon = () => {
-    setAppliedCoupon(null);
-    setCouponError('');
-  };
-
-  const calculateDiscount = () => {
-    if (!appliedCoupon) return 0;
-
-    const subtotal = getTotalPrice();
-    let discount = 0;
-
-    if (appliedCoupon.discount_type === 'percentage') {
-      discount = (subtotal * appliedCoupon.discount_value) / 100;
-      if (appliedCoupon.max_discount) {
-        discount = Math.min(discount, appliedCoupon.max_discount);
-      }
-    } else {
-      discount = appliedCoupon.discount_value;
-    }
-
-    return discount;
-  };
-
   const handlePlaceOrder = async () => {
-    if (!selectedAddress) {
+    if (deliveryType === 'delivery' && !selectedAddress) {
       setError('Please select a delivery address');
       return;
     }
 
-    const address = addresses.find((addr) => addr.id === selectedAddress);
-    if (!address) {
+    if (deliveryType === 'pickup' && (!pickupName.trim() || !pickupPhone.trim())) {
+      setError('Please enter your name and phone number for pickup');
+      return;
+    }
+
+    const address =
+      deliveryType === 'delivery' ? addresses.find((addr) => addr.id === selectedAddress) : null;
+
+    if (deliveryType === 'delivery' && !address) {
       setError('Please select a delivery address');
       return;
     }
@@ -252,32 +214,31 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
 
     try {
       const subtotal = getTotalPrice();
-      const discountAmount = calculateDiscount();
       const taxAmount = subtotal * 0.05;
-      const shippingFee = await getDeliveryFee(address.postal_code);
-      const totalAmount = subtotal + taxAmount + shippingFee - discountAmount;
+      const shippingFee = deliveryType === 'pickup' ? 0 : await getDeliveryFee(address!.postal_code);
+      const totalAmount = subtotal + taxAmount + shippingFee;
 
-      const { data: orderNumberData } = await supabase
-        .rpc('generate_order_number');
-
-      const orderNumber = orderNumberData || `ORD-${Date.now()}`;
+      const orderNotes =
+        deliveryType === 'pickup'
+          ? `Pickup contact: ${pickupName.trim()}, ${pickupPhone.trim()}${notes ? ` | ${notes}` : ''}`
+          : notes;
 
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
-          order_number: orderNumber,
-          customer_id: user!.id,
+          order_number: generateOrderNumber(),
+          user_id: user!.id,
+          email: user!.email!,
           status: 'pending',
           subtotal,
           tax_amount: taxAmount,
-          shipping_fee: shippingFee,
-          discount_amount: discountAmount,
+          shipping_amount: shippingFee,
           total_amount: totalAmount,
-          payment_method: 'cod',
-          payment_status: 'pending',
-          shipping_address_id: selectedAddress,
-          notes,
-          estimated_delivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          payment_method: paymentMethod,
+          payment_status: paymentMethod === 'cod' ? 'pending' : 'pending',
+          delivery_type: deliveryType,
+          shipping_address_id: deliveryType === 'delivery' ? selectedAddress : null,
+          notes: orderNotes || null,
         })
         .select()
         .single();
@@ -289,33 +250,22 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
         product_id: item.product.id,
         variant_id: item.variant.id,
         product_name: item.product.name,
-        variant_size: item.variant.size,
-        price: item.variant.price,
+        variant_name: item.variant.size,
+        unit_price: item.variant.price,
         quantity: item.quantity,
-        subtotal: item.variant.price * item.quantity,
+        total_price: item.variant.price * item.quantity,
       }));
 
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
+      const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
 
       if (itemsError) throw itemsError;
 
-      const { error: historyError } = await supabase
-        .from('order_status_history')
-        .insert({
-          order_id: order.id,
-          status: 'pending',
-          notes: 'Order placed',
-        });
-
-      if (historyError) throw historyError;
-
-      if (appliedCoupon) {
-        await supabase
-          .from('coupons')
-          .update({ usage_count: appliedCoupon.usage_count + 1 })
-          .eq('id', appliedCoupon.id);
+      if (deliveryType === 'delivery' && paymentMethod !== 'cod') {
+        const paidViaRazorpay = await tryRazorpayPayment(order.id);
+        if (!paidViaRazorpay) {
+          // Razorpay isn't configured yet, or the user closed the payment
+          // window - the order is already saved as pending either way.
+        }
       }
 
       clearCart();
@@ -323,6 +273,54 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
     } catch (err: any) {
       setError(err.message);
       setProcessing(false);
+    }
+  };
+
+  const tryRazorpayPayment = async (orderId: string): Promise<boolean> => {
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('create-razorpay-order', {
+        body: { orderId },
+      });
+
+      if (fnError || !data?.razorpay_order_id) {
+        return false;
+      }
+
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        return false;
+      }
+
+      return await new Promise<boolean>((resolve) => {
+        const rzp = new window.Razorpay({
+          key: data.key_id,
+          amount: data.amount,
+          currency: data.currency,
+          name: 'Spicyfied',
+          description: 'Order payment',
+          order_id: data.razorpay_order_id,
+          prefill: { email: user?.email },
+          handler: async (response: any) => {
+            const { error: verifyError } = await supabase.functions.invoke('verify-razorpay-payment', {
+              body: {
+                orderId,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              },
+            });
+            resolve(!verifyError);
+          },
+          modal: {
+            ondismiss: () => resolve(false),
+          },
+          theme: { color: '#211C17' },
+        });
+        rzp.open();
+      });
+    } catch (err) {
+      console.error('Razorpay payment error:', err);
+      return false;
     }
   };
 
@@ -351,10 +349,15 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
   }
 
   const subtotal = getTotalPrice();
-  const discountAmount = calculateDiscount();
   const taxAmount = subtotal * 0.05;
-  const shippingFee = deliveryFee ?? 0;
-  const totalAmount = subtotal + taxAmount + shippingFee - discountAmount;
+  const shippingFee = deliveryType === 'pickup' ? 0 : deliveryFee ?? 0;
+  const totalAmount = subtotal + taxAmount + shippingFee;
+  const canPlaceOrder =
+    !processing &&
+    !deliveryFeeLoading &&
+    (deliveryType === 'pickup'
+      ? pickupName.trim() && pickupPhone.trim()
+      : !!selectedAddress);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
@@ -364,168 +367,240 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-xl shadow-md p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-[#211C17]" />
-                  Delivery Address
-                </h2>
-                {addresses.length > 0 && !showAddressForm && (
-                  <button
-                    onClick={() => setShowAddressForm(true)}
-                    className="flex items-center gap-2 text-[#211C17] hover:underline font-medium"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add New
-                  </button>
-                )}
+              <h2 className="text-xl font-bold text-gray-900 mb-4">How would you like your order?</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setDeliveryType('delivery')}
+                  className={`flex items-center gap-3 p-4 border-2 rounded-lg transition-all ${
+                    deliveryType === 'delivery'
+                      ? 'border-[#211C17] bg-[#211C17]/5'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <Truck className="w-6 h-6 text-[#211C17]" />
+                  <div className="text-left">
+                    <p className="font-semibold text-gray-900">Delivery</p>
+                    <p className="text-xs text-gray-500">Card / UPI</p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeliveryType('pickup')}
+                  className={`flex items-center gap-3 p-4 border-2 rounded-lg transition-all ${
+                    deliveryType === 'pickup'
+                      ? 'border-[#211C17] bg-[#211C17]/5'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <Store className="w-6 h-6 text-[#211C17]" />
+                  <div className="text-left">
+                    <p className="font-semibold text-gray-900">Pickup from Shop</p>
+                    <p className="text-xs text-gray-500">Cash on pickup</p>
+                  </div>
+                </button>
               </div>
+            </div>
 
-              {error && (
-                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-600">{error}</p>
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+
+            {deliveryType === 'delivery' ? (
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-[#211C17]" />
+                    Delivery Address
+                  </h2>
+                  {addresses.length > 0 && !showAddressForm && (
+                    <button
+                      onClick={() => setShowAddressForm(true)}
+                      className="flex items-center gap-2 text-[#211C17] hover:underline font-medium"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add New
+                    </button>
+                  )}
                 </div>
-              )}
 
-              {showAddressForm ? (
-                <form onSubmit={handleAddAddress} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {showAddressForm ? (
+                  <form onSubmit={handleAddAddress} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                        <input
+                          type="text"
+                          required
+                          value={addressForm.full_name}
+                          onChange={(e) => setAddressForm({ ...addressForm, full_name: e.target.value })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                        <input
+                          type="tel"
+                          required
+                          value={addressForm.phone}
+                          onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Address Line 1</label>
                       <input
                         type="text"
                         required
-                        value={addressForm.full_name}
-                        onChange={(e) => setAddressForm({ ...addressForm, full_name: e.target.value })}
+                        value={addressForm.address_line1}
+                        onChange={(e) => setAddressForm({ ...addressForm, address_line1: e.target.value })}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                      <input
-                        type="tel"
-                        required
-                        value={addressForm.phone}
-                        onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
-                      />
-                    </div>
-                  </div>
 
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Address Line 2</label>
+                      <input
+                        type="text"
+                        value={addressForm.address_line2}
+                        onChange={(e) => setAddressForm({ ...addressForm, address_line2: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                        <input
+                          type="text"
+                          required
+                          value={addressForm.city}
+                          onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
+                        <input
+                          type="text"
+                          required
+                          value={addressForm.state}
+                          onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">PIN Code</label>
+                        <input
+                          type="text"
+                          required
+                          pattern="[0-9]{6}"
+                          value={addressForm.postal_code}
+                          onChange={(e) => setAddressForm({ ...addressForm, postal_code: e.target.value })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex gap-4">
+                      <button
+                        type="submit"
+                        className="flex-1 bg-[#211C17] text-white py-2 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors"
+                      >
+                        Save Address
+                      </button>
+                      {addresses.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setShowAddressForm(false)}
+                          className="flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                ) : (
+                  <div className="space-y-3">
+                    {addresses.map((address) => (
+                      <label
+                        key={address.id}
+                        className={`block p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                          selectedAddress === address.id
+                            ? 'border-[#211C17] bg-[#211C17]/5'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="address"
+                          value={address.id}
+                          checked={selectedAddress === address.id}
+                          onChange={() => setSelectedAddress(address.id)}
+                          className="sr-only"
+                        />
+                        <div className="flex items-start gap-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-semibold text-gray-900">{address.full_name}</p>
+                              {address.is_default && (
+                                <span className="px-2 py-1 bg-[#211C17] text-white text-xs rounded">Default</span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-600">{address.phone}</p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {address.address_line1}, {address.address_line2 && `${address.address_line2}, `}
+                              {address.city}, {address.state} {address.postal_code}
+                            </p>
+                          </div>
+                          {selectedAddress === address.id && (
+                            <CheckCircle className="w-5 h-5 text-[#211C17]" />
+                          )}
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <Store className="w-5 h-5 text-[#211C17]" />
+                  Pickup Details
+                </h2>
+                <div className="mb-4 p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
+                  <p className="font-semibold text-gray-900 mb-1">Spicyfied</p>
+                  <p>J-31/95, B-1, Amina Tower, Kachi Bagh, Pili Kothi,</p>
+                  <p>Varanasi - 221001, Uttar Pradesh, India</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Address Line 1</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
                     <input
                       type="text"
                       required
-                      value={addressForm.address_line1}
-                      onChange={(e) => setAddressForm({ ...addressForm, address_line1: e.target.value })}
+                      value={pickupName}
+                      onChange={(e) => setPickupName(e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                     />
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Address Line 2</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
                     <input
-                      type="text"
-                      value={addressForm.address_line2}
-                      onChange={(e) => setAddressForm({ ...addressForm, address_line2: e.target.value })}
+                      type="tel"
+                      required
+                      value={pickupPhone}
+                      onChange={(e) => setPickupPhone(e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                     />
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                      <input
-                        type="text"
-                        required
-                        value={addressForm.city}
-                        onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
-                      <input
-                        type="text"
-                        required
-                        value={addressForm.state}
-                        onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">PIN Code</label>
-                      <input
-                        type="text"
-                        required
-                        pattern="[0-9]{6}"
-                        value={addressForm.postal_code}
-                        onChange={(e) => setAddressForm({ ...addressForm, postal_code: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4">
-                    <button
-                      type="submit"
-                      className="flex-1 bg-[#211C17] text-white py-2 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors"
-                    >
-                      Save Address
-                    </button>
-                    {addresses.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => setShowAddressForm(false)}
-                        className="flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
-                      >
-                        Cancel
-                      </button>
-                    )}
-                  </div>
-                </form>
-              ) : (
-                <div className="space-y-3">
-                  {addresses.map((address) => (
-                    <label
-                      key={address.id}
-                      className={`block p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        selectedAddress === address.id
-                          ? 'border-[#211C17] bg-[#211C17]/5'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="address"
-                        value={address.id}
-                        checked={selectedAddress === address.id}
-                        onChange={() => setSelectedAddress(address.id)}
-                        className="sr-only"
-                      />
-                      <div className="flex items-start gap-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="font-semibold text-gray-900">{address.full_name}</p>
-                            {address.is_default && (
-                              <span className="px-2 py-1 bg-[#211C17] text-white text-xs rounded">Default</span>
-                            )}
-                          </div>
-                          <p className="text-sm text-gray-600">{address.phone}</p>
-                          <p className="text-sm text-gray-600 mt-1">
-                            {address.address_line1}, {address.address_line2 && `${address.address_line2}, `}
-                            {address.city}, {address.state} {address.postal_code}
-                          </p>
-                        </div>
-                        {selectedAddress === address.id && (
-                          <CheckCircle className="w-5 h-5 text-[#211C17]" />
-                        )}
-                      </div>
-                    </label>
-                  ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             <div className="bg-white rounded-xl shadow-md p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Order Items</h2>
@@ -563,7 +638,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Any special instructions for delivery?"
+                placeholder="Any special instructions?"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
                 rows={3}
               />
@@ -574,51 +649,6 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
             <div className="bg-white rounded-xl shadow-md p-6 sticky top-24">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Have a coupon code?
-                </label>
-                {appliedCoupon ? (
-                  <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Tag className="w-4 h-4 text-green-600" />
-                      <span className="text-sm font-semibold text-green-800">
-                        {appliedCoupon.code}
-                      </span>
-                    </div>
-                    <button
-                      onClick={handleRemoveCoupon}
-                      className="p-1 text-green-600 hover:text-green-800 transition-colors"
-                      title="Remove coupon"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                        placeholder="Enter code"
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent uppercase"
-                      />
-                      <button
-                        onClick={handleApplyCoupon}
-                        disabled={applyingCoupon || !couponCode.trim()}
-                        className="px-4 py-2 bg-[#211C17] text-white rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {applyingCoupon ? 'Applying...' : 'Apply'}
-                      </button>
-                    </div>
-                    {couponError && (
-                      <p className="text-xs text-red-600">{couponError}</p>
-                    )}
-                  </div>
-                )}
-              </div>
-
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal</span>
@@ -628,28 +658,26 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                   <span>Tax (5%)</span>
                   <span>₹{Math.round(taxAmount)}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
-                  <span className="flex items-center gap-1">
-                    <Truck className="w-4 h-4" />
-                    Delivery
-                  </span>
-                  <span>
-                    {deliveryFeeLoading
-                      ? '...'
-                      : shippingFee === 0
-                      ? 'FREE'
-                      : `₹${shippingFee}`}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500">
-                  Free delivery within 5km of Varanasi (221001) &middot; ₹50 delivery charge
-                  elsewhere in India
-                </p>
-                {discountAmount > 0 && (
-                  <div className="flex justify-between text-green-600 font-medium">
-                    <span>Discount</span>
-                    <span>-₹{Math.round(discountAmount)}</span>
+                {deliveryType === 'delivery' && (
+                  <div className="flex justify-between text-gray-600">
+                    <span className="flex items-center gap-1">
+                      <Truck className="w-4 h-4" />
+                      Delivery
+                    </span>
+                    <span>
+                      {deliveryFeeLoading
+                        ? '...'
+                        : shippingFee === 0
+                        ? 'FREE'
+                        : `₹${shippingFee}`}
+                    </span>
                   </div>
+                )}
+                {deliveryType === 'delivery' && (
+                  <p className="text-xs text-gray-500">
+                    Free delivery within 5km of Varanasi (221001) &middot; ₹50 delivery charge
+                    elsewhere in India
+                  </p>
                 )}
                 <div className="border-t border-gray-200 pt-3 flex justify-between text-lg font-bold text-gray-900">
                   <span>Total</span>
@@ -659,16 +687,54 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
 
               <BulkPricingNote className="mb-4" />
 
-              <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="mb-4 p-4 bg-gray-50 rounded-lg space-y-3">
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
                   <CreditCard className="w-4 h-4" />
-                  <span>Cash on Delivery</span>
+                  Payment Method
                 </div>
+                {deliveryType === 'pickup' ? (
+                  <p className="text-sm text-gray-600">Cash on pickup</p>
+                ) : (
+                  <>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('upi')}
+                        className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium border-2 transition-colors ${
+                          paymentMethod === 'upi'
+                            ? 'border-[#211C17] bg-[#211C17]/5 text-[#211C17]'
+                            : 'border-gray-200 text-gray-600'
+                        }`}
+                      >
+                        UPI
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('card')}
+                        className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium border-2 transition-colors ${
+                          paymentMethod === 'card'
+                            ? 'border-[#211C17] bg-[#211C17]/5 text-[#211C17]'
+                            : 'border-gray-200 text-gray-600'
+                        }`}
+                      >
+                        Card
+                      </button>
+                    </div>
+                    <div className="flex items-start gap-2 text-xs text-gray-500">
+                      <Info className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                      <span>
+                        You'll be asked to complete {paymentMethod === 'upi' ? 'UPI' : 'card'} payment
+                        next. If online payment isn't available yet, we'll reach out to collect it
+                        before your order ships.
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
 
               <button
                 onClick={handlePlaceOrder}
-                disabled={processing || !selectedAddress || deliveryFeeLoading}
+                disabled={!canPlaceOrder}
                 className="w-full bg-[#211C17] text-white py-3 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {processing ? (

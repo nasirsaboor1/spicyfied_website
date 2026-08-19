@@ -114,7 +114,7 @@ export default function Header({
                   <div className="absolute right-0 top-full mt-2 w-56 bg-white text-ink rounded-lg shadow-xl py-2">
                     <div className="px-4 py-3 border-b border-gray-200">
                       <p className="font-semibold text-ink">{customer?.full_name || 'My Account'}</p>
-                      <p className="text-sm text-gray-500">{customer?.email || user.email}</p>
+                      <p className="text-sm text-gray-500">{user.email}</p>
                     </div>
                     <button
                       onClick={() => {

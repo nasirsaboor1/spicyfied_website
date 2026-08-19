@@ -1,26 +1,26 @@
 import { useState, useEffect } from 'react';
-import { Package, Loader, Eye, X, MapPin, Calendar, CreditCard } from 'lucide-react';
+import { Package, Loader, Eye, X, MapPin, CreditCard, Store, Truck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 
 interface Order {
   id: string;
   order_number: string;
-  status: string;
+  status: string | null;
   total_amount: number;
-  payment_status: string;
-  created_at: string;
-  estimated_delivery: string | null;
-  delivered_at: string | null;
+  payment_status: string | null;
+  payment_method: string | null;
+  delivery_type: string;
+  created_at: string | null;
 }
 
 interface OrderItem {
   id: string;
   product_name: string;
-  variant_size: string;
-  price: number;
+  variant_name: string;
+  unit_price: number;
   quantity: number;
-  subtotal: number;
+  total_price: number;
 }
 
 interface Address {
@@ -38,9 +38,9 @@ interface OrderDetails extends Order {
   items: OrderItem[];
   address: Address | null;
   subtotal: number;
-  tax_amount: number;
-  shipping_fee: number;
-  discount_amount: number;
+  tax_amount: number | null;
+  shipping_amount: number | null;
+  notes: string | null;
 }
 
 interface OrdersPageProps {
@@ -68,7 +68,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
       const { data, error } = await supabase
         .from('orders')
         .select('*')
-        .eq('customer_id', user!.id)
+        .eq('user_id', user!.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -110,7 +110,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string | null) => {
     switch (status) {
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
@@ -131,8 +131,22 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
     }
   };
 
-  const getStatusText = (status: string) => {
-    return status.charAt(0).toUpperCase() + status.slice(1);
+  const getStatusText = (status: string | null) => {
+    const s = status || 'pending';
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  };
+
+  const paymentMethodLabel = (method: string | null) => {
+    switch (method) {
+      case 'cod':
+        return 'Cash on Pickup';
+      case 'upi':
+        return 'UPI';
+      case 'card':
+        return 'Card';
+      default:
+        return 'Not set';
+    }
   };
 
   if (loading) {
@@ -172,7 +186,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
                       <h3 className="text-lg font-bold text-gray-900">{order.order_number}</h3>
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
@@ -181,23 +195,22 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
                       >
                         {getStatusText(order.status)}
                       </span>
+                      <span className="flex items-center gap-1 text-xs text-gray-500">
+                        {order.delivery_type === 'pickup' ? (
+                          <Store className="w-3.5 h-3.5" />
+                        ) : (
+                          <Truck className="w-3.5 h-3.5" />
+                        )}
+                        {order.delivery_type === 'pickup' ? 'Pickup' : 'Delivery'}
+                      </span>
                     </div>
                     <p className="text-sm text-gray-600">
-                      Placed on {new Date(order.created_at).toLocaleDateString('en-IN', {
+                      Placed on {new Date(order.created_at || Date.now()).toLocaleDateString('en-IN', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric',
                       })}
                     </p>
-                    {order.estimated_delivery && (
-                      <p className="text-sm text-gray-600">
-                        Estimated delivery: {new Date(order.estimated_delivery).toLocaleDateString('en-IN', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric',
-                        })}
-                      </p>
-                    )}
                   </div>
 
                   <div className="flex items-center gap-4">
@@ -242,7 +255,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
                         {selectedOrder.order_number}
                       </h2>
                       <p className="text-sm text-gray-600 mt-1">
-                        Placed on {new Date(selectedOrder.created_at).toLocaleDateString('en-IN', {
+                        Placed on {new Date(selectedOrder.created_at || Date.now()).toLocaleDateString('en-IN', {
                           day: 'numeric',
                           month: 'long',
                           year: 'numeric',
@@ -259,7 +272,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
 
                   <div className="p-6 space-y-6">
                     <div>
-                      <div className="flex items-center gap-2 mb-3">
+                      <div className="flex items-center gap-2 mb-3 flex-wrap">
                         <span
                           className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(
                             selectedOrder.status
@@ -271,41 +284,45 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
                           Payment: {selectedOrder.payment_status}
                         </span>
                       </div>
-                      {selectedOrder.estimated_delivery && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Calendar className="w-4 h-4" />
-                          <span>
-                            Estimated delivery:{' '}
-                            {new Date(selectedOrder.estimated_delivery).toLocaleDateString('en-IN', {
-                              day: 'numeric',
-                              month: 'long',
-                              year: 'numeric',
-                            })}
-                          </span>
-                        </div>
-                      )}
                     </div>
 
-                    {selectedOrder.address && (
+                    {selectedOrder.delivery_type === 'pickup' ? (
                       <div className="bg-gray-50 rounded-lg p-4">
-                        <div className="flex items-start gap-2 mb-2">
-                          <MapPin className="w-5 h-5 text-[#211C17] mt-0.5" />
+                        <div className="flex items-start gap-2">
+                          <Store className="w-5 h-5 text-[#211C17] mt-0.5" />
                           <div>
-                            <p className="font-semibold text-gray-900">
-                              {selectedOrder.address.full_name}
+                            <p className="font-semibold text-gray-900">Pickup from Spicyfied</p>
+                            <p className="text-sm text-gray-600">
+                              J-31/95, B-1, Amina Tower, Kachi Bagh, Pili Kothi, Varanasi - 221001
                             </p>
-                            <p className="text-sm text-gray-600">{selectedOrder.address.phone}</p>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {selectedOrder.address.address_line1}
-                              {selectedOrder.address.address_line2 &&
-                                `, ${selectedOrder.address.address_line2}`}
-                              <br />
-                              {selectedOrder.address.city}, {selectedOrder.address.state}{' '}
-                              {selectedOrder.address.postal_code}
-                            </p>
+                            {selectedOrder.notes && (
+                              <p className="text-sm text-gray-600 mt-1">{selectedOrder.notes}</p>
+                            )}
                           </div>
                         </div>
                       </div>
+                    ) : (
+                      selectedOrder.address && (
+                        <div className="bg-gray-50 rounded-lg p-4">
+                          <div className="flex items-start gap-2 mb-2">
+                            <MapPin className="w-5 h-5 text-[#211C17] mt-0.5" />
+                            <div>
+                              <p className="font-semibold text-gray-900">
+                                {selectedOrder.address.full_name}
+                              </p>
+                              <p className="text-sm text-gray-600">{selectedOrder.address.phone}</p>
+                              <p className="text-sm text-gray-600 mt-1">
+                                {selectedOrder.address.address_line1}
+                                {selectedOrder.address.address_line2 &&
+                                  `, ${selectedOrder.address.address_line2}`}
+                                <br />
+                                {selectedOrder.address.city}, {selectedOrder.address.state}{' '}
+                                {selectedOrder.address.postal_code}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )
                     )}
 
                     <div>
@@ -318,11 +335,11 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
                           >
                             <div className="flex-1">
                               <p className="font-semibold text-gray-900">{item.product_name}</p>
-                              <p className="text-sm text-gray-600">{item.variant_size}</p>
+                              <p className="text-sm text-gray-600">{item.variant_name}</p>
                               <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                             </div>
                             <p className="font-semibold text-[#211C17]">
-                              ₹{Math.round(item.subtotal)}
+                              ₹{Math.round(item.total_price)}
                             </p>
                           </div>
                         ))}
@@ -336,22 +353,16 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
                       </div>
                       <div className="flex justify-between text-gray-600">
                         <span>Tax</span>
-                        <span>₹{Math.round(selectedOrder.tax_amount)}</span>
+                        <span>₹{Math.round(selectedOrder.tax_amount ?? 0)}</span>
                       </div>
                       <div className="flex justify-between text-gray-600">
                         <span>Shipping</span>
                         <span>
-                          {selectedOrder.shipping_fee === 0
+                          {!selectedOrder.shipping_amount
                             ? 'FREE'
-                            : `₹${Math.round(selectedOrder.shipping_fee)}`}
+                            : `₹${Math.round(selectedOrder.shipping_amount)}`}
                         </span>
                       </div>
-                      {selectedOrder.discount_amount > 0 && (
-                        <div className="flex justify-between text-green-600">
-                          <span>Discount</span>
-                          <span>-₹{Math.round(selectedOrder.discount_amount)}</span>
-                        </div>
-                      )}
                       <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t border-gray-200">
                         <span>Total</span>
                         <span className="text-[#211C17]">
@@ -362,7 +373,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
 
                     <div className="flex items-center gap-2 text-sm text-gray-600 p-3 bg-gray-50 rounded-lg">
                       <CreditCard className="w-4 h-4" />
-                      <span>Payment Method: Cash on Delivery</span>
+                      <span>Payment Method: {paymentMethodLabel(selectedOrder.payment_method)}</span>
                     </div>
                   </div>
                 </>

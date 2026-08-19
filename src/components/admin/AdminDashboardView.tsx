@@ -9,6 +9,17 @@ interface Stats {
   lowStockItems: number;
 }
 
+interface RecentOrder {
+  id: string;
+  order_number: string;
+  email: string;
+  created_at: string | null;
+  status: string | null;
+  total_amount: number;
+}
+
+const LOW_STOCK_THRESHOLD = 10;
+
 export default function AdminDashboardView() {
   const [stats, setStats] = useState<Stats>({
     totalRevenue: 0,
@@ -17,7 +28,7 @@ export default function AdminDashboardView() {
     lowStockItems: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
 
   useEffect(() => {
     loadDashboardData();
@@ -41,11 +52,11 @@ export default function AdminDashboardView() {
       const { data: lowStockData } = await supabase
         .from('product_variants')
         .select('id')
-        .lt('stock_quantity', supabase.rpc('low_stock_threshold'));
+        .lt('stock_quantity', LOW_STOCK_THRESHOLD);
 
       const { data: recentOrdersData } = await supabase
         .from('orders')
-        .select('*, customer:customers(full_name, email)')
+        .select('id, order_number, email, created_at, status, total_amount')
         .order('created_at', { ascending: false })
         .limit(10);
 
@@ -137,9 +148,9 @@ export default function AdminDashboardView() {
               {recentOrders.map((order) => (
                 <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-3 px-4 text-sm font-medium text-gray-900">{order.order_number}</td>
-                  <td className="py-3 px-4 text-sm text-gray-600">{order.customer?.full_name}</td>
+                  <td className="py-3 px-4 text-sm text-gray-600">{order.email}</td>
                   <td className="py-3 px-4 text-sm text-gray-600">
-                    {new Date(order.created_at).toLocaleDateString()}
+                    {new Date(order.created_at || Date.now()).toLocaleDateString()}
                   </td>
                   <td className="py-3 px-4">
                     <span

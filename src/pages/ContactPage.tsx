@@ -11,6 +11,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
     name: '',
     email: '',
     phone: '',
+    subject: '',
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,7 +33,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+    if (!formData.name.trim() || !formData.email.trim() || !formData.subject.trim() || !formData.message.trim()) {
       setSubmitStatus('error');
       setErrorMessage('Please fill in all required fields');
       return;
@@ -60,13 +61,14 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
           name: formData.name.trim(),
           email: formData.email.trim(),
           phone: formData.phone.trim() || null,
+          subject: formData.subject.trim(),
           message: formData.message.trim()
         }]);
 
       if (error) throw error;
 
       setSubmitStatus('success');
-      setFormData({ name: '', email: '', phone: '', message: '' });
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
 
       setTimeout(() => {
         setSubmitStatus('idle');
@@ -258,6 +260,23 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
                   maxLength={20}
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#211C17] focus:border-transparent outline-none transition-all"
                   placeholder="+91 XXXXX XXXXX"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
+                  Subject <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleInputChange}
+                  required
+                  maxLength={200}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#211C17] focus:border-transparent outline-none transition-all"
+                  placeholder="What's this about?"
                 />
               </div>
 

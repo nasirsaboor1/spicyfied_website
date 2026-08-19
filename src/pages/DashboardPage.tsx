@@ -5,7 +5,6 @@ import { supabase } from '../lib/supabase';
 
 interface Address {
   id: string;
-  address_type: string;
   full_name: string;
   phone: string;
   address_line1: string;
@@ -13,7 +12,7 @@ interface Address {
   city: string;
   state: string;
   postal_code: string;
-  is_default: boolean;
+  is_default: boolean | null;
 }
 
 interface OrderStats {
@@ -43,7 +42,6 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
   });
 
   const [addressForm, setAddressForm] = useState({
-    address_type: 'home',
     full_name: customer?.full_name || '',
     phone: customer?.phone || '',
     address_line1: '',
@@ -84,7 +82,7 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
     const { data, error } = await supabase
       .from('addresses')
       .select('*')
-      .eq('customer_id', user!.id)
+      .eq('user_id', user!.id)
       .order('is_default', { ascending: false });
 
     if (error) throw error;
@@ -95,13 +93,13 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
     const { data, error } = await supabase
       .from('orders')
       .select('status')
-      .eq('customer_id', user!.id);
+      .eq('user_id', user!.id);
 
     if (error) throw error;
 
     const stats = {
       total: data.length,
-      pending: data.filter((o) => ['pending', 'confirmed', 'processing', 'shipped'].includes(o.status)).length,
+      pending: data.filter((o) => ['pending', 'confirmed', 'processing', 'shipped'].includes(o.status || '')).length,
       delivered: data.filter((o) => o.status === 'delivered').length,
     };
 
@@ -137,7 +135,7 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
         const { error } = await supabase
           .from('addresses')
           .insert({
-            customer_id: user!.id,
+            user_id: user!.id,
             ...addressForm,
           });
 
@@ -155,7 +153,6 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
 
   const handleEditAddress = (address: Address) => {
     setAddressForm({
-      address_type: address.address_type,
       full_name: address.full_name,
       phone: address.phone,
       address_line1: address.address_line1,
@@ -163,7 +160,7 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
       city: address.city,
       state: address.state,
       postal_code: address.postal_code,
-      is_default: address.is_default,
+      is_default: address.is_default ?? false,
     });
     setEditingAddress(address.id);
     setShowAddressForm(true);
@@ -190,7 +187,7 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
       await supabase
         .from('addresses')
         .update({ is_default: false })
-        .eq('customer_id', user!.id);
+        .eq('user_id', user!.id);
 
       const { error } = await supabase
         .from('addresses')
@@ -206,7 +203,6 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
 
   const resetAddressForm = () => {
     setAddressForm({
-      address_type: 'home',
       full_name: customer?.full_name || '',
       phone: customer?.phone || '',
       address_line1: '',
@@ -324,11 +320,11 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
               <div className="space-y-3">
                 <div>
                   <p className="text-sm text-gray-600">Email</p>
-                  <p className="font-semibold text-gray-900">{customer?.email}</p>
+                  <p className="font-semibold text-gray-900">{user?.email}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Full Name</p>
-                  <p className="font-semibold text-gray-900">{customer?.full_name}</p>
+                  <p className="font-semibold text-gray-900">{customer?.full_name || 'Not provided'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Phone</p>

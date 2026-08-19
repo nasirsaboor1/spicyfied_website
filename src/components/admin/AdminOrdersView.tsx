@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Loader, Search, ChevronDown, Eye, Mail } from 'lucide-react';
+import { Loader, Search, Eye } from 'lucide-react';
 
 interface Order {
   id: string;
@@ -9,24 +9,34 @@ interface Order {
   status: string;
   total_amount: number;
   payment_status: string;
-  customer: {
+  payment_method: string | null;
+  delivery_type: string;
+  email: string;
+  notes: string | null;
+  subtotal: number;
+  tax_amount: number;
+  shipping_amount: number;
+  shipping_address_id: string | null;
+  addresses: {
     full_name: string;
-    email: string;
     phone: string;
-  };
-  shipping_address: {
-    full_name: string;
     address_line1: string;
+    address_line2: string | null;
     city: string;
     state: string;
-  };
+    postal_code: string;
+  } | null;
   order_items: Array<{
+    id: string;
     product_name: string;
-    variant_size: string;
+    variant_name: string;
     quantity: number;
-    price: number;
+    unit_price: number;
+    total_price: number;
   }>;
 }
+
+const STATUS_OPTIONS = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 
 export default function AdminOrdersView() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -41,15 +51,11 @@ export default function AdminOrdersView() {
   }, [statusFilter]);
 
   const loadOrders = async () => {
+    setLoading(true);
     try {
       let query = supabase
         .from('orders')
-        .select(`
-          *,
-          customer:customers(*),
-          shipping_address:addresses(*),
-          order_items(*)
-        `)
+        .select(`*, addresses(*), order_items(*)`)
         .order('created_at', { ascending: false });
 
       if (statusFilter !== 'all') {
@@ -60,7 +66,7 @@ export default function AdminOrdersView() {
 
       if (error) throw error;
 
-      setOrders(data || []);
+      setOrders((data as any) || []);
     } catch (err) {
       console.error('Error loading orders:', err);
     } finally {
@@ -78,20 +84,8 @@ export default function AdminOrdersView() {
 
       if (error) throw error;
 
-      await supabase.from('order_status_history').insert({
-        order_id: orderId,
-        status: newStatus,
-        notes: `Status updated by admin to ${newStatus}`,
-      });
-
-      await loadOrders();
-
-      if (selectedOrder?.id === orderId) {
-        const updatedOrder = orders.find((o) => o.id === orderId);
-        if (updatedOrder) {
-          setSelectedOrder({ ...updatedOrder, status: newStatus });
-        }
-      }
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)));
+      setSelectedOrder((prev) => (prev && prev.id === orderId ? { ...prev, status: newStatus } : prev));
     } catch (err: any) {
       console.error('Error updating order status:', err);
       alert('Failed to update order status');
@@ -100,39 +94,23 @@ export default function AdminOrdersView() {
     }
   };
 
-  const handleSendEmail = async (orderId: string) => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-order-email`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({
-            orderId,
-            emailType: 'order_confirmation',
-          }),
-        }
-      );
-
-      if (response.ok) {
-        alert('Email notification sent successfully');
-      } else {
-        alert('Failed to send email notification');
-      }
-    } catch (err) {
-      console.error('Error sending email:', err);
-      alert('Failed to send email notification');
-    }
-  };
-
   const filteredOrders = orders.filter((order) =>
     order.order_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    order.customer.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    order.customer.email.toLowerCase().includes(searchQuery.toLowerCase())
+    order.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const paymentMethodLabel = (method: string | null) => {
+    switch (method) {
+      case 'cod':
+        return 'Cash on Pickup';
+      case 'upi':
+        return 'UPI';
+      case 'card':
+        return 'Card';
+      default:
+        return 'Not set';
+    }
+  };
 
   if (loading) {
     return (
@@ -150,7 +128,7 @@ export default function AdminOrdersView() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Search by order number, customer name, or email..."
+              placeholder="Search by order number or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
@@ -162,12 +140,11 @@ export default function AdminOrdersView() {
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
           >
             <option value="all">All Orders</option>
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="processing">Processing</option>
-            <option value="shipped">Shipped</option>
-            <option value="delivered">Delivered</option>
-            <option value="cancelled">Cancelled</option>
+            {STATUS_OPTIONS.map((status) => (
+              <option key={status} value={status}>
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -177,6 +154,7 @@ export default function AdminOrdersView() {
               <tr className="border-b border-gray-200">
                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Order #</th>
                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Customer</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Type</th>
                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Date</th>
                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Status</th>
                 <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Total</th>
@@ -188,9 +166,12 @@ export default function AdminOrdersView() {
                 <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-3 px-4 text-sm font-medium text-gray-900">{order.order_number}</td>
                   <td className="py-3 px-4">
-                    <div className="text-sm font-medium text-gray-900">{order.customer.full_name}</div>
-                    <div className="text-xs text-gray-500">{order.customer.email}</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {order.addresses?.full_name || '—'}
+                    </div>
+                    <div className="text-xs text-gray-500">{order.email}</div>
                   </td>
+                  <td className="py-3 px-4 text-sm text-gray-600 capitalize">{order.delivery_type}</td>
                   <td className="py-3 px-4 text-sm text-gray-600">
                     {new Date(order.created_at).toLocaleDateString()}
                   </td>
@@ -213,22 +194,13 @@ export default function AdminOrdersView() {
                     ₹{Math.round(order.total_amount)}
                   </td>
                   <td className="py-3 px-4 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => setSelectedOrder(order)}
-                        className="p-2 text-[#211C17] hover:bg-[#211C17]/10 rounded-lg transition-colors"
-                        title="View Details"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleSendEmail(order.id)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        title="Send Email"
-                      >
-                        <Mail className="w-4 h-4" />
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => setSelectedOrder(order)}
+                      className="p-2 text-[#211C17] hover:bg-[#211C17]/10 rounded-lg transition-colors"
+                      title="View Details"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -278,56 +250,84 @@ export default function AdminOrdersView() {
                   disabled={updatingStatus}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent disabled:opacity-50"
                 >
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="processing">Processing</option>
-                  <option value="shipped">Shipped</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="cancelled">Cancelled</option>
+                  {STATUS_OPTIONS.map((status) => (
+                    <option key={status} value={status}>
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Customer Information</h3>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-900">{selectedOrder.customer.full_name}</p>
-                  <p className="text-sm text-gray-600">{selectedOrder.customer.email}</p>
-                  <p className="text-sm text-gray-600">{selectedOrder.customer.phone}</p>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Shipping Address</h3>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-900">{selectedOrder.shipping_address.full_name}</p>
-                  <p className="text-sm text-gray-600">{selectedOrder.shipping_address.address_line1}</p>
+                <h3 className="font-semibold text-gray-900 mb-2">Customer & Payment</h3>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-1">
+                  <p className="text-sm text-gray-900">{selectedOrder.email}</p>
+                  <p className="text-sm text-gray-600 capitalize">Fulfillment: {selectedOrder.delivery_type}</p>
                   <p className="text-sm text-gray-600">
-                    {selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state}
+                    Payment: {paymentMethodLabel(selectedOrder.payment_method)} ({selectedOrder.payment_status})
                   </p>
                 </div>
               </div>
 
+              {selectedOrder.delivery_type === 'pickup' ? (
+                selectedOrder.notes && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2">Pickup Notes</h3>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <p className="text-sm text-gray-900">{selectedOrder.notes}</p>
+                    </div>
+                  </div>
+                )
+              ) : (
+                selectedOrder.addresses && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2">Shipping Address</h3>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <p className="text-sm text-gray-900">{selectedOrder.addresses.full_name}</p>
+                      <p className="text-sm text-gray-600">{selectedOrder.addresses.phone}</p>
+                      <p className="text-sm text-gray-600">{selectedOrder.addresses.address_line1}</p>
+                      <p className="text-sm text-gray-600">
+                        {selectedOrder.addresses.city}, {selectedOrder.addresses.state}{' '}
+                        {selectedOrder.addresses.postal_code}
+                      </p>
+                    </div>
+                  </div>
+                )
+              )}
+
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Order Items</h3>
                 <div className="space-y-2">
-                  {selectedOrder.order_items.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center bg-gray-50 rounded-lg p-3">
+                  {selectedOrder.order_items.map((item) => (
+                    <div key={item.id} className="flex justify-between items-center bg-gray-50 rounded-lg p-3">
                       <div>
                         <p className="text-sm font-medium text-gray-900">{item.product_name}</p>
                         <p className="text-xs text-gray-600">
-                          {item.variant_size} × {item.quantity}
+                          {item.variant_name} × {item.quantity}
                         </p>
                       </div>
                       <p className="text-sm font-semibold text-gray-900">
-                        ₹{Math.round(item.price * item.quantity)}
+                        ₹{Math.round(item.total_price)}
                       </p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 pt-4">
-                <div className="flex justify-between text-lg font-bold text-gray-900">
+              <div className="border-t border-gray-200 pt-4 space-y-1">
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Subtotal</span>
+                  <span>₹{Math.round(selectedOrder.subtotal)}</span>
+                </div>
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Tax</span>
+                  <span>₹{Math.round(selectedOrder.tax_amount)}</span>
+                </div>
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Shipping</span>
+                  <span>₹{Math.round(selectedOrder.shipping_amount)}</span>
+                </div>
+                <div className="flex justify-between text-lg font-bold text-gray-900 pt-2">
                   <span>Total Amount</span>
                   <span className="text-[#211C17]">₹{Math.round(selectedOrder.total_amount)}</span>
                 </div>

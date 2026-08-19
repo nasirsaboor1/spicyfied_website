@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Lock, LogIn, CheckCircle } from 'lucide-react';
+import { Mail, Lock, LogIn, CheckCircle, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface LoginPageProps {
@@ -7,20 +7,23 @@ interface LoginPageProps {
   onLoginSuccess: () => void;
 }
 
+type Mode = 'otp-request' | 'otp-verify' | 'password' | 'forgot-password';
+
 export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginPageProps) {
-  const { signIn, requestPasswordReset } = useAuth();
+  const { signIn, requestPasswordReset, sendEmailOtp, verifyEmailOtp } = useAuth();
+  const [mode, setMode] = useState<Mode>('otp-request');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otpCode, setOtpCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetSending, setResetSending] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const [resetError, setResetError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -43,6 +46,40 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
     }
   };
 
+  const sendOtp = async () => {
+    setError('');
+    setLoading(true);
+
+    const { error: otpError } = await sendEmailOtp(email);
+
+    setLoading(false);
+    if (otpError) {
+      setError(otpError.message);
+    } else {
+      setMode('otp-verify');
+    }
+  };
+
+  const handleSendOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendOtp();
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    const { error: verifyError } = await verifyEmailOtp(email, otpCode.trim());
+
+    if (verifyError) {
+      setError('Incorrect or expired code. Please try again.');
+      setLoading(false);
+    } else {
+      onLoginSuccess();
+    }
+  };
+
   const handleSendReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setResetError('');
@@ -58,7 +95,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
     }
   };
 
-  if (showForgotPassword) {
+  if (mode === 'forgot-password') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#211C17] to-[#3F5A34] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
@@ -86,7 +123,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
                 </div>
                 <button
                   onClick={() => {
-                    setShowForgotPassword(false);
+                    setMode('password');
                     setResetSent(false);
                     setResetEmail('');
                   }}
@@ -128,7 +165,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowForgotPassword(false)}
+                  onClick={() => setMode('password')}
                   className="w-full text-center text-[#211C17] font-semibold hover:underline"
                 >
                   Back to Sign In
@@ -147,10 +184,22 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <div className="text-center mb-8">
             <div className="inline-block p-3 bg-[#211C17]/10 rounded-full mb-4">
-              <LogIn className="w-12 h-12 text-[#211C17]" />
+              {mode === 'otp-verify' ? (
+                <ShieldCheck className="w-12 h-12 text-[#211C17]" />
+              ) : (
+                <LogIn className="w-12 h-12 text-[#211C17]" />
+              )}
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>
-            <p className="text-gray-600 mt-2">Sign in to your Spicyfied account</p>
+            <h2 className="text-3xl font-bold text-gray-900">
+              {mode === 'otp-verify' ? 'Enter Verification Code' : 'Welcome Back'}
+            </h2>
+            <p className="text-gray-600 mt-2">
+              {mode === 'otp-verify'
+                ? `We sent a 6-digit code to ${email}`
+                : mode === 'password'
+                ? 'Sign in with your password'
+                : 'Sign in or create an account with your email'}
+            </p>
           </div>
 
           {error && (
@@ -159,67 +208,182 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          {mode === 'otp-request' && (
+            <form onSubmit={handleSendOtp} className="space-y-6">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                    placeholder="you@example.com"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-[#211C17] text-white py-3 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Sending code...' : 'Send Verification Code'}
+              </button>
+
+              <p className="text-xs text-gray-500 text-center">
+                New here? We'll create your account automatically once you verify your email.
+              </p>
+            </form>
+          )}
+
+          {mode === 'otp-verify' && (
+            <form onSubmit={handleVerifyOtp} className="space-y-6">
+              <div>
+                <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-2">
+                  6-Digit Code
+                </label>
                 <input
-                  id="email"
-                  type="email"
+                  id="otp"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
+                  maxLength={6}
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
-                  placeholder="you@example.com"
+                  autoFocus
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent text-center text-2xl tracking-[0.5em] font-semibold"
+                  placeholder="------"
                 />
               </div>
-            </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Password
-                </label>
+              <button
+                type="submit"
+                disabled={loading || otpCode.length !== 6}
+                className="w-full bg-[#211C17] text-white py-3 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Verifying...' : 'Verify & Continue'}
+              </button>
+
+              <div className="flex items-center justify-between text-sm">
                 <button
                   type="button"
                   onClick={() => {
-                    setResetEmail(email);
-                    setShowForgotPassword(true);
+                    setMode('otp-request');
+                    setOtpCode('');
+                    setError('');
                   }}
-                  className="text-sm text-[#211C17] font-medium hover:underline"
+                  className="text-gray-600 hover:underline"
                 >
-                  Forgot password?
+                  Use a different email
+                </button>
+                <button
+                  type="button"
+                  onClick={sendOtp}
+                  className="text-[#211C17] font-medium hover:underline"
+                >
+                  Resend code
                 </button>
               </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
-                  placeholder="Enter your password"
-                />
+            </form>
+          )}
+
+          {mode === 'password' && (
+            <form onSubmit={handlePasswordSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="pw-email" className="block text-sm font-medium text-gray-700 mb-2">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    id="pw-email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                    placeholder="you@example.com"
+                  />
+                </div>
               </div>
-            </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#211C17] text-white py-3 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </button>
-          </form>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                    Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setResetEmail(email);
+                      setMode('forgot-password');
+                    }}
+                    className="text-sm text-[#211C17] font-medium hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    id="password"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                    placeholder="Enter your password"
+                  />
+                </div>
+              </div>
 
-          <div className="mt-6 text-center">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-[#211C17] text-white py-3 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Signing in...' : 'Sign In'}
+              </button>
+            </form>
+          )}
+
+          <div className="mt-6 text-center space-y-2">
+            {mode !== 'password' ? (
+              <p className="text-gray-600 text-sm">
+                Admin or team member?{' '}
+                <button
+                  onClick={() => {
+                    setMode('password');
+                    setError('');
+                  }}
+                  className="text-[#211C17] font-semibold hover:underline"
+                >
+                  Sign in with password
+                </button>
+              </p>
+            ) : (
+              <p className="text-gray-600 text-sm">
+                Shopping with us?{' '}
+                <button
+                  onClick={() => {
+                    setMode('otp-request');
+                    setError('');
+                  }}
+                  className="text-[#211C17] font-semibold hover:underline"
+                >
+                  Sign in with email code
+                </button>
+              </p>
+            )}
             <p className="text-gray-600">
-              Don't have an account?{' '}
+              Setting up a team account?{' '}
               <button
                 onClick={onNavigateToSignup}
                 className="text-[#211C17] font-semibold hover:underline"
