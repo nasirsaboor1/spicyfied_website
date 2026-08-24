@@ -12,6 +12,19 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    const expectedSecret = Deno.env.get("REBUILD_WEBHOOK_SECRET");
+    const providedSecret = req.headers.get("x-rebuild-secret");
+
+    if (!expectedSecret || providedSecret !== expectedSecret) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
     const deployHook = Deno.env.get("DEPLOY_HOOK_URL");
     if (!deployHook) {
       return new Response(
