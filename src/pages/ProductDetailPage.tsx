@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Check, ShoppingCart } from 'lucide-react';
 import ProductReviews from '../components/ProductReviews';
 import BulkPricingNote from '../components/BulkPricingNote';
 import SpicePuff from '../components/SpicePuff';
+import SpiceLoader from '../components/SpiceLoader';
 
 interface ProductDetailPageProps {
   productSlug: string;
@@ -76,7 +77,7 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-[#211C17] border-t-transparent rounded-full animate-spin"></div>
+        <SpiceLoader />
       </div>
     );
   }
@@ -277,6 +278,44 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
             </div>
           </div>
         </div>
+
+        {product.story && (
+          <div className="mt-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-ink to-[#223822] text-cream p-8 md:p-12">
+            <p className="text-saffron-light text-xs font-semibold tracking-[0.25em] uppercase mb-3">
+              Origin &amp; Story
+            </p>
+            {product.story.title && (
+              <h2 className="font-serif text-3xl md:text-4xl font-semibold mb-5 max-w-2xl">
+                {product.story.title}
+              </h2>
+            )}
+            {product.story.content && (
+              <p className="text-cream/80 leading-relaxed max-w-2xl whitespace-pre-line mb-8">
+                {product.story.content}
+              </p>
+            )}
+            {(product.story.heritage || product.story.sourcing) && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6 border-t border-cream/15 max-w-2xl">
+                {product.story.heritage && (
+                  <div>
+                    <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron-light mb-2">
+                      Heritage
+                    </p>
+                    <p className="text-sm text-cream/70 leading-relaxed">{product.story.heritage}</p>
+                  </div>
+                )}
+                {product.story.sourcing && (
+                  <div>
+                    <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron-light mb-2">
+                      Sourcing
+                    </p>
+                    <p className="text-sm text-cream/70 leading-relaxed">{product.story.sourcing}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="mt-8 bg-white rounded-2xl shadow-lg p-8">
           <ProductReviews productId={product.id} />

@@ -5,6 +5,7 @@ import {
   AdminCategory,
   ProductFormValues,
   VariantFormValues,
+  StoryFormValues,
   slugify,
   createProduct,
   updateProduct,
@@ -14,6 +15,7 @@ import {
   uploadProductImage,
   setPrimaryImage,
   deleteProductImage,
+  upsertProductStory,
 } from '../../lib/adminProducts';
 
 interface ProductFormModalProps {
@@ -51,6 +53,13 @@ const emptyVariant: VariantFormValues = {
   is_default: false,
 };
 
+const emptyStory: StoryFormValues = {
+  story_title: '',
+  story_content: '',
+  heritage_info: '',
+  sourcing_details: '',
+};
+
 export default function ProductFormModal({ product, categories, onClose, onSaved }: ProductFormModalProps) {
   const [productId, setProductId] = useState<string | null>(product?.id || null);
   const [form, setForm] = useState<ProductFormValues>(
@@ -85,6 +94,21 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
   const [images, setImages] = useState(product?.product_images || []);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const existingStory = product?.product_stories?.[0] || null;
+  const [storyForm, setStoryForm] = useState<StoryFormValues>(
+    existingStory
+      ? {
+          story_title: existingStory.story_title || '',
+          story_content: existingStory.story_content || '',
+          heritage_info: existingStory.heritage_info || '',
+          sourcing_details: existingStory.sourcing_details || '',
+        }
+      : emptyStory
+  );
+  const [storyId, setStoryId] = useState<string | null>(existingStory?.id || null);
+  const [savingStory, setSavingStory] = useState(false);
+  const [storySaved, setStorySaved] = useState(false);
 
   useEffect(() => {
     if (!slugTouched) {
@@ -204,7 +228,36 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
   useEffect(() => {
     setVariants(product?.product_variants || []);
     setImages(product?.product_images || []);
+    const story = product?.product_stories?.[0] || null;
+    setStoryForm(
+      story
+        ? {
+            story_title: story.story_title || '',
+            story_content: story.story_content || '',
+            heritage_info: story.heritage_info || '',
+            sourcing_details: story.sourcing_details || '',
+          }
+        : emptyStory
+    );
+    setStoryId(story?.id || null);
   }, [product]);
+
+  const handleSaveStory = async () => {
+    if (!productId) return;
+    setSavingStory(true);
+    setError('');
+    setStorySaved(false);
+    try {
+      await upsertProductStory(productId, storyId, storyForm);
+      setStorySaved(true);
+      onSaved(productId);
+      setTimeout(() => setStorySaved(false), 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to save story');
+    } finally {
+      setSavingStory(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
@@ -526,6 +579,66 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
                       disabled={uploading}
                     />
                   </label>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-6">
+                <h3 className="font-bold text-gray-900 mb-1">Origin &amp; Story</h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  Optional. When filled in, this shows as a dedicated "Origin & Story" section on the
+                  product page. Leave blank to skip it.
+                </p>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Story Title</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. From the hills of Kerala"
+                      value={storyForm.story_title}
+                      onChange={(e) => setStoryForm({ ...storyForm, story_title: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-ink focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Story</label>
+                    <textarea
+                      rows={3}
+                      placeholder="The story of how this spice is grown, cleaned, and brought to the shop"
+                      value={storyForm.story_content}
+                      onChange={(e) => setStoryForm({ ...storyForm, story_content: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-ink focus:border-transparent"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Heritage</label>
+                      <textarea
+                        rows={2}
+                        placeholder="Any tradition or history behind it"
+                        value={storyForm.heritage_info}
+                        onChange={(e) => setStoryForm({ ...storyForm, heritage_info: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-ink focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Sourcing</label>
+                      <textarea
+                        rows={2}
+                        placeholder="Where and how it's sourced"
+                        value={storyForm.sourcing_details}
+                        onChange={(e) => setStoryForm({ ...storyForm, sourcing_details: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-ink focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSaveStory}
+                    disabled={savingStory}
+                    className="px-4 py-2 bg-ink text-white rounded-lg text-sm font-medium hover:bg-ink-light transition-colors disabled:opacity-50"
+                  >
+                    {savingStory ? 'Saving...' : storySaved ? 'Saved' : 'Save Story'}
+                  </button>
                 </div>
               </div>
             </>

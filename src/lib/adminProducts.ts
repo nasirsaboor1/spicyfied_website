@@ -30,6 +30,15 @@ export interface AdminImage {
   is_primary: boolean;
 }
 
+export interface AdminStory {
+  id: string;
+  product_id: string;
+  story_title: string | null;
+  story_content: string | null;
+  heritage_info: string | null;
+  sourcing_details: string | null;
+}
+
 export interface AdminProduct {
   id: string;
   sku: string;
@@ -49,10 +58,11 @@ export interface AdminProduct {
   categories: { name: string; slug: string } | null;
   product_variants: AdminVariant[];
   product_images: AdminImage[];
+  product_stories: AdminStory[];
 }
 
 const ADMIN_PRODUCT_SELECT =
-  '*, categories(name, slug), product_variants(*), product_images(*)';
+  '*, categories(name, slug), product_variants(*), product_images(*), product_stories(*)';
 
 export function slugify(text: string): string {
   return text
@@ -150,6 +160,34 @@ export async function updateVariant(id: string, values: VariantFormValues): Prom
 export async function deleteVariant(id: string): Promise<void> {
   const { error } = await supabase.from('product_variants').delete().eq('id', id);
   if (error) throw error;
+}
+
+export interface StoryFormValues {
+  story_title: string;
+  story_content: string;
+  heritage_info: string;
+  sourcing_details: string;
+}
+
+export async function upsertProductStory(
+  productId: string,
+  existingStoryId: string | null,
+  values: StoryFormValues
+): Promise<void> {
+  const payload = {
+    story_title: values.story_title || null,
+    story_content: values.story_content || null,
+    heritage_info: values.heritage_info || null,
+    sourcing_details: values.sourcing_details || null,
+  };
+
+  if (existingStoryId) {
+    const { error } = await supabase.from('product_stories').update(payload).eq('id', existingStoryId);
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from('product_stories').insert({ product_id: productId, ...payload });
+    if (error) throw error;
+  }
 }
 
 const IMAGE_BUCKET = 'Product Image';

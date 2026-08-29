@@ -27,9 +27,17 @@ export interface ProductImage {
   created_at: string;
 }
 
+export interface ProductStory {
+  title: string | null;
+  content: string | null;
+  heritage: string | null;
+  sourcing: string | null;
+}
+
 export interface ProductWithDetails extends Product {
   variants: ProductVariant[];
   images: ProductImage[];
+  story: ProductStory | null;
 }
 
 export interface CartItem {

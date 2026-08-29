@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Product, ProductVariant, ProductImage, ProductWithDetails } from '../types';
+import { Product, ProductVariant, ProductImage, ProductWithDetails, ProductStory } from '../types';
 
 const IMAGE_BUCKET = 'Product Image';
 
@@ -9,7 +9,8 @@ export function resolveImageUrl(path: string | null | undefined): string {
   return supabase.storage.from(IMAGE_BUCKET).getPublicUrl(objectPath).data.publicUrl;
 }
 
-const PRODUCT_SELECT = '*, categories(slug, name), product_variants(*), product_images(*)';
+const PRODUCT_SELECT =
+  '*, categories(slug, name), product_variants(*), product_images(*), product_stories(story_title, story_content, heritage_info, sourcing_details)';
 
 interface RawVariant {
   id: string;
@@ -27,6 +28,13 @@ interface RawImage {
   is_primary: boolean;
 }
 
+interface RawStory {
+  story_title: string | null;
+  story_content: string | null;
+  heritage_info: string | null;
+  sourcing_details: string | null;
+}
+
 interface RawProduct {
   id: string;
   name: string;
@@ -39,6 +47,7 @@ interface RawProduct {
   categories: { slug: string; name: string } | null;
   product_variants: RawVariant[];
   product_images: RawImage[];
+  product_stories: RawStory[] | RawStory | null;
 }
 
 function normalizeVariants(variants: RawVariant[]): ProductVariant[] {
@@ -69,6 +78,21 @@ function normalizeImages(images: RawImage[]): ProductImage[] {
     }));
 }
 
+function normalizeStory(raw: RawStory[] | RawStory | null): ProductStory | null {
+  const row = Array.isArray(raw) ? raw[0] : raw;
+  if (!row) return null;
+
+  const story: ProductStory = {
+    title: row.story_title,
+    content: row.story_content,
+    heritage: row.heritage_info,
+    sourcing: row.sourcing_details,
+  };
+
+  const hasContent = story.title || story.content || story.heritage || story.sourcing;
+  return hasContent ? story : null;
+}
+
 function normalizeProduct(row: RawProduct): ProductWithDetails {
   const product: Product = {
     id: row.id,
@@ -86,6 +110,7 @@ function normalizeProduct(row: RawProduct): ProductWithDetails {
     ...product,
     variants: normalizeVariants(row.product_variants || []),
     images: normalizeImages(row.product_images || []),
+    story: normalizeStory(row.product_stories),
   };
 }
 

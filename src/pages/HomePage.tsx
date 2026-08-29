@@ -6,6 +6,7 @@ import ProductCard from '../components/ProductCard';
 import Reveal from '../components/Reveal';
 import SpiceDrift from '../components/SpiceDrift';
 import SpiceOrbit from '../components/SpiceElements';
+import SpiceLoader from '../components/SpiceLoader';
 import { ChevronRight, Leaf, Gem, Flame, Sparkles } from 'lucide-react';
 
 interface HomePageProps {
@@ -153,9 +154,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
       </section>
 
       {loading ? (
-        <div className="text-center py-20">
-          <div className="inline-block w-12 h-12 border-4 border-ink border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        <SpiceLoader />
       ) : (
         <>
           {bestsellers.length > 0 && (
