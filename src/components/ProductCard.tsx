@@ -15,7 +15,7 @@ export default function ProductCard({ product, variants, images, onClick }: Prod
   return (
     <div
       onClick={onClick}
-      className="group bg-white rounded-xl shadow-sm hover:shadow-2xl hover:shadow-ink/10 transition-all duration-500 overflow-hidden cursor-pointer border border-black/5"
+      className="group bg-white hover:shadow-xl hover:shadow-ink/10 transition-shadow duration-500 overflow-hidden cursor-pointer border border-black/5"
     >
       <div className="relative aspect-square overflow-hidden bg-cream-soft">
         {firstImage ? (
@@ -31,22 +31,25 @@ export default function ProductCard({ product, variants, images, onClick }: Prod
           </div>
         )}
         {product.is_bestseller && (
-          <div className="absolute top-3 right-3 bg-saffron-light text-ink px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
+          <div
+            className="absolute top-0 right-4 bg-saffron text-cream px-2.5 pt-1.5 pb-2 text-[11px] font-semibold tracking-wide flex items-center gap-1 shadow-md"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%)' }}
+          >
             <Star className="w-3 h-3 fill-current" />
             Bestseller
           </div>
         )}
       </div>
 
-      <div className="p-4">
+      <div className="p-4 border-t border-black/5">
         <h3 className="font-serif font-semibold text-lg text-ink mb-2 group-hover:text-moss transition-colors line-clamp-1">
           {product.name}
         </h3>
 
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-gray-500 mb-1 tracking-wide uppercase">Starting from</p>
-            <p className="text-xl font-bold text-ink">
+            <p className="text-[11px] text-gray-500 tracking-[0.1em] uppercase">From</p>
+            <p className="font-serif italic text-2xl text-ink leading-tight">
               ₹{Math.round(minPrice)}
             </p>
           </div>
@@ -55,9 +58,9 @@ export default function ProductCard({ product, variants, images, onClick }: Prod
               e.stopPropagation();
               if (onClick) onClick();
             }}
-            className="bg-ink text-cream px-4 py-2 rounded-lg text-sm font-medium hover:bg-saffron-dark transition-colors"
+            className="border border-ink text-ink px-4 py-2 text-sm font-medium hover:bg-ink hover:text-cream transition-colors"
           >
-            View Details
+            View
           </button>
         </div>
       </div>

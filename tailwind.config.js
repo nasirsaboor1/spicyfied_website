@@ -41,10 +41,19 @@ export default {
           '0%, 100%': { transform: 'translateY(0px) rotate(var(--rot-a, -6deg))' },
           '50%': { transform: 'translateY(-18px) rotate(var(--rot-b, 5deg))' },
         },
+        'spice-puff': {
+          '0%': { transform: 'translate(-50%, -50%) scale(0.4) rotate(0deg)', opacity: '0' },
+          '15%': { opacity: '1' },
+          '100%': {
+            transform: 'translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1) rotate(var(--rot))',
+            opacity: '0',
+          },
+        },
       },
       animation: {
         drift: 'drift linear infinite',
         'spice-float': 'spice-float ease-in-out infinite',
+        'spice-puff': 'spice-puff 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards',
       },
     },
   },

@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { ChevronLeft, ChevronRight, Check, ShoppingCart } from 'lucide-react';
 import ProductReviews from '../components/ProductReviews';
 import BulkPricingNote from '../components/BulkPricingNote';
+import SpicePuff from '../components/SpicePuff';
 
 interface ProductDetailPageProps {
   productSlug: string;
@@ -18,6 +19,7 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
   const { addToCart, setIsCartOpen } = useCart();
 
   useEffect(() => {
@@ -55,6 +57,7 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
     });
 
     setAddedToCart(true);
+    setBurstKey((k) => k + 1);
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
@@ -227,22 +230,25 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
               <BulkPricingNote />
 
               <div className="flex gap-3">
-                <button
-                  onClick={handleAddToCart}
-                  className="flex-1 bg-[#211C17] text-white py-4 rounded-lg font-semibold text-lg hover:bg-[#140F0C] transition-all shadow-lg flex items-center justify-center gap-2"
-                >
-                  {addedToCart ? (
-                    <>
-                      <Check className="w-5 h-5" />
-                      Added to Cart
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart className="w-5 h-5" />
-                      Add to Cart
-                    </>
-                  )}
-                </button>
+                <div className="relative flex-1">
+                  <SpicePuff triggerKey={burstKey} />
+                  <button
+                    onClick={handleAddToCart}
+                    className="w-full bg-ink text-white py-4 rounded-lg font-semibold text-lg hover:bg-ink-light transition-all shadow-lg flex items-center justify-center gap-2"
+                  >
+                    {addedToCart ? (
+                      <>
+                        <Check className="w-5 h-5" />
+                        Added to Cart
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="w-5 h-5" />
+                        Add to Cart
+                      </>
+                    )}
+                  </button>
+                </div>
                 {addedToCart && (
                   <button
                     onClick={() => setIsCartOpen(true)}
