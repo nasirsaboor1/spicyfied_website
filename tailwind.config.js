@@ -9,9 +9,13 @@ export default {
           light: '#2A3F29',
         },
         saffron: {
-          DEFAULT: '#B8860B',
-          light: '#D4AF37',
-          dark: '#8A6508',
+          DEFAULT: '#B85C2E',
+          light: '#D97F52',
+          dark: '#8A3D1D',
+        },
+        ochre: {
+          DEFAULT: '#C9A227',
+          light: '#DDBE5C',
         },
         moss: {
           DEFAULT: '#5B7052',
@@ -23,8 +27,8 @@ export default {
         },
       },
       fontFamily: {
-        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
-        sans: ['Montserrat', 'system-ui', 'sans-serif'],
+        serif: ['"Fraunces"', 'Georgia', 'serif'],
+        sans: ['"Inter"', 'system-ui', 'sans-serif'],
       },
       keyframes: {
         drift: {

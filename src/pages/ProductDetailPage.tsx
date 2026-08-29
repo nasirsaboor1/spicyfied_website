@@ -246,7 +246,7 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
                 {addedToCart && (
                   <button
                     onClick={() => setIsCartOpen(true)}
-                    className="px-6 py-4 bg-[#d4af37] text-[#211C17] rounded-lg font-semibold hover:bg-[#B8860B] transition-colors"
+                    className="px-6 py-4 bg-saffron-light text-ink rounded-lg font-semibold hover:bg-saffron transition-colors"
                   >
                     View Cart
                   </button>
