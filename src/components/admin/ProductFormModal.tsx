@@ -262,7 +262,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
       <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full my-8">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-xl">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 z-10 bg-white rounded-t-xl">
           <h2 className="text-xl font-bold text-gray-900">
             {productId ? 'Edit Product' : 'Add Product'}
           </h2>
@@ -362,7 +362,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
                 rows={3}
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent resize-none"
               />
             </div>
 
@@ -372,7 +372,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
                 rows={2}
                 value={form.health_benefits}
                 onChange={(e) => setForm({ ...form, health_benefits: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent resize-none"
               />
             </div>
 
@@ -596,7 +596,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
                       placeholder="e.g. From the hills of Kerala"
                       value={storyForm.story_title}
                       onChange={(e) => setStoryForm({ ...storyForm, story_title: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-ink focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-ink focus:border-transparent resize-none"
                     />
                   </div>
                   <div>
@@ -606,7 +606,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
                       placeholder="The story of how this spice is grown, cleaned, and brought to the shop"
                       value={storyForm.story_content}
                       onChange={(e) => setStoryForm({ ...storyForm, story_content: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-ink focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-ink focus:border-transparent resize-none"
                     />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -617,7 +617,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
                         placeholder="Any tradition or history behind it"
                         value={storyForm.heritage_info}
                         onChange={(e) => setStoryForm({ ...storyForm, heritage_info: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-ink focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-ink focus:border-transparent resize-none"
                       />
                     </div>
                     <div>
@@ -627,7 +627,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
                         placeholder="Where and how it's sourced"
                         value={storyForm.sourcing_details}
                         onChange={(e) => setStoryForm({ ...storyForm, sourcing_details: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-ink focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-ink focus:border-transparent resize-none"
                       />
                     </div>
                   </div>
