@@ -8,6 +8,12 @@ import SpiceDrift from '../components/SpiceDrift';
 import SpiceOrbit from '../components/SpiceElements';
 import SpiceLoader from '../components/SpiceLoader';
 import SpiceScroll from '../components/SpiceScroll';
+import {
+  TurmericGlassDiagram,
+  CinnamonBarkDiagram,
+  CardamomPodDiagram,
+  PepperFloatDiagram,
+} from '../components/TestDiagrams';
 import { ChevronRight, Leaf, Gem, Flame, Sparkles } from 'lucide-react';
 
 interface HomePageProps {
@@ -125,6 +131,67 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
         </div>
       </section>
 
+      {/* Adulteration is the industry's dirty secret and the real */}
+      {/* reason a "premium" spice shop matters. Show it, don't tell it. */}
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-16">
+        <Reveal className="max-w-3xl mx-auto text-center mb-14">
+          <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-3">
+            The shopkeeper's notebook
+          </p>
+          <h2 className="font-serif text-4xl md:text-5xl font-semibold text-ink mb-5 leading-tight">
+            You'd be surprised what's in the jar.
+          </h2>
+          <p className="text-gray-600 text-lg leading-relaxed">
+            Lead-chromate turmeric. Cassia labelled cinnamon. Papaya seeds
+            passed off as pepper. Four one-minute tests you can do at home.
+          </p>
+        </Reveal>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+          {[
+            {
+              name: 'Turmeric',
+              Diagram: TurmericGlassDiagram,
+              instruction: 'Dissolve a spoonful in warm water.',
+              tell: 'Real sinks and leaves the water clear yellow. Muddy or bleeding colour means additives.',
+            },
+            {
+              name: 'Cinnamon',
+              Diagram: CinnamonBarkDiagram,
+              instruction: 'Look at the end of the stick.',
+              tell: 'Ceylon is thin and rolls into multiple paper layers. Cassia is one thick, hard, flat bark.',
+            },
+            {
+              name: 'Cardamom',
+              Diagram: CardamomPodDiagram,
+              instruction: 'Squeeze a pod between your fingers.',
+              tell: 'Fresh snaps open and releases a sharp camphor scent. Stale is dry, faded, and flat.',
+            },
+            {
+              name: 'Black Pepper',
+              Diagram: PepperFloatDiagram,
+              instruction: 'Drop the peppercorns in water.',
+              tell: 'Real peppercorns sink. Papaya seeds, a common bulking agent, float.',
+            },
+          ].map((t, i) => (
+            <Reveal key={t.name} delayMs={i * 80}>
+              <article className="bg-white border border-black/5 rounded-2xl p-6 md:p-8 h-full flex flex-col">
+                <div className="bg-cream-soft rounded-xl px-4 py-6 mb-6 flex items-center justify-center">
+                  <t.Diagram className="w-full max-w-[280px] h-auto" />
+                </div>
+                <p className="font-sans text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-2">
+                  The {t.name.toLowerCase()} test
+                </p>
+                <h3 className="font-serif text-2xl font-semibold text-ink mb-2">
+                  {t.instruction}
+                </h3>
+                <p className="text-gray-600 leading-relaxed text-[15px]">{t.tell}</p>
+              </article>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
       <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <Reveal className="text-center mb-12">
           <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-2">Our Collection</p>
@@ -152,55 +219,6 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
             title="Blended Spices"
             comingSoon
           />
-        </div>
-      </section>
-
-      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <div className="bg-ink text-cream rounded-3xl px-8 md:px-14 py-14 md:py-20">
-          <Reveal className="max-w-2xl mb-12">
-            <p className="text-saffron-light text-xs font-semibold tracking-[0.25em] uppercase mb-3">
-              From the shopkeeper's notebook
-            </p>
-            <h2 className="font-serif text-3xl md:text-4xl font-semibold mb-4">
-              How to know it's real.
-            </h2>
-            <p className="text-cream/70 leading-relaxed">
-              Adulterated turmeric, cassia sold as cinnamon, papaya seeds passed off as
-              pepper — none of it is rare on Indian shelves. These are the tests you can do
-              at home in a minute, to see what's actually in the jar.
-            </p>
-          </Reveal>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                name: 'Turmeric',
-                test: 'Add a spoonful to a glass of warm water. Real turmeric sinks and leaves clear yellow water. A muddy residue or swirled colour means additives.',
-              },
-              {
-                name: 'Cinnamon',
-                test: 'Real Ceylon cinnamon is thin, brittle, and rolls into layered curls like a cigar. Cassia — often sold as cinnamon — is a single thick, hard bark that snaps flat.',
-              },
-              {
-                name: 'Cardamom',
-                test: 'Press a pod between your fingers. It should snap open cleanly and release a sharp camphor-eucalyptus scent. A dry, flat-scented pod has been on a shelf for years.',
-              },
-              {
-                name: 'Black Pepper',
-                test: 'Drop whole peppercorns in a glass of water. Real peppercorns sink. Papaya seeds — a common adulterant — float.',
-              },
-            ].map((t, i) => (
-              <Reveal key={t.name} delayMs={i * 80}>
-                <div className="border-t border-cream/20 pt-4">
-                  <p className="font-sans text-xs font-semibold tracking-[0.15em] uppercase text-saffron-light mb-2">
-                    The test
-                  </p>
-                  <h3 className="font-serif text-2xl font-semibold mb-3">{t.name}</h3>
-                  <p className="text-sm text-cream/70 leading-relaxed">{t.test}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
         </div>
       </section>
 
