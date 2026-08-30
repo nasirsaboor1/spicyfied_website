@@ -3,6 +3,7 @@ import { Clock, Users } from 'lucide-react';
 import { RECIPES } from '../data/recipes';
 import { ALL_CUISINES } from '../lib/recipe-utils';
 import Reveal from '../components/Reveal';
+import PantryMatch from '../components/PantryMatch';
 
 interface RecipesPageProps {
   onNavigateToRecipe: (id: string) => void;
@@ -34,6 +35,12 @@ export default function RecipesPage({
             A working set of dishes across sixteen cuisines — filter by the
             kitchen you cook in most.
           </p>
+        </Reveal>
+      </section>
+
+      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        <Reveal>
+          <PantryMatch onNavigateToRecipe={onNavigateToRecipe} />
         </Reveal>
       </section>
 
