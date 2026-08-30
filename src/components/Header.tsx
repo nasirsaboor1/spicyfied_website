@@ -11,6 +11,7 @@ interface HeaderProps {
   onNavigateToOrders?: () => void;
   onNavigateToDashboard?: () => void;
   onNavigateToContact?: () => void;
+  onNavigateToRecipes?: () => void;
 }
 
 export default function Header({
@@ -20,7 +21,8 @@ export default function Header({
   onNavigateToSignup,
   onNavigateToOrders,
   onNavigateToDashboard,
-  onNavigateToContact
+  onNavigateToContact,
+  onNavigateToRecipes
 }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -72,6 +74,7 @@ export default function Header({
                 <div className="px-4 py-3 text-gray-400 border-t">Blended Spices (Coming Soon)</div>
               </div>
             </div>
+            <a href="/recipes" className={navLinkClass} onClick={(e) => { e.preventDefault(); onNavigateToRecipes?.(); }}>Recipes</a>
             <a href="/contact" className={navLinkClass} onClick={(e) => { e.preventDefault(); onNavigateToContact?.(); }}>Contact Us</a>
           </nav>
 
@@ -195,6 +198,7 @@ export default function Header({
               <a href="/shop?category=seeds" className="block text-sm hover:text-saffron-light" onClick={(e) => { e.preventDefault(); handleCategoryClick('seeds'); }}>Seeds</a>
               <div className="text-sm text-cream/50">Blended Spices (Coming Soon)</div>
             </div>
+            <a href="/recipes" className="block hover:text-saffron-light transition-colors font-medium" onClick={(e) => { e.preventDefault(); onNavigateToRecipes?.(); setIsMenuOpen(false); }}>Recipes</a>
             <a href="/contact" className="block hover:text-saffron-light transition-colors font-medium" onClick={(e) => { e.preventDefault(); onNavigateToContact?.(); setIsMenuOpen(false); }}>Contact Us</a>
             <button
               onClick={() => { setIsCartOpen(true); setIsMenuOpen(false); }}

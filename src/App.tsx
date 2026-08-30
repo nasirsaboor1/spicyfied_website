@@ -20,12 +20,16 @@ import TermsConditionsPage from './pages/TermsConditionsPage';
 import ShippingDeliveryPage from './pages/ShippingDeliveryPage';
 import RefundCancellationPage from './pages/RefundCancellationPage';
 import ContactPage from './pages/ContactPage';
+import RecipesPage from './pages/RecipesPage';
+import RecipeDetailPage from './pages/RecipeDetailPage';
 
-type Page = 'home' | 'shop' | 'product' | 'login' | 'signup' | 'checkout' | 'orders' | 'dashboard' | 'admin' | 'reset-password' | 'privacy' | 'terms' | 'shipping' | 'refund' | 'contact';
+type Page = 'home' | 'shop' | 'product' | 'login' | 'signup' | 'checkout' | 'orders' | 'dashboard' | 'admin' | 'reset-password' | 'privacy' | 'terms' | 'shipping' | 'refund' | 'contact' | 'recipes' | 'recipe';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [currentProductSlug, setCurrentProductSlug] = useState<string>('');
+  const [currentRecipeId, setCurrentRecipeId] = useState<string>('');
+  const [initialCuisine, setInitialCuisine] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -63,6 +67,11 @@ function App() {
         setCurrentPage('refund');
       } else if (path === '/contact') {
         setCurrentPage('contact');
+      } else if (path === '/recipes') {
+        setCurrentPage('recipes');
+      } else if (path.startsWith('/recipes/')) {
+        setCurrentPage('recipe');
+        setCurrentRecipeId(path.replace('/recipes/', ''));
       }
     };
 
@@ -187,6 +196,20 @@ function App() {
     window.scrollTo(0, 0);
   };
 
+  const navigateToRecipes = (cuisine: string = 'all') => {
+    setInitialCuisine(cuisine);
+    setCurrentPage('recipes');
+    window.history.pushState({}, '', '/recipes');
+    window.scrollTo(0, 0);
+  };
+
+  const navigateToRecipe = (id: string) => {
+    setCurrentRecipeId(id);
+    setCurrentPage('recipe');
+    window.history.pushState({}, '', `/recipes/${id}`);
+    window.scrollTo(0, 0);
+  };
+
   return (
     <AuthProvider>
       <CartProvider>
@@ -200,6 +223,7 @@ function App() {
               onNavigateToOrders={navigateToOrders}
               onNavigateToDashboard={navigateToDashboard}
               onNavigateToContact={navigateToContact}
+              onNavigateToRecipes={() => navigateToRecipes()}
             />
           )}
           {currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin' && currentPage !== 'reset-password' && (
@@ -210,6 +234,7 @@ function App() {
           <HomePage
             onNavigateToProduct={navigateToProduct}
             onNavigateToShop={navigateToShop}
+            onNavigateToRecipes={navigateToRecipes}
           />
         )}
 
@@ -299,6 +324,21 @@ function App() {
         {currentPage === 'contact' && (
           <ContactPage
             onNavigateHome={navigateToHome}
+          />
+        )}
+
+        {currentPage === 'recipes' && (
+          <RecipesPage
+            onNavigateToRecipe={navigateToRecipe}
+            initialCuisine={initialCuisine}
+          />
+        )}
+
+        {currentPage === 'recipe' && (
+          <RecipeDetailPage
+            recipeId={currentRecipeId}
+            onNavigateBack={() => navigateToRecipes()}
+            onNavigateToProduct={navigateToProduct}
           />
         )}
 
