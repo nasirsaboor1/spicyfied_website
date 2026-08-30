@@ -1,16 +1,17 @@
-import { resolveImageUrl } from './products';
-
 /**
- * Real product photography (already shot and uploaded for the catalog)
- * used for the ambient hero/scroll animation. Deliberately NOT
- * illustration - the brand's whole premise is authenticity, so the
- * moving elements on the page are actual photos of what's sold, not
- * drawings standing in for them.
+ * Real product photography, cropped down to a single piece per spice -
+ * one cardamom pod, one cinnamon quill, one clove, one star anise pod,
+ * one peppercorn - instead of the full catalog pile shot. Deliberately
+ * NOT illustration and NOT a whole scattered heap: a single real piece
+ * reads as deliberate and premium, where a full pile read as busy and
+ * unpolished at full-bleed hero size. Each is a straight crop of the
+ * actual catalog photo (see public/images/spice-scroll), not a stock
+ * or generated image.
  */
 export const SCROLL_SPICE_PHOTOS = {
-  cardamom: resolveImageUrl('/Cardamom (1)-min.JPG'),
-  cinnamon: resolveImageUrl('/Cinnamon (1)-min.JPG'),
-  clove: resolveImageUrl('/Clove (1)-min.JPG'),
-  starAnise: resolveImageUrl('/Star Anise (1)-min.JPG'),
-  pepper: resolveImageUrl('/Pepper (1)-min.JPG'),
+  cardamom: '/images/spice-scroll/cardamom.jpg',
+  cinnamon: '/images/spice-scroll/cinnamon.jpg',
+  clove: '/images/spice-scroll/clove.jpg',
+  starAnise: '/images/spice-scroll/star-anise.jpg',
+  pepper: '/images/spice-scroll/pepper.jpg',
 };
