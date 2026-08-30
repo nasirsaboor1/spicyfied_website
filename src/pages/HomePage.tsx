@@ -18,7 +18,6 @@ import { ChevronRight, Leaf, Gem, Flame, Sparkles } from 'lucide-react';
 interface HomePageProps {
   onNavigateToProduct: (slug: string) => void;
   onNavigateToShop: (category?: string) => void;
-  onNavigateToRecipes: (cuisine?: string) => void;
 }
 
 const PILLARS = [
@@ -44,16 +43,7 @@ const PILLARS = [
   },
 ];
 
-const CUISINE_TILES = [
-  { name: 'Indian', emoji: '🥘', hint: 'garam masala, cardamom, cumin' },
-  { name: 'Italian', emoji: '🍝', hint: 'basil, oregano, black pepper' },
-  { name: 'Thai', emoji: '🍜', hint: 'lemongrass, chili, coriander' },
-  { name: 'Mexican', emoji: '🌮', hint: 'cumin, oregano, chili' },
-  { name: 'Middle Eastern', emoji: '🥙', hint: 'sumac, zaatar, saffron' },
-  { name: 'French', emoji: '🥐', hint: 'thyme, tarragon, nutmeg' },
-];
-
-export default function HomePage({ onNavigateToProduct, onNavigateToShop, onNavigateToRecipes }: HomePageProps) {
+export default function HomePage({ onNavigateToProduct, onNavigateToShop }: HomePageProps) {
   const [bestsellers, setBestsellers] = useState<ProductWithDetails[]>([]);
   const [everydayEssentials, setEverydayEssentials] = useState<ProductWithDetails[]>([]);
   const [healthySnacking, setHealthySnacking] = useState<ProductWithDetails[]>([]);
@@ -151,45 +141,6 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop, onNavi
           </h2>
         </div>
         <SpiceReveal onNavigateToProduct={onNavigateToProduct} />
-      </section>
-
-      {/* The identity strip: tell people which kitchens this shop serves */}
-      {/* Clicking through takes them into the recipe library filtered by cuisine. */}
-      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-16">
-        <Reveal className="mb-8">
-          <div className="flex items-end justify-between border-b border-ink/10 pb-4">
-            <div>
-              <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-1">
-                Every kitchen the cabinet visits
-              </p>
-              <h2 className="font-serif text-3xl md:text-4xl font-semibold text-ink">
-                Cook by cuisine.
-              </h2>
-            </div>
-            <button
-              onClick={() => onNavigateToRecipes()}
-              className="hidden sm:flex items-center gap-2 text-ink font-semibold hover:gap-3 hover:text-moss transition-all"
-            >
-              All Recipes <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-        </Reveal>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {CUISINE_TILES.map((c, i) => (
-            <Reveal key={c.name} delayMs={i * 60}>
-              <button
-                onClick={() => onNavigateToRecipes(c.name)}
-                className="group w-full text-left bg-white rounded-2xl border border-black/5 p-5 hover:shadow-lg hover:shadow-ink/10 transition-all"
-              >
-                <div className="text-4xl mb-3">{c.emoji}</div>
-                <h3 className="font-serif text-lg font-semibold text-ink group-hover:text-moss transition-colors">
-                  {c.name}
-                </h3>
-                <p className="text-xs text-gray-500 mt-1">{c.hint}</p>
-              </button>
-            </Reveal>
-          ))}
-        </div>
       </section>
 
       {/* Adulteration is the industry's dirty secret and the real */}

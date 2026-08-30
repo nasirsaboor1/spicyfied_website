@@ -234,7 +234,6 @@ function App() {
           <HomePage
             onNavigateToProduct={navigateToProduct}
             onNavigateToShop={navigateToShop}
-            onNavigateToRecipes={navigateToRecipes}
           />
         )}
 
