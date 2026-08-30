@@ -1,65 +1,103 @@
-import { motion } from 'motion/react';
-import type { Variants } from 'motion/react';
+import { useRef } from 'react';
+import { motion, useScroll, useTransform } from 'motion/react';
 import { SCROLL_SPICE_PHOTOS } from '../lib/spicePhotos';
 
 /**
- * A deliberate, focused scroll-triggered reveal - one real spice photo
- * at a time, each popping into place with a spring bounce as it enters
- * the viewport. Adapted from Motion's "Scroll Triggered Cards" pattern,
- * with real product photography standing in for the emoji and a
- * splash colour drawn from the actual spice rather than a rainbow.
- *
- * Deliberately NOT ambient/background motion (that was the previous,
- * failed attempt - tiny drifting photo clutter). This is one moment at
- * a time, large, and it stops once you've scrolled past it.
+ * A full-bleed, documentary-style scroll sequence - one real macro photo
+ * of the actual product filling the screen at a time, slowly settling
+ * into frame as it scrolls through view (a subtle Ken Burns zoom + parallax
+ * drift), rather than small cards bouncing in. No stock or invented
+ * imagery: every frame here is our own catalog photography.
  */
 
-interface SpiceCard {
+interface Spice {
   name: string;
   slug: string;
   photo: string;
-  splash: string; // CSS background for the shape behind the card
+  caption: string;
 }
 
-const SPICES: SpiceCard[] = [
+const SPICES: Spice[] = [
   {
     name: 'Cardamom',
     slug: 'cardamom',
     photo: SCROLL_SPICE_PHOTOS.cardamom,
-    splash: 'linear-gradient(315deg, #5F7B48, #A3B78A)',
+    caption: 'Hand-sorted pods, plump enough to snap between two fingers.',
   },
   {
     name: 'Cinnamon',
     slug: 'cinnamon',
     photo: SCROLL_SPICE_PHOTOS.cinnamon,
-    splash: 'linear-gradient(315deg, #6F4520, #B85C2E)',
+    caption: 'True Ceylon quills, thin bark rolled by hand into paper-fine layers.',
   },
   {
     name: 'Clove',
     slug: 'clove',
     photo: SCROLL_SPICE_PHOTOS.clove,
-    splash: 'linear-gradient(315deg, #3E2410, #6F3A19)',
+    caption: 'Sun-dried buds, still dark and oily at the stem.',
   },
   {
     name: 'Star Anise',
     slug: 'star-anise',
     photo: SCROLL_SPICE_PHOTOS.starAnise,
-    splash: 'linear-gradient(315deg, #4A2612, #8A5A2E)',
+    caption: 'Whole eight-point pods, glossy seeds still sealed inside.',
   },
 ];
 
-const cardVariants: Variants = {
-  offscreen: { y: 220, opacity: 0, rotate: 0 },
-  onscreen: {
-    y: 0,
-    opacity: 1,
-    rotate: -6,
-    transition: { type: 'spring', bounce: 0.4, duration: 0.9 },
-  },
-};
+interface SpicePanelProps {
+  spice: Spice;
+  index: number;
+  onNavigateToProduct: (slug: string) => void;
+}
 
-const splashPath =
-  'path("M 0 303.5 C 0 292.454 8.995 285.101 20 283.5 L 460 219.5 C 470.085 218.033 480 228.454 480 239.5 L 500 430 C 500 441.046 491.046 450 480 450 L 20 450 C 8.954 450 0 441.046 0 430 Z")';
+function SpicePanel({ spice, index, onNavigateToProduct }: SpicePanelProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  });
+
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1.18, 1, 1.08]);
+  const imageY = useTransform(scrollYProgress, [0, 1], ['-6%', '6%']);
+
+  return (
+    <div ref={ref} className="relative h-screen w-full overflow-hidden flex items-end">
+      <motion.img
+        src={spice.photo}
+        alt={spice.name}
+        style={{ scale, y: imageY }}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/10 to-transparent" />
+
+      <motion.div
+        className="relative z-10 w-full px-6 sm:px-10 lg:px-16 pb-16 sm:pb-20"
+        initial={{ opacity: 0, y: 32 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.6 }}
+        transition={{ duration: 0.7, ease: 'easeOut' }}
+      >
+        <div className="max-w-[1600px] mx-auto">
+          <p className="text-saffron-light text-xs font-semibold tracking-[0.3em] uppercase mb-3">
+            {String(index + 1).padStart(2, '0')} &middot; The real thing
+          </p>
+          <h3 className="font-serif text-5xl md:text-6xl lg:text-7xl font-semibold text-cream mb-4">
+            {spice.name}
+          </h3>
+          <p className="text-cream/75 text-lg max-w-md mb-7 leading-relaxed">
+            {spice.caption}
+          </p>
+          <button
+            onClick={() => onNavigateToProduct(spice.slug)}
+            className="inline-flex items-center gap-2 bg-saffron-light text-ink px-6 py-3 font-semibold text-sm hover:bg-saffron transition-colors"
+          >
+            Shop the real thing
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
 
 interface SpiceRevealProps {
   onNavigateToProduct: (slug: string) => void;
@@ -67,39 +105,9 @@ interface SpiceRevealProps {
 
 export default function SpiceReveal({ onNavigateToProduct }: SpiceRevealProps) {
   return (
-    <div className="mx-auto max-w-md w-full py-6">
+    <div className="relative w-full">
       {SPICES.map((spice, i) => (
-        <motion.div
-          key={spice.slug}
-          className="relative flex justify-center items-center overflow-visible"
-          style={{ paddingTop: 20, marginBottom: i === SPICES.length - 1 ? 0 : -110 }}
-          initial="offscreen"
-          whileInView="onscreen"
-          viewport={{ amount: 0.8, once: true }}
-        >
-          <div
-            className="absolute inset-0"
-            style={{ background: spice.splash, clipPath: splashPath }}
-          />
-          <motion.button
-            variants={cardVariants}
-            onClick={() => onNavigateToProduct(spice.slug)}
-            className="relative w-[280px] h-[380px] rounded-[20px] bg-white shadow-2xl shadow-black/30 overflow-hidden group text-left"
-            style={{ transformOrigin: '10% 60%' }}
-          >
-            <img
-              src={spice.photo}
-              alt={spice.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/80 to-transparent p-5 pt-12">
-              <p className="font-serif text-2xl font-semibold text-cream">{spice.name}</p>
-              <p className="text-xs text-cream/70 uppercase tracking-widest mt-1">
-                Shop the real thing →
-              </p>
-            </div>
-          </motion.button>
-        </motion.div>
+        <SpicePanel key={spice.slug} spice={spice} index={i} onNavigateToProduct={onNavigateToProduct} />
       ))}
     </div>
   );

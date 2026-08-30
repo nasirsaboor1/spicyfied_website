@@ -7,12 +7,7 @@ import Reveal from '../components/Reveal';
 import SpiceDrift from '../components/SpiceDrift';
 import SpiceLoader from '../components/SpiceLoader';
 import SpiceReveal from '../components/SpiceReveal';
-import {
-  TurmericGlassDiagram,
-  CinnamonBarkDiagram,
-  CardamomPodDiagram,
-  PepperFloatDiagram,
-} from '../components/TestDiagrams';
+import { SCROLL_SPICE_PHOTOS } from '../lib/spicePhotos';
 import { ChevronRight, Leaf, Gem, Flame, Sparkles } from 'lucide-react';
 
 interface HomePageProps {
@@ -128,15 +123,15 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
         </div>
       </section>
 
-      {/* A focused, one-at-a-time scroll reveal of real product photography -
-          not ambient background motion. Each spice pops into place with a
-          spring bounce as it enters the viewport, then the page moves on. */}
-      <section className="bg-cream-soft px-4 pb-24">
-        <div className="max-w-[1600px] mx-auto text-center pt-12 pb-4">
-          <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-3">
+      {/* A full-bleed, documentary scroll through the actual product -
+          one real macro photo filling the screen at a time, not ambient
+          background motion and not small bouncing cards. */}
+      <section className="bg-ink">
+        <div className="max-w-[1600px] mx-auto text-center px-4 pt-16 pb-10">
+          <p className="text-saffron-light text-xs font-semibold tracking-[0.25em] uppercase mb-3">
             Look closer
           </p>
-          <h2 className="font-serif text-3xl md:text-4xl font-semibold text-ink">
+          <h2 className="font-serif text-3xl md:text-4xl font-semibold text-cream">
             This is what you're actually buying.
           </h2>
         </div>
@@ -154,7 +149,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
             You'd be surprised what's in the jar.
           </h2>
           <p className="text-gray-600 text-lg leading-relaxed">
-            Lead-chromate turmeric. Cassia labelled cinnamon. Papaya seeds
+            Spent cloves resold as fresh. Cassia labelled cinnamon. Papaya seeds
             passed off as pepper. Four one-minute tests you can do at home.
           </p>
         </Reveal>
@@ -162,42 +157,51 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
           {[
             {
-              name: 'Turmeric',
-              Diagram: TurmericGlassDiagram,
-              instruction: 'Dissolve a spoonful in warm water.',
-              tell: 'Real sinks and leaves the water clear yellow. Muddy or bleeding colour means additives.',
-            },
-            {
               name: 'Cinnamon',
-              Diagram: CinnamonBarkDiagram,
+              photo: SCROLL_SPICE_PHOTOS.cinnamon,
               instruction: 'Look at the end of the stick.',
               tell: 'Ceylon is thin and rolls into multiple paper layers. Cassia is one thick, hard, flat bark.',
             },
             {
               name: 'Cardamom',
-              Diagram: CardamomPodDiagram,
+              photo: SCROLL_SPICE_PHOTOS.cardamom,
               instruction: 'Squeeze a pod between your fingers.',
               tell: 'Fresh snaps open and releases a sharp camphor scent. Stale is dry, faded, and flat.',
             },
             {
+              name: 'Clove',
+              photo: SCROLL_SPICE_PHOTOS.clove,
+              instruction: 'Press one with a nail, then drop it in water.',
+              tell: 'Fresh clove beads oil at the press and floats upright, stem down. A spent, oil-stripped clove floats flat on its side.',
+            },
+            {
               name: 'Black Pepper',
-              Diagram: PepperFloatDiagram,
+              photo: SCROLL_SPICE_PHOTOS.pepper,
               instruction: 'Drop the peppercorns in water.',
               tell: 'Real peppercorns sink. Papaya seeds, a common bulking agent, float.',
             },
           ].map((t, i) => (
             <Reveal key={t.name} delayMs={i * 80}>
-              <article className="bg-white border border-black/5 rounded-2xl p-6 md:p-8 h-full flex flex-col">
-                <div className="bg-cream-soft rounded-xl px-4 py-6 mb-6 flex items-center justify-center">
-                  <t.Diagram className="w-full max-w-[280px] h-auto" />
+              <article className="bg-white border border-black/5 rounded-2xl overflow-hidden h-full flex flex-col">
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <img
+                    src={t.photo}
+                    alt={t.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <span className="absolute top-3 left-3 bg-ink/70 text-cream text-[10px] font-semibold tracking-[0.15em] uppercase px-2.5 py-1 rounded-full">
+                    Our {t.name.toLowerCase()}, unedited
+                  </span>
                 </div>
-                <p className="font-sans text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-2">
-                  The {t.name.toLowerCase()} test
-                </p>
-                <h3 className="font-serif text-2xl font-semibold text-ink mb-2">
-                  {t.instruction}
-                </h3>
-                <p className="text-gray-600 leading-relaxed text-[15px]">{t.tell}</p>
+                <div className="p-6 md:p-8 flex flex-col flex-1">
+                  <p className="font-sans text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-2">
+                    The {t.name.toLowerCase()} test
+                  </p>
+                  <h3 className="font-serif text-2xl font-semibold text-ink mb-2">
+                    {t.instruction}
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed text-[15px]">{t.tell}</p>
+                </div>
               </article>
             </Reveal>
           ))}

@@ -12,4 +12,5 @@ export const SCROLL_SPICE_PHOTOS = {
   cinnamon: resolveImageUrl('/Cinnamon (1)-min.JPG'),
   clove: resolveImageUrl('/Clove (1)-min.JPG'),
   starAnise: resolveImageUrl('/Star Anise (1)-min.JPG'),
+  pepper: resolveImageUrl('/Pepper (1)-min.JPG'),
 };
