@@ -1,5 +1,3 @@
-import { SCROLL_SPICE_PHOTOS } from '../lib/spicePhotos';
-
 interface IconProps {
   className?: string;
 }
@@ -8,9 +6,8 @@ interface IconProps {
  * Small stylised line icons used only for tiny UI feedback moments
  * (the "Add to Cart" particle burst) where an icon reads as a symbol,
  * not a claim about the product - like a confetti burst or checkmark.
- * The hero/scroll ambient decoration below uses real product photos
- * instead; these are not used for brand-level "here is the spice"
- * statements.
+ * Brand-level "here is the spice" statements use real product photos
+ * instead (see SpiceReveal.tsx), never these.
  */
 
 export function CinnamonIcon({ className = '' }: IconProps) {
@@ -51,59 +48,5 @@ export function CardamomIcon({ className = '' }: IconProps) {
         opacity="0.55"
       />
     </svg>
-  );
-}
-
-interface FloatingPhoto {
-  src: string;
-  top: string;
-  left?: string;
-  right?: string;
-  size: number;
-  rotate: number;
-  duration: number;
-  delay: number;
-  opacity: number;
-}
-
-const PHOTOS: FloatingPhoto[] = [
-  { src: SCROLL_SPICE_PHOTOS.cinnamon, top: '12%', left: '8%', size: 64, rotate: -8, duration: 11, delay: 0, opacity: 0.85 },
-  { src: SCROLL_SPICE_PHOTOS.cardamom, top: '62%', left: '6%', size: 58, rotate: 5, duration: 9, delay: 1.2, opacity: 0.9 },
-  { src: SCROLL_SPICE_PHOTOS.clove, top: '20%', right: '9%', size: 50, rotate: 6, duration: 10, delay: 0.6, opacity: 0.85 },
-  { src: SCROLL_SPICE_PHOTOS.starAnise, top: '66%', right: '7%', size: 56, rotate: -5, duration: 12, delay: 2, opacity: 0.8 },
-];
-
-/**
- * Ambient floating real product photography in the hero background -
- * gentle up/down drift, no rotation-flip gimmicks. Circular-cropped
- * with a soft shadow, same treatment as the scroll animation, so the
- * hero and the rest of the page speak the same visual language.
- */
-export default function SpiceOrbit() {
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      {PHOTOS.map(({ src, top, left, right, size, rotate, duration, delay, opacity }, i) => (
-        <div
-          key={i}
-          className="motion-safe:animate-spice-float absolute rounded-full overflow-hidden ring-1 ring-cream/20 shadow-xl shadow-black/30"
-          style={
-            {
-              top,
-              left,
-              right,
-              width: size,
-              height: size,
-              opacity,
-              animationDuration: `${duration}s`,
-              animationDelay: `${delay}s`,
-              '--rot-a': `${rotate}deg`,
-              '--rot-b': `${rotate + 4}deg`,
-            } as React.CSSProperties
-          }
-        >
-          <img src={src} alt="" className="w-full h-full object-cover" />
-        </div>
-      ))}
-    </div>
   );
 }

@@ -4,6 +4,7 @@ import { RECIPES } from '../data/recipes';
 import type { Recipe } from '../types/recipe';
 import { formatIngredient, formatTime } from '../lib/recipe-utils';
 import { productsForRecipe } from '../lib/recipeMatch';
+import { recipeImage } from '../lib/recipeImages';
 import { fetchProductsWithDetails } from '../lib/products';
 import type { ProductWithDetails } from '../types';
 
@@ -65,6 +66,14 @@ export default function RecipeDetailPage({
           <ChevronLeft className="w-4 h-4" />
           All Recipes
         </button>
+
+        <div className="rounded-2xl overflow-hidden aspect-[21/9] mb-8 bg-cream-soft">
+          <img
+            src={recipeImage(recipe.id)}
+            alt={recipe.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
 
         <header className="mb-10">
           <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-3">

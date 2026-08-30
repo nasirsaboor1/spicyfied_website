@@ -5,9 +5,8 @@ import CategoryCard from '../components/CategoryCard';
 import ProductCard from '../components/ProductCard';
 import Reveal from '../components/Reveal';
 import SpiceDrift from '../components/SpiceDrift';
-import SpiceOrbit from '../components/SpiceElements';
 import SpiceLoader from '../components/SpiceLoader';
-import SpiceScroll from '../components/SpiceScroll';
+import SpiceReveal from '../components/SpiceReveal';
 import {
   TurmericGlassDiagram,
   CinnamonBarkDiagram,
@@ -87,10 +86,8 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop, onNavi
 
   return (
     <div className="min-h-screen bg-cream">
-      <SpiceScroll />
       <section className="relative overflow-hidden bg-gradient-to-b from-ink via-ink to-[#223822] text-cream pt-24 pb-16 px-4">
         <SpiceDrift />
-        <SpiceOrbit />
 
         <div className="relative max-w-[1400px] mx-auto">
           <p className="text-saffron-light text-xs sm:text-sm font-medium tracking-[0.3em] uppercase mb-8">
@@ -139,6 +136,21 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop, onNavi
             </div>
           </div>
         </div>
+      </section>
+
+      {/* A focused, one-at-a-time scroll reveal of real product photography -
+          not ambient background motion. Each spice pops into place with a
+          spring bounce as it enters the viewport, then the page moves on. */}
+      <section className="bg-cream-soft px-4 pb-24">
+        <div className="max-w-[1600px] mx-auto text-center pt-12 pb-4">
+          <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-3">
+            Look closer
+          </p>
+          <h2 className="font-serif text-3xl md:text-4xl font-semibold text-ink">
+            This is what you're actually buying.
+          </h2>
+        </div>
+        <SpiceReveal onNavigateToProduct={onNavigateToProduct} />
       </section>
 
       {/* The identity strip: tell people which kitchens this shop serves */}

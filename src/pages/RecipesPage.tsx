@@ -4,6 +4,7 @@ import { RECIPES } from '../data/recipes';
 import { ALL_CUISINES } from '../lib/recipe-utils';
 import Reveal from '../components/Reveal';
 import PantryMatch from '../components/PantryMatch';
+import { recipeImage } from '../lib/recipeImages';
 
 interface RecipesPageProps {
   onNavigateToRecipe: (id: string) => void;
@@ -88,8 +89,16 @@ export default function RecipesPage({
                   onClick={() => onNavigateToRecipe(r.id)}
                   className="group text-left w-full bg-white rounded-2xl border border-black/5 hover:shadow-xl hover:shadow-ink/10 transition-all duration-500 overflow-hidden h-full flex flex-col"
                 >
-                  <div className="bg-gradient-to-br from-cream-soft to-cream aspect-[16/10] flex items-center justify-center text-7xl">
-                    {r.emoji}
+                  <div className="relative aspect-[16/10] overflow-hidden bg-cream-soft">
+                    <img
+                      src={recipeImage(r.id)}
+                      alt={r.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <span className="absolute bottom-2 right-2 text-2xl drop-shadow-md">
+                      {r.emoji}
+                    </span>
                   </div>
                   <div className="p-5 flex-1 flex flex-col">
                     <div className="flex items-center gap-2 mb-2 text-xs">
