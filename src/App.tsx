@@ -250,6 +250,8 @@ function App() {
             productSlug={currentProductSlug}
             onNavigateBack={() => navigateToShop()}
             onNavigateToProduct={navigateToProduct}
+            onNavigateToCheckout={navigateToCheckout}
+            onNavigateHome={navigateToHome}
           />
         )}
 

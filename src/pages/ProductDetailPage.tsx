@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { fetchProductBySlug, fetchProductsWithDetails } from '../lib/products';
+import { fetchProductBySlug, fetchProductsWithDetails, fetchProductRatingSummary } from '../lib/products';
+import { getDeliveryFee } from '../lib/delivery';
 import { ProductWithDetails } from '../types';
 import { useCart } from '../context/CartContext';
 import { ChevronLeft, ChevronRight, Check, ShoppingCart, Star } from 'lucide-react';
@@ -9,22 +10,41 @@ import SpicePuff from '../components/SpicePuff';
 import SpiceLoader from '../components/SpiceLoader';
 import ProductCard from '../components/ProductCard';
 import Reveal from '../components/Reveal';
+import StarRating from '../components/StarRating';
 
 interface ProductDetailPageProps {
   productSlug: string;
   onNavigateBack: () => void;
   onNavigateToProduct?: (slug: string) => void;
+  onNavigateToCheckout?: () => void;
+  onNavigateHome?: () => void;
 }
 
-export default function ProductDetailPage({ productSlug, onNavigateBack, onNavigateToProduct }: ProductDetailPageProps) {
+const CATEGORY_LABELS: Record<string, string> = {
+  'whole-spices': 'Whole Spices',
+  'dry-fruits': 'Dry Fruits',
+  seeds: 'Seeds',
+};
+
+export default function ProductDetailPage({
+  productSlug,
+  onNavigateBack,
+  onNavigateToProduct,
+  onNavigateToCheckout,
+  onNavigateHome,
+}: ProductDetailPageProps) {
   const [product, setProduct] = useState<ProductWithDetails | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<ProductWithDetails[]>([]);
+  const [rating, setRating] = useState({ average: 0, count: 0 });
   const [loading, setLoading] = useState(true);
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [addedToCart, setAddedToCart] = useState(false);
   const [burstKey, setBurstKey] = useState(0);
+  const [pincode, setPincode] = useState('');
+  const [deliveryFee, setDeliveryFee] = useState<number | null>(null);
+  const [checkingDelivery, setCheckingDelivery] = useState(false);
   const { addToCart, setIsCartOpen } = useCart();
 
   useEffect(() => {
@@ -35,9 +55,12 @@ export default function ProductDetailPage({ productSlug, onNavigateBack, onNavig
   const fetchProduct = async () => {
     setLoading(true);
     setRelatedProducts([]);
+    setRating({ average: 0, count: 0 });
     setSelectedVariantIndex(0);
     setQuantity(1);
     setCurrentImageIndex(0);
+    setPincode('');
+    setDeliveryFee(null);
 
     try {
       const productData = await fetchProductBySlug(productSlug);
@@ -50,6 +73,8 @@ export default function ProductDetailPage({ productSlug, onNavigateBack, onNavig
       setProduct(productData);
       setLoading(false);
 
+      fetchProductRatingSummary(productData.id).then(setRating);
+
       const all = await fetchProductsWithDetails();
       const related = all
         .filter((p) => p.category === productData.category && p.id !== productData.id)
@@ -61,22 +86,38 @@ export default function ProductDetailPage({ productSlug, onNavigateBack, onNavig
     }
   };
 
-  const handleAddToCart = () => {
-    if (!product || product.variants.length === 0) return;
-
+  const buildCartItem = () => {
+    if (!product || product.variants.length === 0) return null;
     const selectedVariant = product.variants[selectedVariantIndex];
     const firstImage = product.images.find((img) => img.sort_order === 1) || product.images[0];
+    return { product, variant: selectedVariant, quantity, image: firstImage?.image_url };
+  };
 
-    addToCart({
-      product,
-      variant: selectedVariant,
-      quantity,
-      image: firstImage?.image_url,
-    });
-
+  const handleAddToCart = () => {
+    const item = buildCartItem();
+    if (!item) return;
+    addToCart(item);
     setAddedToCart(true);
     setBurstKey((k) => k + 1);
     setTimeout(() => setAddedToCart(false), 2000);
+  };
+
+  const handleBuyNow = () => {
+    const item = buildCartItem();
+    if (!item) return;
+    addToCart(item);
+    onNavigateToCheckout?.();
+  };
+
+  const handleCheckDelivery = async () => {
+    if (!pincode.trim() || checkingDelivery) return;
+    setCheckingDelivery(true);
+    try {
+      const fee = await getDeliveryFee(pincode.trim());
+      setDeliveryFee(fee);
+    } finally {
+      setCheckingDelivery(false);
+    }
   };
 
   const nextImage = () => {
@@ -117,17 +158,29 @@ export default function ProductDetailPage({ productSlug, onNavigateBack, onNavig
 
   const selectedVariant = product.variants[selectedVariantIndex];
   const currentImage = product.images[currentImageIndex];
+  const categoryLabel = CATEGORY_LABELS[product.category];
+  const total = selectedVariant ? Math.round(selectedVariant.price * quantity) : 0;
 
   return (
-    <div className="min-h-screen bg-cream pt-8 pb-20">
+    <div className="min-h-screen bg-cream pt-6 pb-24 md:pb-20">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <button
-          onClick={onNavigateBack}
-          className="flex items-center gap-2 text-sm font-semibold tracking-wide text-ink/70 hover:text-ink transition-colors mb-8"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Back to shop
-        </button>
+        <nav className="flex items-center gap-1.5 text-xs sm:text-sm text-ink/50 mb-6 flex-wrap">
+          <button onClick={onNavigateHome} className="hover:text-ink transition-colors">
+            Home
+          </button>
+          <span>/</span>
+          <button onClick={onNavigateBack} className="hover:text-ink transition-colors">
+            Shop
+          </button>
+          {categoryLabel && (
+            <>
+              <span>/</span>
+              <span>{categoryLabel}</span>
+            </>
+          )}
+          <span>/</span>
+          <span className="text-ink font-medium truncate max-w-[160px] sm:max-w-xs">{product.name}</span>
+        </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
           <div className="space-y-4">
@@ -193,9 +246,17 @@ export default function ProductDetailPage({ productSlug, onNavigateBack, onNavig
                   Bestseller
                 </div>
               )}
-              <h1 className="font-serif text-4xl md:text-5xl font-semibold text-ink leading-tight">
+              <h1 className="font-serif text-4xl md:text-5xl font-semibold text-ink leading-tight mb-3">
                 {product.name}
               </h1>
+              {rating.count > 0 && (
+                <a href="#reviews" className="inline-flex items-center gap-2 group">
+                  <StarRating rating={rating.average} size="sm" />
+                  <span className="text-sm text-gray-600 group-hover:text-ink transition-colors">
+                    {rating.average.toFixed(1)} &middot; {rating.count} {rating.count === 1 ? 'review' : 'reviews'}
+                  </span>
+                </a>
+              )}
             </div>
 
             <p className="font-serif text-3xl font-semibold text-ink">
@@ -247,32 +308,75 @@ export default function ProductDetailPage({ productSlug, onNavigateBack, onNavig
               </div>
             </div>
 
+            <div>
+              <h3 className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
+                Delivery
+              </h3>
+              <div className="flex gap-2 max-w-sm">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={pincode}
+                  onChange={(e) => {
+                    setPincode(e.target.value.replace(/\D/g, ''));
+                    setDeliveryFee(null);
+                  }}
+                  onKeyDown={(e) => e.key === 'Enter' && handleCheckDelivery()}
+                  placeholder="Enter pincode"
+                  className="flex-1 min-w-0 px-4 py-2.5 rounded-lg border border-black/10 bg-white focus:outline-none focus:border-ink text-ink"
+                />
+                <button
+                  onClick={handleCheckDelivery}
+                  disabled={checkingDelivery || pincode.trim().length < 6}
+                  className="px-5 py-2.5 rounded-lg border-2 border-ink text-ink font-semibold hover:bg-ink hover:text-cream transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-ink flex-shrink-0"
+                >
+                  {checkingDelivery ? 'Checking' : 'Check'}
+                </button>
+              </div>
+              {deliveryFee !== null && (
+                <p className="text-sm text-gray-600 mt-2">
+                  {deliveryFee === 0
+                    ? 'Free delivery to this pincode.'
+                    : `Delivery fee for this pincode: ₹${deliveryFee}`}
+                </p>
+              )}
+            </div>
+
             <BulkPricingNote />
 
-            <div className="flex gap-3">
-              <div className="relative flex-1">
-                <SpicePuff triggerKey={burstKey} />
+            <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <SpicePuff triggerKey={burstKey} />
+                  <button
+                    onClick={handleAddToCart}
+                    className="w-full bg-ink text-cream py-4 rounded-lg font-semibold text-lg hover:bg-ink-light transition-all shadow-lg shadow-ink/10 flex items-center justify-center gap-2"
+                  >
+                    {addedToCart ? (
+                      <>
+                        <Check className="w-5 h-5" />
+                        Added to Cart
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="w-5 h-5" />
+                        Add to Cart
+                      </>
+                    )}
+                  </button>
+                </div>
                 <button
-                  onClick={handleAddToCart}
-                  className="w-full bg-ink text-cream py-4 rounded-lg font-semibold text-lg hover:bg-ink-light transition-all shadow-lg shadow-ink/10 flex items-center justify-center gap-2"
+                  onClick={handleBuyNow}
+                  className="flex-1 bg-saffron-light text-ink py-4 rounded-lg font-semibold text-lg hover:bg-saffron transition-colors"
                 >
-                  {addedToCart ? (
-                    <>
-                      <Check className="w-5 h-5" />
-                      Added to Cart
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart className="w-5 h-5" />
-                      Add to Cart
-                    </>
-                  )}
+                  Buy Now
                 </button>
               </div>
               {addedToCart && (
                 <button
                   onClick={() => setIsCartOpen(true)}
-                  className="px-6 py-4 bg-saffron-light text-ink rounded-lg font-semibold hover:bg-saffron transition-colors"
+                  className="text-sm text-ink font-medium underline underline-offset-4 hover:text-moss transition-colors"
                 >
                   View Cart
                 </button>
@@ -362,9 +466,28 @@ export default function ProductDetailPage({ productSlug, onNavigateBack, onNavig
           </Reveal>
         )}
 
-        <div className="mt-16 bg-white rounded-2xl border border-black/5 p-6 md:p-8">
+        <div id="reviews" className="mt-16 bg-white rounded-2xl border border-black/5 p-6 md:p-8 scroll-mt-24">
           <ProductReviews productId={product.id} />
         </div>
+      </div>
+
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-black/10 px-4 py-3 flex items-center gap-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
+        <div className="flex-shrink-0">
+          <p className="text-[10px] uppercase tracking-wide text-gray-500">Total</p>
+          <p className="font-serif text-lg font-semibold text-ink leading-tight">₹{total}</p>
+        </div>
+        <button
+          onClick={handleAddToCart}
+          className="flex-1 bg-ink text-cream py-3 rounded-lg font-semibold text-sm"
+        >
+          Add to Cart
+        </button>
+        <button
+          onClick={handleBuyNow}
+          className="flex-1 bg-saffron-light text-ink py-3 rounded-lg font-semibold text-sm"
+        >
+          Buy Now
+        </button>
       </div>
     </div>
   );

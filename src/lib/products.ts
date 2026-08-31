@@ -130,3 +130,20 @@ export async function fetchProductBySlug(slug: string): Promise<ProductWithDetai
   if (!data) return null;
   return normalizeProduct(data as unknown as RawProduct);
 }
+
+export async function fetchProductRatingSummary(
+  productId: string
+): Promise<{ average: number; count: number }> {
+  const { data, error } = await supabase
+    .from('reviews')
+    .select('rating')
+    .eq('product_id', productId)
+    .eq('is_approved', true);
+
+  if (error || !data || data.length === 0) {
+    return { average: 0, count: 0 };
+  }
+
+  const total = data.reduce((sum, r) => sum + r.rating, 0);
+  return { average: total / data.length, count: data.length };
+}
