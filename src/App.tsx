@@ -249,6 +249,7 @@ function App() {
           <ProductDetailPage
             productSlug={currentProductSlug}
             onNavigateBack={() => navigateToShop()}
+            onNavigateToProduct={navigateToProduct}
           />
         )}
 

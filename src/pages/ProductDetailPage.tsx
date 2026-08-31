@@ -1,20 +1,24 @@
 import { useState, useEffect } from 'react';
-import { fetchProductBySlug } from '../lib/products';
+import { fetchProductBySlug, fetchProductsWithDetails } from '../lib/products';
 import { ProductWithDetails } from '../types';
 import { useCart } from '../context/CartContext';
-import { ChevronLeft, ChevronRight, Check, ShoppingCart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, ShoppingCart, Star } from 'lucide-react';
 import ProductReviews from '../components/ProductReviews';
 import BulkPricingNote from '../components/BulkPricingNote';
 import SpicePuff from '../components/SpicePuff';
 import SpiceLoader from '../components/SpiceLoader';
+import ProductCard from '../components/ProductCard';
+import Reveal from '../components/Reveal';
 
 interface ProductDetailPageProps {
   productSlug: string;
   onNavigateBack: () => void;
+  onNavigateToProduct?: (slug: string) => void;
 }
 
-export default function ProductDetailPage({ productSlug, onNavigateBack }: ProductDetailPageProps) {
+export default function ProductDetailPage({ productSlug, onNavigateBack, onNavigateToProduct }: ProductDetailPageProps) {
   const [product, setProduct] = useState<ProductWithDetails | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<ProductWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -25,9 +29,16 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
 
   useEffect(() => {
     fetchProduct();
+    window.scrollTo(0, 0);
   }, [productSlug]);
 
   const fetchProduct = async () => {
+    setLoading(true);
+    setRelatedProducts([]);
+    setSelectedVariantIndex(0);
+    setQuantity(1);
+    setCurrentImageIndex(0);
+
     try {
       const productData = await fetchProductBySlug(productSlug);
       if (!productData) {
@@ -37,9 +48,15 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
       }
 
       setProduct(productData);
+      setLoading(false);
+
+      const all = await fetchProductsWithDetails();
+      const related = all
+        .filter((p) => p.category === productData.category && p.id !== productData.id)
+        .slice(0, 4);
+      setRelatedProducts(related);
     } catch (error) {
       console.error('Error fetching product:', error);
-    } finally {
       setLoading(false);
     }
   };
@@ -76,7 +93,7 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-cream">
         <SpiceLoader />
       </div>
     );
@@ -84,12 +101,12 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
 
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-cream">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Product not found</h2>
+          <h2 className="font-serif text-2xl font-semibold text-ink mb-4">Product not found</h2>
           <button
             onClick={onNavigateBack}
-            className="text-[#211C17] hover:underline font-medium"
+            className="text-ink hover:text-moss font-medium underline underline-offset-4"
           >
             Go back to shop
           </button>
@@ -102,185 +119,190 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
   const currentImage = product.images[currentImageIndex];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-cream pt-8 pb-20">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <button
           onClick={onNavigateBack}
-          className="flex items-center gap-2 text-[#211C17] hover:underline font-medium mb-6"
+          className="flex items-center gap-2 text-sm font-semibold tracking-wide text-ink/70 hover:text-ink transition-colors mb-8"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-4 h-4" />
           Back to shop
         </button>
 
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
-            <div className="space-y-4">
-              <div className="relative aspect-square bg-gray-100 rounded-xl overflow-hidden">
-                {currentImage ? (
-                  <img
-                    src={currentImage.image_url}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#211C17] to-[#3F5A34] text-white text-4xl font-bold">
-                    {product.name[0]}
-                  </div>
-                )}
-
-                {product.images.length > 1 && (
-                  <>
-                    <button
-                      onClick={prevImage}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-colors"
-                    >
-                      <ChevronLeft className="w-6 h-6 text-gray-800" />
-                    </button>
-                    <button
-                      onClick={nextImage}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-colors"
-                    >
-                      <ChevronRight className="w-6 h-6 text-gray-800" />
-                    </button>
-                  </>
-                )}
-              </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+          <div className="space-y-4">
+            <div className="relative aspect-square bg-cream-soft rounded-2xl overflow-hidden border border-black/5">
+              {currentImage ? (
+                <img
+                  src={currentImage.image_url}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-ink to-moss font-serif text-cream text-4xl font-semibold">
+                  {product.name[0]}
+                </div>
+              )}
 
               {product.images.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto pb-2">
-                  {product.images.map((image, index) => (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-colors"
+                  >
+                    <ChevronLeft className="w-6 h-6 text-ink" />
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-colors"
+                  >
+                    <ChevronRight className="w-6 h-6 text-ink" />
+                  </button>
+                </>
+              )}
+            </div>
+
+            {product.images.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {product.images.map((image, index) => (
+                  <button
+                    key={image.id}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                      index === currentImageIndex
+                        ? 'border-ink'
+                        : 'border-black/10 hover:border-black/30'
+                    }`}
+                  >
+                    <img
+                      src={image.image_url}
+                      alt={`${product.name} ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-7">
+            <div>
+              {product.is_bestseller && (
+                <div className="inline-flex items-center gap-1 bg-saffron-light text-ink px-3 py-1 rounded-full text-xs font-bold mb-3">
+                  <Star className="w-3 h-3 fill-current" />
+                  Bestseller
+                </div>
+              )}
+              <h1 className="font-serif text-4xl md:text-5xl font-semibold text-ink leading-tight">
+                {product.name}
+              </h1>
+            </div>
+
+            <p className="font-serif text-3xl font-semibold text-ink">
+              ₹{selectedVariant ? Math.round(selectedVariant.price) : '0'}
+            </p>
+
+            {product.variants.length > 0 && (
+              <div>
+                <h3 className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
+                  Select Size
+                </h3>
+                <div className="grid grid-cols-3 gap-3">
+                  {product.variants.map((variant, index) => (
                     <button
-                      key={image.id}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                        index === currentImageIndex
-                          ? 'border-[#211C17]'
-                          : 'border-gray-200 hover:border-gray-300'
+                      key={variant.id}
+                      onClick={() => setSelectedVariantIndex(index)}
+                      className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${
+                        selectedVariantIndex === index
+                          ? 'border-ink bg-ink text-cream'
+                          : 'border-black/10 hover:border-ink/40 text-ink'
                       }`}
                     >
-                      <img
-                        src={image.image_url}
-                        alt={`${product.name} ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
+                      <div className="text-sm">{variant.size}</div>
+                      <div className="text-xs mt-1 opacity-80">₹{Math.round(variant.price)}</div>
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+
+            <div>
+              <h3 className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
+                Quantity
+              </h3>
+              <div className="flex items-center gap-3 bg-cream-soft rounded-lg w-fit">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="px-4 py-2 hover:bg-black/5 rounded-l-lg transition-colors font-bold text-ink"
+                >
+                  -
+                </button>
+                <span className="px-6 font-semibold text-ink">{quantity}</span>
+                <button
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="px-4 py-2 hover:bg-black/5 rounded-r-lg transition-colors font-bold text-ink"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <BulkPricingNote />
+
+            <div className="flex gap-3">
+              <div className="relative flex-1">
+                <SpicePuff triggerKey={burstKey} />
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full bg-ink text-cream py-4 rounded-lg font-semibold text-lg hover:bg-ink-light transition-all shadow-lg shadow-ink/10 flex items-center justify-center gap-2"
+                >
+                  {addedToCart ? (
+                    <>
+                      <Check className="w-5 h-5" />
+                      Added to Cart
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-5 h-5" />
+                      Add to Cart
+                    </>
+                  )}
+                </button>
+              </div>
+              {addedToCart && (
+                <button
+                  onClick={() => setIsCartOpen(true)}
+                  className="px-6 py-4 bg-saffron-light text-ink rounded-lg font-semibold hover:bg-saffron transition-colors"
+                >
+                  View Cart
+                </button>
               )}
             </div>
 
-            <div className="space-y-6">
-              <div>
-                <h1 className="text-4xl font-bold text-gray-800 mb-2">{product.name}</h1>
-                {product.is_bestseller && (
-                  <span className="inline-block bg-[#d4af37] text-[#211C17] px-3 py-1 rounded-full text-sm font-bold">
-                    Bestseller
-                  </span>
-                )}
+            <div className="border-t border-black/10 pt-6">
+              <h3 className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
+                Description
+              </h3>
+              <div className="text-gray-600 leading-relaxed whitespace-pre-line">
+                {product.description}
               </div>
+            </div>
 
-              <div>
-                <p className="text-4xl font-bold text-[#211C17]">
-                  ₹{selectedVariant ? Math.round(selectedVariant.price) : '0'}
-                </p>
-              </div>
-
-              {product.variants.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-gray-800 mb-3">Select Size</h3>
-                  <div className="grid grid-cols-3 gap-3">
-                    {product.variants.map((variant, index) => (
-                      <button
-                        key={variant.id}
-                        onClick={() => setSelectedVariantIndex(index)}
-                        className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${
-                          selectedVariantIndex === index
-                            ? 'border-[#211C17] bg-[#211C17] text-white'
-                            : 'border-gray-300 hover:border-[#211C17] text-gray-700'
-                        }`}
-                      >
-                        <div className="text-sm">{variant.size}</div>
-                        <div className="text-xs mt-1">₹{Math.round(variant.price)}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <h3 className="font-semibold text-gray-800 mb-3">Quantity</h3>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-3 bg-gray-100 rounded-lg">
-                    <button
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="px-4 py-2 hover:bg-gray-200 rounded-l-lg transition-colors font-bold"
-                    >
-                      -
-                    </button>
-                    <span className="px-6 font-semibold">{quantity}</span>
-                    <button
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="px-4 py-2 hover:bg-gray-200 rounded-r-lg transition-colors font-bold"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <BulkPricingNote />
-
-              <div className="flex gap-3">
-                <div className="relative flex-1">
-                  <SpicePuff triggerKey={burstKey} />
-                  <button
-                    onClick={handleAddToCart}
-                    className="w-full bg-ink text-white py-4 rounded-lg font-semibold text-lg hover:bg-ink-light transition-all shadow-lg flex items-center justify-center gap-2"
-                  >
-                    {addedToCart ? (
-                      <>
-                        <Check className="w-5 h-5" />
-                        Added to Cart
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingCart className="w-5 h-5" />
-                        Add to Cart
-                      </>
-                    )}
-                  </button>
-                </div>
-                {addedToCart && (
-                  <button
-                    onClick={() => setIsCartOpen(true)}
-                    className="px-6 py-4 bg-saffron-light text-ink rounded-lg font-semibold hover:bg-saffron transition-colors"
-                  >
-                    View Cart
-                  </button>
-                )}
-              </div>
-
-              <div className="border-t pt-6">
-                <h3 className="font-semibold text-gray-800 mb-3 text-xl">Description</h3>
+            {product.health_benefits && (
+              <div className="border-t border-black/10 pt-6">
+                <h3 className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
+                  Health Benefits
+                </h3>
                 <div className="text-gray-600 leading-relaxed whitespace-pre-line">
-                  {product.description}
+                  {product.health_benefits}
                 </div>
               </div>
-
-              {product.health_benefits && (
-                <div className="border-t pt-6">
-                  <h3 className="font-semibold text-gray-800 mb-3 text-xl">Health Benefits</h3>
-                  <div className="text-gray-600 leading-relaxed whitespace-pre-line">
-                    {product.health_benefits}
-                  </div>
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </div>
 
         {product.story && (
-          <div className="mt-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-ink to-[#223822] text-cream p-8 md:p-12">
+          <div className="mt-16 relative overflow-hidden rounded-2xl bg-gradient-to-br from-ink to-[#223822] text-cream p-8 md:p-12">
             <p className="text-saffron-light text-xs font-semibold tracking-[0.25em] uppercase mb-3">
               Origin &amp; Story
             </p>
@@ -317,7 +339,30 @@ export default function ProductDetailPage({ productSlug, onNavigateBack }: Produ
           </div>
         )}
 
-        <div className="mt-8 bg-white rounded-2xl shadow-lg p-8">
+        {relatedProducts.length > 0 && onNavigateToProduct && (
+          <Reveal as="section" className="mt-16">
+            <div className="flex items-baseline justify-between mb-6">
+              <h2 className="font-serif text-2xl md:text-3xl font-semibold text-ink">
+                You may also like
+              </h2>
+              <p className="text-sm text-gray-500 hidden sm:block">More from the same shelf</p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {relatedProducts.map((p, i) => (
+                <Reveal key={p.id} delayMs={Math.min(i, 4) * 80}>
+                  <ProductCard
+                    product={p}
+                    variants={p.variants}
+                    images={p.images}
+                    onClick={() => onNavigateToProduct(p.slug)}
+                  />
+                </Reveal>
+              ))}
+            </div>
+          </Reveal>
+        )}
+
+        <div className="mt-16 bg-white rounded-2xl border border-black/5 p-6 md:p-8">
           <ProductReviews productId={product.id} />
         </div>
       </div>

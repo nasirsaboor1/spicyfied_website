@@ -170,12 +170,27 @@ export default function Header({
             )}
           </div>
 
-          <button
-            className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="flex items-center gap-1 md:hidden">
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-2 hover:bg-white/10 rounded-full transition-colors"
+              aria-label="Open cart"
+            >
+              <ShoppingCart className="w-6 h-6" />
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 bg-saffron-light text-ink text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Open menu"
+              className="p-2"
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {isMenuOpen && (
@@ -200,13 +215,6 @@ export default function Header({
             </div>
             <a href="/recipes" className="block hover:text-saffron-light transition-colors font-medium" onClick={(e) => { e.preventDefault(); onNavigateToRecipes?.(); setIsMenuOpen(false); }}>Recipes</a>
             <a href="/contact" className="block hover:text-saffron-light transition-colors font-medium" onClick={(e) => { e.preventDefault(); onNavigateToContact?.(); setIsMenuOpen(false); }}>Contact Us</a>
-            <button
-              onClick={() => { setIsCartOpen(true); setIsMenuOpen(false); }}
-              className="flex items-center gap-2 hover:text-saffron-light transition-colors font-medium"
-            >
-              <ShoppingCart className="w-5 h-5" />
-              Cart {totalItems > 0 && `(${totalItems})`}
-            </button>
 
             {user ? (
               <>
