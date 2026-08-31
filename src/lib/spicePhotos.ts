@@ -12,6 +12,5 @@ export const SCROLL_SPICE_PHOTOS = {
   cardamom: '/images/spice-scroll/cardamom.jpg',
   cinnamon: '/images/spice-scroll/cinnamon.jpg',
   clove: '/images/spice-scroll/clove.jpg',
-  starAnise: '/images/spice-scroll/star-anise.jpg',
   pepper: '/images/spice-scroll/pepper.jpg',
 };
