@@ -1,16 +1,15 @@
 /**
- * Real product photography, cropped down to a single piece per spice -
- * one cardamom pod, one cinnamon quill, one clove, one star anise pod,
- * one peppercorn - instead of the full catalog pile shot. Deliberately
- * NOT illustration and NOT a whole scattered heap: a single real piece
- * reads as deliberate and premium, where a full pile read as busy and
- * unpolished at full-bleed hero size. Each is a straight crop of the
- * actual catalog photo (see public/images/spice-scroll), not a stock
- * or generated image.
+ * Real spice photography used in the "how to know it's real" test cards.
+ * Cardamom, cinnamon and clove reuse the same isolated single-piece
+ * cutouts as the homepage scroll animation (see spiceHeroPhotos.ts) -
+ * they're sharp at any card size, where a crop of the busy catalog pile
+ * photo turned soft once stretched across a card. Pepper has no matching
+ * cutout, so it stays a crop of the catalog photo, sized to stay sharp
+ * at typical card widths.
  */
 export const SCROLL_SPICE_PHOTOS = {
-  cardamom: '/images/spice-scroll/cardamom.jpg',
-  cinnamon: '/images/spice-scroll/cinnamon.jpg',
-  clove: '/images/spice-scroll/clove.jpg',
+  cardamom: '/images/spice-scroll/hero-cardamom.webp',
+  cinnamon: '/images/spice-scroll/hero-cinnamon.webp',
+  clove: '/images/spice-scroll/hero-clove.webp',
   pepper: '/images/spice-scroll/pepper.jpg',
 };

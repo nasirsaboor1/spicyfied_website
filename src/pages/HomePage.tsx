@@ -183,14 +183,14 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
           ].map((t, i) => (
             <Reveal key={t.name} delayMs={i * 80}>
               <article className="bg-white border border-black/5 rounded-2xl overflow-hidden h-full flex flex-col">
-                <div className="relative aspect-[4/3] overflow-hidden">
+                <div className="relative h-64 sm:h-72 bg-cream-soft overflow-hidden flex items-center justify-center p-6">
                   <img
                     src={t.photo}
                     alt={t.name}
-                    className="w-full h-full object-cover"
+                    className="max-w-full max-h-full object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)]"
                   />
                   <span className="absolute top-3 left-3 bg-ink/70 text-cream text-[10px] font-semibold tracking-[0.15em] uppercase px-2.5 py-1 rounded-full">
-                    Our {t.name.toLowerCase()}, unedited
+                    {t.name}, unedited
                   </span>
                 </div>
                 <div className="p-6 md:p-8 flex flex-col flex-1">
