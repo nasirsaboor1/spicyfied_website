@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { supabase } from '../lib/supabase';
 import { getDeliveryFee } from '../lib/delivery';
 import BulkPricingNote from '../components/BulkPricingNote';
+import { INDIAN_STATES } from '../lib/indianStates';
 
 interface Address {
   id: string;
@@ -485,13 +486,21 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
-                        <input
-                          type="text"
+                        <select
                           required
                           value={addressForm.state}
                           onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
-                        />
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent bg-white"
+                        >
+                          <option value="" disabled>
+                            Select state
+                          </option>
+                          {INDIAN_STATES.map((state) => (
+                            <option key={state} value={state}>
+                              {state}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">PIN Code</label>
