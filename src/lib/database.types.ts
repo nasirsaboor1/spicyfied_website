@@ -523,6 +523,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          carrier: string | null
           created_at: string | null
           delivery_type: string
           email: string
@@ -544,6 +545,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          carrier?: string | null
           created_at?: string | null
           delivery_type?: string
           email: string
@@ -565,6 +567,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          carrier?: string | null
           created_at?: string | null
           delivery_type?: string
           email?: string

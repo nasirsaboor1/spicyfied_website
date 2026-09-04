@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Loader, Search, Eye } from 'lucide-react';
+import { Loader, Search, Eye, Download, MessageCircle, Truck } from 'lucide-react';
+import {
+  STATUS_OPTIONS,
+  STATUS_LABELS,
+  STATUS_BADGE_CLASSES,
+  normalizeStatus,
+  paymentMethodLabel,
+  extractOrderPhone,
+  toWhatsAppNumber,
+} from '../../lib/orderStatus';
+import { downloadCsv } from '../../lib/csvExport';
 
 interface Order {
   id: string;
@@ -17,6 +27,8 @@ interface Order {
   tax_amount: number;
   shipping_amount: number;
   shipping_address_id: string | null;
+  tracking_number: string | null;
+  carrier: string | null;
   addresses: {
     full_name: string;
     phone: string;
@@ -36,7 +48,7 @@ interface Order {
   }>;
 }
 
-const STATUS_OPTIONS = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+const COMMON_CARRIERS = ['India Post', 'Delhivery', 'DTDC', 'Blue Dart', 'Ekart', 'Self-delivery'];
 
 export default function AdminOrdersView() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -45,10 +57,18 @@ export default function AdminOrdersView() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [carrierDraft, setCarrierDraft] = useState('');
+  const [trackingDraft, setTrackingDraft] = useState('');
+  const [savingShipment, setSavingShipment] = useState(false);
 
   useEffect(() => {
     loadOrders();
   }, [statusFilter]);
+
+  useEffect(() => {
+    setCarrierDraft(selectedOrder?.carrier || '');
+    setTrackingDraft(selectedOrder?.tracking_number || '');
+  }, [selectedOrder?.id]);
 
   const loadOrders = async () => {
     setLoading(true);
@@ -94,22 +114,85 @@ export default function AdminOrdersView() {
     }
   };
 
-  const filteredOrders = orders.filter((order) =>
-    order.order_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    order.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleSaveShipment = async () => {
+    if (!selectedOrder) return;
+    setSavingShipment(true);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({
+          carrier: carrierDraft.trim() || null,
+          tracking_number: trackingDraft.trim() || null,
+          status: selectedOrder.status === 'shipped' ? selectedOrder.status : 'shipped',
+        })
+        .eq('id', selectedOrder.id);
 
-  const paymentMethodLabel = (method: string | null) => {
-    switch (method) {
-      case 'cod':
-        return 'Cash on Pickup';
-      case 'upi':
-        return 'UPI';
-      case 'card':
-        return 'Card';
-      default:
-        return 'Not set';
+      if (error) throw error;
+
+      const updated = {
+        ...selectedOrder,
+        carrier: carrierDraft.trim() || null,
+        tracking_number: trackingDraft.trim() || null,
+        status: 'shipped',
+      };
+      setSelectedOrder(updated);
+      setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+    } catch (err) {
+      console.error('Error saving shipment details:', err);
+      alert('Failed to save shipping details');
+    } finally {
+      setSavingShipment(false);
     }
+  };
+
+  const handleNotifyWhatsApp = (order: Order) => {
+    const phone = extractOrderPhone(order);
+    const waNumber = phone ? toWhatsAppNumber(phone) : null;
+    if (!waNumber) {
+      alert("Couldn't find a phone number on this order to message.");
+      return;
+    }
+    const name = order.addresses?.full_name || 'there';
+    const lines = [
+      `Hi ${name}, your Spicyfied order ${order.order_number} is on its way!`,
+      order.carrier ? `Carrier: ${order.carrier}` : null,
+      order.tracking_number ? `Tracking number: ${order.tracking_number}` : null,
+      `Total: ₹${Math.round(order.total_amount)}`,
+      `Thank you for shopping with Spicyfied.`,
+    ].filter(Boolean);
+    const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const filteredOrders = orders.filter((order) => {
+    const q = searchQuery.toLowerCase();
+    if (!q) return true;
+    return (
+      order.order_number.toLowerCase().includes(q) ||
+      order.email.toLowerCase().includes(q) ||
+      order.addresses?.full_name?.toLowerCase().includes(q) ||
+      order.addresses?.phone?.includes(q)
+    );
+  });
+
+  const handleExportCsv = () => {
+    downloadCsv(
+      `orders-${statusFilter}-${new Date().toISOString().slice(0, 10)}.csv`,
+      ['Order #', 'Date', 'Customer', 'Email', 'Phone', 'Type', 'Status', 'Payment', 'Carrier', 'Tracking #', 'Total'],
+      filteredOrders.map((o) => [
+        o.order_number,
+        new Date(o.created_at).toLocaleDateString(),
+        o.addresses?.full_name || '',
+        o.email,
+        extractOrderPhone(o) || '',
+        o.delivery_type,
+        o.status,
+        paymentMethodLabel(o.payment_method),
+        o.carrier || '',
+        o.tracking_number || '',
+        Math.round(o.total_amount),
+      ])
+    );
   };
 
   if (loading) {
@@ -128,7 +211,7 @@ export default function AdminOrdersView() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Search by order number or email..."
+              placeholder="Search by order #, name, email, or phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
@@ -142,10 +225,17 @@ export default function AdminOrdersView() {
             <option value="all">All Orders</option>
             {STATUS_OPTIONS.map((status) => (
               <option key={status} value={status}>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+                {STATUS_LABELS[status]}
               </option>
             ))}
           </select>
+          <button
+            onClick={handleExportCsv}
+            className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
         </div>
 
         <div className="overflow-x-auto">
@@ -177,30 +267,33 @@ export default function AdminOrdersView() {
                   </td>
                   <td className="py-3 px-4">
                     <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        order.status === 'delivered'
-                          ? 'bg-green-100 text-green-800'
-                          : order.status === 'pending'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : order.status === 'cancelled'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-blue-100 text-blue-800'
-                      }`}
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${STATUS_BADGE_CLASSES[normalizeStatus(order.status)]}`}
                     >
-                      {order.status}
+                      {STATUS_LABELS[normalizeStatus(order.status)]}
                     </span>
                   </td>
                   <td className="py-3 px-4 text-sm font-semibold text-gray-900 text-right">
                     ₹{Math.round(order.total_amount)}
                   </td>
-                  <td className="py-3 px-4 text-center">
-                    <button
-                      onClick={() => setSelectedOrder(order)}
-                      className="p-2 text-[#211C17] hover:bg-[#211C17]/10 rounded-lg transition-colors"
-                      title="View Details"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
+                  <td className="py-3 px-4">
+                    <div className="flex items-center justify-center gap-1">
+                      <button
+                        onClick={() => setSelectedOrder(order)}
+                        className="p-2 text-[#211C17] hover:bg-[#211C17]/10 rounded-lg transition-colors"
+                        title="View details / update status"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      {order.status === 'shipped' && (
+                        <button
+                          onClick={() => handleNotifyWhatsApp(order)}
+                          className="p-2 text-green-700 hover:bg-green-50 rounded-lg transition-colors"
+                          title="Send WhatsApp shipping update"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -219,7 +312,7 @@ export default function AdminOrdersView() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">Order Details</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Order {selectedOrder.order_number}</h2>
               <button
                 onClick={() => setSelectedOrder(null)}
                 className="text-gray-500 hover:text-gray-700"
@@ -244,24 +337,88 @@ export default function AdminOrdersView() {
 
               <div>
                 <p className="text-sm text-gray-600 mb-2">Status</p>
-                <select
-                  value={selectedOrder.status}
-                  onChange={(e) => handleUpdateStatus(selectedOrder.id, e.target.value)}
-                  disabled={updatingStatus}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent disabled:opacity-50"
-                >
+                <div className="flex flex-wrap gap-2">
                   {STATUS_OPTIONS.map((status) => (
-                    <option key={status} value={status}>
-                      {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </option>
+                    <button
+                      key={status}
+                      onClick={() => handleUpdateStatus(selectedOrder.id, status)}
+                      disabled={updatingStatus || selectedOrder.status === status}
+                      className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-all border ${
+                        selectedOrder.status === status
+                          ? `${STATUS_BADGE_CLASSES[status]} border-transparent cursor-default`
+                          : 'bg-white text-gray-600 border-gray-300 hover:border-[#211C17] disabled:opacity-50'
+                      }`}
+                    >
+                      {STATUS_LABELS[status]}
+                    </button>
                   ))}
-                </select>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <Truck className="w-4 h-4" />
+                  Shipping Details
+                </h3>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Carrier</label>
+                      <input
+                        list="carrier-options"
+                        type="text"
+                        value={carrierDraft}
+                        onChange={(e) => setCarrierDraft(e.target.value)}
+                        placeholder="e.g. India Post"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                      />
+                      <datalist id="carrier-options">
+                        {COMMON_CARRIERS.map((c) => (
+                          <option key={c} value={c} />
+                        ))}
+                      </datalist>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Tracking Number</label>
+                      <input
+                        type="text"
+                        value={trackingDraft}
+                        onChange={(e) => setTrackingDraft(e.target.value)}
+                        placeholder="e.g. EE123456789IN"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={handleSaveShipment}
+                      disabled={savingShipment || (!carrierDraft.trim() && !trackingDraft.trim())}
+                      className="px-4 py-2 bg-[#211C17] text-white text-sm font-semibold rounded-lg hover:bg-[#211C17]/90 transition-colors disabled:opacity-50"
+                    >
+                      {savingShipment ? 'Saving...' : 'Save & mark shipped'}
+                    </button>
+                    <button
+                      onClick={() => handleNotifyWhatsApp(selectedOrder)}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Notify via WhatsApp
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Opens a pre-filled WhatsApp message to the customer's number — you press send.
+                    Fully automatic sending needs a WhatsApp Business API account (see admin notes).
+                  </p>
+                </div>
               </div>
 
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Customer & Payment</h3>
                 <div className="bg-gray-50 rounded-lg p-4 space-y-1">
                   <p className="text-sm text-gray-900">{selectedOrder.email}</p>
+                  {extractOrderPhone(selectedOrder) && (
+                    <p className="text-sm text-gray-600">{extractOrderPhone(selectedOrder)}</p>
+                  )}
                   <p className="text-sm text-gray-600 capitalize">Fulfillment: {selectedOrder.delivery_type}</p>
                   <p className="text-sm text-gray-600">
                     Payment: {paymentMethodLabel(selectedOrder.payment_method)} ({selectedOrder.payment_status})
