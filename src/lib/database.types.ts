@@ -523,6 +523,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          cancellation_reason: string | null
           carrier: string | null
           created_at: string | null
           delivery_type: string
@@ -545,6 +546,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          cancellation_reason?: string | null
           carrier?: string | null
           created_at?: string | null
           delivery_type?: string
@@ -567,6 +569,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          cancellation_reason?: string | null
           carrier?: string | null
           created_at?: string | null
           delivery_type?: string
@@ -594,6 +597,38 @@ export type Database = {
             columns: ["shipping_address_id"]
             isOneToOne: false
             referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_status_history: {
+        Row: {
+          created_at: string | null
+          id: string
+          note: string | null
+          order_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          note?: string | null
+          order_id: string
+          status: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          note?: string | null
+          order_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_status_history_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]

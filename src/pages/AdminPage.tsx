@@ -1,23 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Loader, Package, ShoppingBag, BarChart3, Users } from 'lucide-react';
+import { Loader, Package, ShoppingBag, BarChart3, Users, UserCircle, AlertTriangle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AdminOrdersView from '../components/admin/AdminOrdersView';
 import AdminProductsView from '../components/admin/AdminProductsView';
 import AdminDashboardView from '../components/admin/AdminDashboardView';
 import AdminTeamView from '../components/admin/AdminTeamView';
+import AdminCustomersView from '../components/admin/AdminCustomersView';
 
 interface AdminPageProps {
   onNavigateToLogin: () => void;
 }
 
-type AdminView = 'dashboard' | 'orders' | 'products' | 'team';
+type AdminView = 'dashboard' | 'orders' | 'products' | 'customers' | 'team';
 
 export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
   const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentView, setCurrentView] = useState<AdminView>('dashboard');
+  const [ordersSearch, setOrdersSearch] = useState('');
+  const [lowStockCount, setLowStockCount] = useState(0);
 
   useEffect(() => {
     if (!user) {
@@ -27,6 +30,20 @@ export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
 
     checkAdminAccess();
   }, [user]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    supabase
+      .from('products')
+      .select('id', { count: 'exact', head: true })
+      .in('stock_status', ['low_stock', 'out_of_stock'])
+      .then(({ count }) => setLowStockCount(count || 0));
+  }, [isAdmin]);
+
+  const handleViewCustomerOrders = (email: string) => {
+    setOrdersSearch(email);
+    setCurrentView('orders');
+  };
 
   const checkAdminAccess = async () => {
     try {
@@ -81,7 +98,8 @@ export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'orders', label: 'Orders', icon: ShoppingBag },
-    { id: 'products', label: 'Products', icon: Package },
+    { id: 'products', label: 'Products', icon: Package, badge: lowStockCount },
+    { id: 'customers', label: 'Customers', icon: UserCircle },
     { id: 'team', label: 'Team', icon: Users },
   ];
 
@@ -92,6 +110,23 @@ export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
           <h1 className="text-2xl font-bold text-gray-900">Admin Panel</h1>
         </div>
       </div>
+
+      {lowStockCount > 0 && (
+        <div className="bg-amber-50 border-b border-amber-200">
+          <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center gap-2 text-sm text-amber-800">
+            <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+            <span>
+              {lowStockCount} product{lowStockCount !== 1 ? 's' : ''} low or out of stock.
+            </span>
+            <button
+              onClick={() => setCurrentView('products')}
+              className="font-semibold underline underline-offset-2 hover:text-amber-900"
+            >
+              Review now
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex gap-6">
@@ -110,7 +145,12 @@ export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
                     }`}
                   >
                     <Icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
+                    <span className="font-medium flex-1 text-left">{item.label}</span>
+                    {!!item.badge && (
+                      <span className="bg-amber-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
+                        {item.badge}
+                      </span>
+                    )}
                   </button>
                 );
               })}
@@ -119,8 +159,9 @@ export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
 
           <main className="flex-1">
             {currentView === 'dashboard' && <AdminDashboardView />}
-            {currentView === 'orders' && <AdminOrdersView />}
+            {currentView === 'orders' && <AdminOrdersView initialSearch={ordersSearch} />}
             {currentView === 'products' && <AdminProductsView />}
+            {currentView === 'customers' && <AdminCustomersView onViewOrders={handleViewCustomerOrders} />}
             {currentView === 'team' && <AdminTeamView />}
           </main>
         </div>

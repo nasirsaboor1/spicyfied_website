@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Product, ProductVariant, ProductImage, ProductWithDetails, ProductStory } from '../types';
+import { Product, ProductVariant, ProductImage, ProductWithDetails, ProductStory, StockStatus } from '../types';
 
 const IMAGE_BUCKET = 'Product Image';
 
@@ -17,7 +17,14 @@ interface RawVariant {
   product_id: string;
   variant_name: string;
   price: number;
+  stock_quantity: number | null;
   is_default: boolean;
+}
+
+const VALID_STOCK_STATUSES: StockStatus[] = ['in_stock', 'low_stock', 'out_of_stock'];
+
+function normalizeStockStatus(status: string | null | undefined): StockStatus {
+  return VALID_STOCK_STATUSES.includes(status as StockStatus) ? (status as StockStatus) : 'in_stock';
 }
 
 interface RawImage {
@@ -42,7 +49,7 @@ interface RawProduct {
   description: string | null;
   health_benefits: string | null;
   is_featured: boolean;
-  stock_status: string;
+  stock_status: string | null;
   created_at: string;
   categories: { slug: string; name: string } | null;
   product_variants: RawVariant[];
@@ -58,6 +65,7 @@ function normalizeVariants(variants: RawVariant[]): ProductVariant[] {
       product_id: v.product_id,
       size: v.variant_name,
       price: Number(v.price),
+      stock_quantity: v.stock_quantity ?? 0,
       sort_order: index,
       created_at: '',
     }));
@@ -103,6 +111,7 @@ function normalizeProduct(row: RawProduct): ProductWithDetails {
     category: row.categories?.slug || '',
     is_bestseller: row.is_featured,
     is_active: true,
+    stock_status: normalizeStockStatus(row.stock_status),
     created_at: row.created_at,
   };
 

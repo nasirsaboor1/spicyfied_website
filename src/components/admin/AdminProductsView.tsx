@@ -9,12 +9,19 @@ import {
 } from '../../lib/adminProducts';
 import ProductFormModal from './ProductFormModal';
 
+const STOCK_BADGE: Record<string, { label: string; className: string }> = {
+  in_stock: { label: 'In Stock', className: 'bg-green-100 text-green-800' },
+  low_stock: { label: 'Low Stock', className: 'bg-amber-100 text-amber-800' },
+  out_of_stock: { label: 'Out of Stock', className: 'bg-red-100 text-red-800' },
+};
+
 export default function AdminProductsView() {
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [categories, setCategories] = useState<AdminCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [lowStockOnly, setLowStockOnly] = useState(false);
   const [editingProduct, setEditingProduct] = useState<AdminProduct | null | 'new'>(null);
   const [error, setError] = useState('');
 
@@ -58,7 +65,8 @@ export default function AdminProductsView() {
   const filteredProducts = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || p.category_id === categoryFilter;
-    return matchesSearch && matchesCategory;
+    const matchesStock = !lowStockOnly || p.stock_status === 'low_stock' || p.stock_status === 'out_of_stock';
+    return matchesSearch && matchesCategory && matchesStock;
   });
 
   if (loading) {
@@ -102,6 +110,14 @@ export default function AdminProductsView() {
             ))}
           </select>
           <button
+            onClick={() => setLowStockOnly((v) => !v)}
+            className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors border ${
+              lowStockOnly ? 'bg-amber-500 text-white border-amber-500' : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            Low/Out of Stock
+          </button>
+          <button
             onClick={() => setEditingProduct('new')}
             className="flex items-center justify-center gap-2 px-4 py-2 bg-ink text-white rounded-lg font-semibold hover:bg-ink-light transition-colors"
           >
@@ -132,7 +148,7 @@ export default function AdminProductsView() {
                 )}
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-semibold text-gray-900 truncate">{product.name}</h3>
                     {product.is_featured && (
                       <Star className="w-3.5 h-3.5 text-saffron flex-shrink-0" />
@@ -143,11 +159,19 @@ export default function AdminProductsView() {
                         Hidden
                       </span>
                     )}
+                    {STOCK_BADGE[product.stock_status] && (
+                      <span
+                        className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${STOCK_BADGE[product.stock_status].className}`}
+                      >
+                        {STOCK_BADGE[product.stock_status].label}
+                      </span>
+                    )}
                   </div>
                   <p className="text-sm text-gray-500">
                     {product.categories?.name || 'Uncategorised'} &middot; ₹
                     {Math.round(product.base_price)} &middot; {product.product_variants.length}{' '}
-                    size{product.product_variants.length !== 1 ? 's' : ''}
+                    size{product.product_variants.length !== 1 ? 's' : ''} &middot;{' '}
+                    {product.product_variants.reduce((sum, v) => sum + (v.stock_quantity || 0), 0)} units in stock
                   </p>
                 </div>
 

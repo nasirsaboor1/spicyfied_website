@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { fetchProductBySlug, fetchProductsWithDetails, fetchProductRatingSummary } from '../lib/products';
 import { getDeliveryFee } from '../lib/delivery';
+import { supabase } from '../lib/supabase';
 import { ProductWithDetails } from '../types';
 import { useCart } from '../context/CartContext';
-import { ChevronLeft, ChevronRight, Check, ShoppingCart, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, ShoppingCart, Star, BellRing } from 'lucide-react';
 import ProductReviews from '../components/ProductReviews';
 import BulkPricingNote from '../components/BulkPricingNote';
 import SpicePuff from '../components/SpicePuff';
@@ -45,6 +46,9 @@ export default function ProductDetailPage({
   const [pincode, setPincode] = useState('');
   const [deliveryFee, setDeliveryFee] = useState<number | null>(null);
   const [checkingDelivery, setCheckingDelivery] = useState(false);
+  const [notifyEmail, setNotifyEmail] = useState('');
+  const [notifySubmitting, setNotifySubmitting] = useState(false);
+  const [notifySubmitted, setNotifySubmitted] = useState(false);
   const { addToCart, setIsCartOpen } = useCart();
 
   useEffect(() => {
@@ -61,6 +65,8 @@ export default function ProductDetailPage({
     setCurrentImageIndex(0);
     setPincode('');
     setDeliveryFee(null);
+    setNotifyEmail('');
+    setNotifySubmitted(false);
 
     try {
       const productData = await fetchProductBySlug(productSlug);
@@ -107,6 +113,26 @@ export default function ProductDetailPage({
     if (!item) return;
     addToCart(item);
     onNavigateToCheckout?.();
+  };
+
+  const handleNotifyMe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!product || !notifyEmail.trim() || notifySubmitting) return;
+    setNotifySubmitting(true);
+    try {
+      const { error } = await supabase.from('back_in_stock_notifications').insert({
+        product_id: product.id,
+        variant_id: product.variants[selectedVariantIndex]?.id || null,
+        email: notifyEmail.trim(),
+      });
+      if (error) throw error;
+      setNotifySubmitted(true);
+    } catch (err) {
+      console.error('Error requesting back-in-stock notification:', err);
+      alert("Couldn't save your request - please try again.");
+    } finally {
+      setNotifySubmitting(false);
+    }
   };
 
   const handleCheckDelivery = async () => {
@@ -343,45 +369,87 @@ export default function ProductDetailPage({
               )}
             </div>
 
-            <BulkPricingNote />
-
-            <div className="space-y-3">
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
-                  <SpicePuff triggerKey={burstKey} />
-                  <button
-                    onClick={handleAddToCart}
-                    className="w-full bg-ink text-cream py-4 rounded-lg font-semibold text-lg hover:bg-ink-light transition-all shadow-lg shadow-ink/10 flex items-center justify-center gap-2"
-                  >
-                    {addedToCart ? (
-                      <>
-                        <Check className="w-5 h-5" />
-                        Added to Cart
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingCart className="w-5 h-5" />
-                        Add to Cart
-                      </>
-                    )}
-                  </button>
-                </div>
-                <button
-                  onClick={handleBuyNow}
-                  className="flex-1 bg-saffron-light text-ink py-4 rounded-lg font-semibold text-lg hover:bg-saffron transition-colors"
-                >
-                  Buy Now
-                </button>
+            {product.stock_status === 'out_of_stock' ? (
+              <div className="bg-cream-soft border border-black/10 rounded-lg p-5">
+                <p className="font-semibold text-ink mb-1">Currently out of stock</p>
+                <p className="text-sm text-gray-600 mb-4">
+                  Leave your email and we'll let you know the moment it's back.
+                </p>
+                {notifySubmitted ? (
+                  <p className="text-sm text-moss font-medium flex items-center gap-2">
+                    <Check className="w-4 h-4" />
+                    We'll email you when it's back in stock.
+                  </p>
+                ) : (
+                  <form onSubmit={handleNotifyMe} className="flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="email"
+                      required
+                      value={notifyEmail}
+                      onChange={(e) => setNotifyEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="flex-1 px-4 py-2.5 rounded-lg border border-black/10 bg-white focus:outline-none focus:border-ink text-ink"
+                    />
+                    <button
+                      type="submit"
+                      disabled={notifySubmitting}
+                      className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-ink text-cream font-semibold hover:bg-ink-light transition-colors disabled:opacity-50"
+                    >
+                      <BellRing className="w-4 h-4" />
+                      {notifySubmitting ? 'Saving...' : 'Notify Me'}
+                    </button>
+                  </form>
+                )}
               </div>
-              {addedToCart && (
-                <button
-                  onClick={() => setIsCartOpen(true)}
-                  className="text-sm text-ink font-medium underline underline-offset-4 hover:text-moss transition-colors"
-                >
-                  View Cart
-                </button>
-              )}
-            </div>
+            ) : (
+              <>
+                {product.stock_status === 'low_stock' && (
+                  <p className="text-sm font-medium text-saffron-dark">
+                    Only a few left in stock - order soon.
+                  </p>
+                )}
+
+                <BulkPricingNote />
+
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="relative flex-1">
+                      <SpicePuff triggerKey={burstKey} />
+                      <button
+                        onClick={handleAddToCart}
+                        className="w-full bg-ink text-cream py-4 rounded-lg font-semibold text-lg hover:bg-ink-light transition-all shadow-lg shadow-ink/10 flex items-center justify-center gap-2"
+                      >
+                        {addedToCart ? (
+                          <>
+                            <Check className="w-5 h-5" />
+                            Added to Cart
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingCart className="w-5 h-5" />
+                            Add to Cart
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <button
+                      onClick={handleBuyNow}
+                      className="flex-1 bg-saffron-light text-ink py-4 rounded-lg font-semibold text-lg hover:bg-saffron transition-colors"
+                    >
+                      Buy Now
+                    </button>
+                  </div>
+                  {addedToCart && (
+                    <button
+                      onClick={() => setIsCartOpen(true)}
+                      className="text-sm text-ink font-medium underline underline-offset-4 hover:text-moss transition-colors"
+                    >
+                      View Cart
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
 
             <div className="border-t border-black/10 pt-6">
               <h3 className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
@@ -471,24 +539,26 @@ export default function ProductDetailPage({
         </div>
       </div>
 
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-black/10 px-4 py-3 flex items-center gap-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
-        <div className="flex-shrink-0">
-          <p className="text-[10px] uppercase tracking-wide text-gray-500">Total</p>
-          <p className="font-serif text-lg font-semibold text-ink leading-tight">₹{total}</p>
+      {product.stock_status !== 'out_of_stock' && (
+        <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-black/10 px-4 py-3 flex items-center gap-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
+          <div className="flex-shrink-0">
+            <p className="text-[10px] uppercase tracking-wide text-gray-500">Total</p>
+            <p className="font-serif text-lg font-semibold text-ink leading-tight">₹{total}</p>
+          </div>
+          <button
+            onClick={handleAddToCart}
+            className="flex-1 bg-ink text-cream py-3 rounded-lg font-semibold text-sm"
+          >
+            Add to Cart
+          </button>
+          <button
+            onClick={handleBuyNow}
+            className="flex-1 bg-saffron-light text-ink py-3 rounded-lg font-semibold text-sm"
+          >
+            Buy Now
+          </button>
         </div>
-        <button
-          onClick={handleAddToCart}
-          className="flex-1 bg-ink text-cream py-3 rounded-lg font-semibold text-sm"
-        >
-          Add to Cart
-        </button>
-        <button
-          onClick={handleBuyNow}
-          className="flex-1 bg-saffron-light text-ink py-3 rounded-lg font-semibold text-sm"
-        >
-          Buy Now
-        </button>
-      </div>
+      )}
     </div>
   );
 }

@@ -50,6 +50,18 @@ export default function ProductCard({ product, variants, images, onClick }: Prod
             Bestseller
           </div>
         )}
+        {product.stock_status === 'out_of_stock' && (
+          <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+            <span className="bg-ink text-cream px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide">
+              Out of Stock
+            </span>
+          </div>
+        )}
+        {product.stock_status === 'low_stock' && (
+          <div className="absolute top-3 left-3 bg-white text-saffron-dark px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+            Only a few left
+          </div>
+        )}
       </div>
 
       <div className="p-4">

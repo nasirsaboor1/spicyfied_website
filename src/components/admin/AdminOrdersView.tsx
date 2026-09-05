@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Loader, Search, Eye, Download, MessageCircle, Truck } from 'lucide-react';
+import { Loader, Search, Eye, Download, MessageCircle, Truck, Printer, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import {
   STATUS_OPTIONS,
   STATUS_LABELS,
@@ -11,6 +11,9 @@ import {
   toWhatsAppNumber,
 } from '../../lib/orderStatus';
 import { downloadCsv } from '../../lib/csvExport';
+import { printPackingSlip } from '../../lib/packingSlip';
+
+const PAGE_SIZE = 20;
 
 interface Order {
   id: string;
@@ -29,6 +32,7 @@ interface Order {
   shipping_address_id: string | null;
   tracking_number: string | null;
   carrier: string | null;
+  cancellation_reason: string | null;
   addresses: {
     full_name: string;
     phone: string;
@@ -50,43 +54,90 @@ interface Order {
 
 const COMMON_CARRIERS = ['India Post', 'Delhivery', 'DTDC', 'Blue Dart', 'Ekart', 'Self-delivery'];
 
-export default function AdminOrdersView() {
+interface StatusHistoryEntry {
+  id: string;
+  status: string;
+  note: string | null;
+  created_at: string | null;
+}
+
+interface AdminOrdersViewProps {
+  initialSearch?: string;
+}
+
+export default function AdminOrdersView({ initialSearch }: AdminOrdersViewProps) {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [exportingCsv, setExportingCsv] = useState(false);
+  const [searchInput, setSearchInput] = useState(initialSearch || '');
+  const [searchQuery, setSearchQuery] = useState(initialSearch || '');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [carrierDraft, setCarrierDraft] = useState('');
   const [trackingDraft, setTrackingDraft] = useState('');
   const [savingShipment, setSavingShipment] = useState(false);
+  const [pendingCancel, setPendingCancel] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [statusHistory, setStatusHistory] = useState<StatusHistoryEntry[]>([]);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSearchQuery(searchInput);
+      setPage(0);
+    }, 350);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
   useEffect(() => {
     loadOrders();
-  }, [statusFilter]);
+  }, [statusFilter, page, searchQuery]);
 
   useEffect(() => {
     setCarrierDraft(selectedOrder?.carrier || '');
     setTrackingDraft(selectedOrder?.tracking_number || '');
+    setPendingCancel(false);
+    setCancelReason('');
+    setStatusHistory([]);
+    if (selectedOrder) loadStatusHistory(selectedOrder.id);
   }, [selectedOrder?.id]);
+
+  const loadStatusHistory = async (orderId: string) => {
+    const { data, error } = await supabase
+      .from('order_status_history')
+      .select('id, status, note, created_at')
+      .eq('order_id', orderId)
+      .order('created_at', { ascending: true });
+    if (!error) setStatusHistory(data || []);
+  };
 
   const loadOrders = async () => {
     setLoading(true);
     try {
       let query = supabase
         .from('orders')
-        .select(`*, addresses(*), order_items(*)`)
+        .select(`*, addresses(*), order_items(*)`, { count: 'exact' })
         .order('created_at', { ascending: false });
 
       if (statusFilter !== 'all') {
         query = query.eq('status', statusFilter);
       }
 
-      const { data, error } = await query;
+      if (searchQuery.trim()) {
+        const q = searchQuery.trim().replace(/[%,]/g, '');
+        query = query.or(`order_number.ilike.%${q}%,email.ilike.%${q}%`);
+      }
+
+      query = query.range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
+
+      const { data, error, count } = await query;
 
       if (error) throw error;
 
       setOrders((data as any) || []);
+      setTotalCount(count || 0);
     } catch (err) {
       console.error('Error loading orders:', err);
     } finally {
@@ -94,24 +145,42 @@ export default function AdminOrdersView() {
     }
   };
 
-  const handleUpdateStatus = async (orderId: string, newStatus: string) => {
+  const recordStatusHistory = async (orderId: string, status: string, note: string | null) => {
+    const { error } = await supabase.from('order_status_history').insert({ order_id: orderId, status, note });
+    if (error) console.error('Error recording status history:', error);
+  };
+
+  const handleUpdateStatus = async (orderId: string, newStatus: string, note: string | null = null) => {
     setUpdatingStatus(true);
     try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: newStatus })
-        .eq('id', orderId);
+      const updates: Record<string, unknown> = { status: newStatus };
+      if (newStatus === 'cancelled' && note) updates.cancellation_reason = note;
+
+      const { error } = await supabase.from('orders').update(updates).eq('id', orderId);
 
       if (error) throw error;
 
-      setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)));
-      setSelectedOrder((prev) => (prev && prev.id === orderId ? { ...prev, status: newStatus } : prev));
+      await recordStatusHistory(orderId, newStatus, note);
+
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: newStatus, ...updates } : o)));
+      setSelectedOrder((prev) => (prev && prev.id === orderId ? { ...prev, status: newStatus, ...updates } : prev));
+      setPendingCancel(false);
+      setCancelReason('');
+      if (selectedOrder?.id === orderId) loadStatusHistory(orderId);
     } catch (err: any) {
       console.error('Error updating order status:', err);
       alert('Failed to update order status');
     } finally {
       setUpdatingStatus(false);
     }
+  };
+
+  const handleStatusButtonClick = (orderId: string, status: string) => {
+    if (status === 'cancelled') {
+      setPendingCancel(true);
+      return;
+    }
+    handleUpdateStatus(orderId, status);
   };
 
   const handleSaveShipment = async () => {
@@ -137,6 +206,12 @@ export default function AdminOrdersView() {
       };
       setSelectedOrder(updated);
       setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+
+      const note = [carrierDraft.trim() && `Carrier: ${carrierDraft.trim()}`, trackingDraft.trim() && `Tracking: ${trackingDraft.trim()}`]
+        .filter(Boolean)
+        .join(', ');
+      await recordStatusHistory(selectedOrder.id, 'shipped', note || null);
+      loadStatusHistory(selectedOrder.id);
     } catch (err) {
       console.error('Error saving shipment details:', err);
       alert('Failed to save shipping details');
@@ -164,35 +239,46 @@ export default function AdminOrdersView() {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  const filteredOrders = orders.filter((order) => {
-    const q = searchQuery.toLowerCase();
-    if (!q) return true;
-    return (
-      order.order_number.toLowerCase().includes(q) ||
-      order.email.toLowerCase().includes(q) ||
-      order.addresses?.full_name?.toLowerCase().includes(q) ||
-      order.addresses?.phone?.includes(q)
-    );
-  });
+  const handleExportCsv = async () => {
+    setExportingCsv(true);
+    try {
+      let query = supabase
+        .from('orders')
+        .select(`*, addresses(*), order_items(*)`)
+        .order('created_at', { ascending: false });
 
-  const handleExportCsv = () => {
-    downloadCsv(
-      `orders-${statusFilter}-${new Date().toISOString().slice(0, 10)}.csv`,
-      ['Order #', 'Date', 'Customer', 'Email', 'Phone', 'Type', 'Status', 'Payment', 'Carrier', 'Tracking #', 'Total'],
-      filteredOrders.map((o) => [
-        o.order_number,
-        new Date(o.created_at).toLocaleDateString(),
-        o.addresses?.full_name || '',
-        o.email,
-        extractOrderPhone(o) || '',
-        o.delivery_type,
-        o.status,
-        paymentMethodLabel(o.payment_method),
-        o.carrier || '',
-        o.tracking_number || '',
-        Math.round(o.total_amount),
-      ])
-    );
+      if (statusFilter !== 'all') query = query.eq('status', statusFilter);
+      if (searchQuery.trim()) {
+        const q = searchQuery.trim().replace(/[%,]/g, '');
+        query = query.or(`order_number.ilike.%${q}%,email.ilike.%${q}%`);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      downloadCsv(
+        `orders-${statusFilter}-${new Date().toISOString().slice(0, 10)}.csv`,
+        ['Order #', 'Date', 'Customer', 'Email', 'Phone', 'Type', 'Status', 'Payment', 'Carrier', 'Tracking #', 'Total'],
+        ((data as any as Order[]) || []).map((o) => [
+          o.order_number,
+          new Date(o.created_at).toLocaleDateString(),
+          o.addresses?.full_name || '',
+          o.email,
+          extractOrderPhone(o) || '',
+          o.delivery_type,
+          o.status,
+          paymentMethodLabel(o.payment_method),
+          o.carrier || '',
+          o.tracking_number || '',
+          Math.round(o.total_amount),
+        ])
+      );
+    } catch (err) {
+      console.error('Error exporting orders:', err);
+      alert('Failed to export orders');
+    } finally {
+      setExportingCsv(false);
+    }
   };
 
   if (loading) {
@@ -211,15 +297,18 @@ export default function AdminOrdersView() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Search by order #, name, email, or phone..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by order # or email..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
             />
           </div>
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(0);
+            }}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
           >
             <option value="all">All Orders</option>
@@ -231,10 +320,11 @@ export default function AdminOrdersView() {
           </select>
           <button
             onClick={handleExportCsv}
-            className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+            disabled={exportingCsv}
+            className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
           >
             <Download className="w-4 h-4" />
-            Export CSV
+            {exportingCsv ? 'Exporting...' : 'Export CSV'}
           </button>
         </div>
 
@@ -252,7 +342,7 @@ export default function AdminOrdersView() {
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.map((order) => (
+              {orders.map((order) => (
                 <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-3 px-4 text-sm font-medium text-gray-900">{order.order_number}</td>
                   <td className="py-3 px-4">
@@ -293,6 +383,13 @@ export default function AdminOrdersView() {
                           <MessageCircle className="w-4 h-4" />
                         </button>
                       )}
+                      <button
+                        onClick={() => printPackingSlip(order)}
+                        className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                        title="Print packing slip"
+                      >
+                        <Printer className="w-4 h-4" />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -301,9 +398,33 @@ export default function AdminOrdersView() {
           </table>
         </div>
 
-        {filteredOrders.length === 0 && (
+        {orders.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-500">No orders found</p>
+          </div>
+        )}
+
+        {totalCount > PAGE_SIZE && (
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+            <p className="text-sm text-gray-500">
+              {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, totalCount)} of {totalCount}
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setPage((p) => (p + 1) * PAGE_SIZE < totalCount ? p + 1 : p)}
+                disabled={(page + 1) * PAGE_SIZE >= totalCount}
+                className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition-colors"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -313,12 +434,21 @@ export default function AdminOrdersView() {
           <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">Order {selectedOrder.order_number}</h2>
-              <button
-                onClick={() => setSelectedOrder(null)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ×
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => printPackingSlip(selectedOrder)}
+                  className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+                >
+                  <Printer className="w-4 h-4" />
+                  Print
+                </button>
+                <button
+                  onClick={() => setSelectedOrder(null)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ×
+                </button>
+              </div>
             </div>
 
             <div className="p-6 space-y-6">
@@ -341,7 +471,7 @@ export default function AdminOrdersView() {
                   {STATUS_OPTIONS.map((status) => (
                     <button
                       key={status}
-                      onClick={() => handleUpdateStatus(selectedOrder.id, status)}
+                      onClick={() => handleStatusButtonClick(selectedOrder.id, status)}
                       disabled={updatingStatus || selectedOrder.status === status}
                       className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-all border ${
                         selectedOrder.status === status
@@ -353,6 +483,63 @@ export default function AdminOrdersView() {
                     </button>
                   ))}
                 </div>
+
+                {pendingCancel && (
+                  <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-4">
+                    <label className="block text-sm font-medium text-red-800 mb-2">
+                      Reason for cancelling (shown in the order record)
+                    </label>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="text"
+                        autoFocus
+                        value={cancelReason}
+                        onChange={(e) => setCancelReason(e.target.value)}
+                        placeholder="e.g. Customer requested, item out of stock..."
+                        className="flex-1 px-3 py-2 text-sm border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleUpdateStatus(selectedOrder.id, 'cancelled', cancelReason.trim() || null)}
+                          disabled={updatingStatus}
+                          className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                        >
+                          Confirm Cancel
+                        </button>
+                        <button
+                          onClick={() => {
+                            setPendingCancel(false);
+                            setCancelReason('');
+                          }}
+                          className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+                        >
+                          Back
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedOrder.status === 'cancelled' && selectedOrder.cancellation_reason && (
+                  <p className="mt-2 text-sm text-red-700">
+                    Cancelled: {selectedOrder.cancellation_reason}
+                  </p>
+                )}
+
+                {statusHistory.length > 0 && (
+                  <div className="mt-3 space-y-1.5">
+                    {statusHistory.map((h) => (
+                      <div key={h.id} className="flex items-start gap-2 text-xs text-gray-500">
+                        <Clock className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                        <span>
+                          <span className="font-medium text-gray-700">{STATUS_LABELS[normalizeStatus(h.status)]}</span>
+                          {h.created_at && ` — ${new Date(h.created_at).toLocaleString()}`}
+                          {h.note && ` · ${h.note}`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>

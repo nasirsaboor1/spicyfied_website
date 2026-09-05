@@ -1,3 +1,5 @@
+export type StockStatus = 'in_stock' | 'low_stock' | 'out_of_stock';
+
 export interface Product {
   id: string;
   name: string;
@@ -7,6 +9,7 @@ export interface Product {
   category: string;
   is_bestseller: boolean;
   is_active: boolean;
+  stock_status: StockStatus;
   created_at: string;
 }
 
@@ -15,6 +18,7 @@ export interface ProductVariant {
   product_id: string;
   size: string;
   price: number;
+  stock_quantity: number;
   sort_order: number;
   created_at: string;
 }
