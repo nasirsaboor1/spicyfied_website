@@ -71,6 +71,7 @@ export default function AdminOrdersView({ initialSearch }: AdminOrdersViewProps)
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [exportingCsv, setExportingCsv] = useState(false);
+  const [sendingWhatsApp, setSendingWhatsApp] = useState(false);
   const [searchInput, setSearchInput] = useState(initialSearch || '');
   const [searchQuery, setSearchQuery] = useState(initialSearch || '');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -220,7 +221,7 @@ export default function AdminOrdersView({ initialSearch }: AdminOrdersViewProps)
     }
   };
 
-  const handleNotifyWhatsApp = (order: Order) => {
+  const openWhatsAppFallback = (order: Order) => {
     const phone = extractOrderPhone(order);
     const waNumber = phone ? toWhatsAppNumber(phone) : null;
     if (!waNumber) {
@@ -237,6 +238,28 @@ export default function AdminOrdersView({ initialSearch }: AdminOrdersViewProps)
     ].filter(Boolean);
     const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
     window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleNotifyWhatsApp = async (order: Order) => {
+    setSendingWhatsApp(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-whatsapp-message', {
+        body: { orderId: order.id, type: 'order_shipped' },
+      });
+
+      if (error || !data?.success) {
+        // Not configured yet, or the send failed - fall back to the manual click-to-chat link.
+        openWhatsAppFallback(order);
+        return;
+      }
+
+      alert(`WhatsApp shipping update sent for order ${order.order_number}.`);
+    } catch (err) {
+      console.error('WhatsApp send error:', err);
+      openWhatsAppFallback(order);
+    } finally {
+      setSendingWhatsApp(false);
+    }
   };
 
   const handleExportCsv = async () => {
@@ -377,7 +400,8 @@ export default function AdminOrdersView({ initialSearch }: AdminOrdersViewProps)
                       {order.status === 'shipped' && (
                         <button
                           onClick={() => handleNotifyWhatsApp(order)}
-                          className="p-2 text-green-700 hover:bg-green-50 rounded-lg transition-colors"
+                          disabled={sendingWhatsApp}
+                          className="p-2 text-green-700 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50"
                           title="Send WhatsApp shipping update"
                         >
                           <MessageCircle className="w-4 h-4" />
@@ -586,15 +610,16 @@ export default function AdminOrdersView({ initialSearch }: AdminOrdersViewProps)
                     </button>
                     <button
                       onClick={() => handleNotifyWhatsApp(selectedOrder)}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors"
+                      disabled={sendingWhatsApp}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
                     >
                       <MessageCircle className="w-4 h-4" />
-                      Notify via WhatsApp
+                      {sendingWhatsApp ? 'Sending...' : 'Notify via WhatsApp'}
                     </button>
                   </div>
                   <p className="text-xs text-gray-500">
-                    Opens a pre-filled WhatsApp message to the customer's number — you press send.
-                    Fully automatic sending needs a WhatsApp Business API account (see admin notes).
+                    Sends automatically once WhatsApp is configured; otherwise opens a
+                    pre-filled message for you to send by hand.
                   </p>
                 </div>
               </div>

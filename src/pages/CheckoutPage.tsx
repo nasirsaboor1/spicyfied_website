@@ -261,6 +261,11 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
 
       if (itemsError) throw itemsError;
 
+      // Best-effort WhatsApp confirmation - never let this block or fail checkout.
+      supabase.functions
+        .invoke('send-whatsapp-message', { body: { orderId: order.id, type: 'order_confirmation' } })
+        .catch((err) => console.error('WhatsApp confirmation failed:', err));
+
       if (deliveryType === 'delivery' && paymentMethod !== 'cod') {
         const paidViaRazorpay = await tryRazorpayPayment(order.id);
         if (!paidViaRazorpay) {
