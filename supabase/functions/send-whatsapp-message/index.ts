@@ -132,7 +132,7 @@ Deno.serve(async (req: Request) => {
       type === "order_confirmation"
         ? {
             name: "order_confirmation",
-            language: { code: "en_US" },
+            language: { code: "en" },
             components: [
               {
                 type: "body",
@@ -146,7 +146,7 @@ Deno.serve(async (req: Request) => {
           }
         : {
             name: "order_shipped",
-            language: { code: "en_US" },
+            language: { code: "en" },
             components: [
               {
                 type: "body",

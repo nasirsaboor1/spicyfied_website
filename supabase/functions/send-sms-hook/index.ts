@@ -62,7 +62,7 @@ Deno.serve(async (req: Request) => {
 
     const result = await sendWhatsAppTemplate(accessToken, phoneNumberId, waNumber, {
       name: "login_verification_code",
-      language: { code: "en_US" },
+      language: { code: "en" },
       components: [
         {
           type: "body",
