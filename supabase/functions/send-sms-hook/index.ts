@@ -82,8 +82,11 @@ Deno.serve(async (req: Request) => {
       return errorResponse(500, "Failed to send WhatsApp verification code.");
     }
 
-    // Supabase Auth treats an empty 200 response as a successful send.
-    return new Response(null, { status: 200 });
+    // Supabase Auth requires a JSON response (even if empty) with a 200 status for a successful send.
+    return new Response(JSON.stringify({}), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (err) {
     console.error("send-sms-hook error:", err);
     return errorResponse(500, "Internal error");
