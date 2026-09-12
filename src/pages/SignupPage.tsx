@@ -7,6 +7,24 @@ interface SignupPageProps {
   onSignupSuccess: () => void;
 }
 
+// Supabase/GoTrue error messages are safe to show as-is (written for end
+// users). Anything else — network failures, malformed responses, raw
+// JS/TypeError text like "Unexpected end of JSON input" — is an internal
+// detail and must never reach the UI verbatim.
+const KNOWN_SIGNUP_ERROR_PATTERNS: Array<{ match: RegExp; message: string }> = [
+  { match: /already registered|already exists|user already/i, message: 'An account with this email already exists. Try signing in instead.' },
+  { match: /password should be at least|password.*(?:short|weak|length)/i, message: 'Password must be at least 6 characters long.' },
+  { match: /invalid email|unable to validate email/i, message: 'Please enter a valid email address.' },
+  { match: /rate limit|too many requests/i, message: 'Too many attempts. Please wait a moment and try again.' },
+];
+
+function getSignupErrorMessage(error: Error): string {
+  const raw = error.message || '';
+  const known = KNOWN_SIGNUP_ERROR_PATTERNS.find((p) => p.match.test(raw));
+  if (known) return known.message;
+  return 'We could not create your account right now. Please check your connection and try again.';
+}
+
 export default function SignupPage({ onNavigateToLogin, onSignupSuccess }: SignupPageProps) {
   const { signUp } = useAuth();
   const [formData, setFormData] = useState({
@@ -45,7 +63,7 @@ export default function SignupPage({ onNavigateToLogin, onSignupSuccess }: Signu
     );
 
     if (signUpError) {
-      setError(signUpError.message);
+      setError(getSignupErrorMessage(signUpError));
       setLoading(false);
     } else {
       setSuccess('Account created successfully! Redirecting...');
