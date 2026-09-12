@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { resolveImageUrl } from './products';
+import { validateImageFile, generateImageVariants, deriveVariantPath } from './imageProcessing';
 
 export interface AdminCategory {
   id: string;
@@ -192,18 +193,66 @@ export async function upsertProductStory(
 
 const IMAGE_BUCKET = 'Product Image';
 
+export interface UploadImageResult {
+  variantWarnings: string[];
+}
+
+// Uploads the original file plus resized WebP variants (thumb/medium,
+// generated in-browser — see lib/imageProcessing.ts) under one shared base
+// filename. The database row only ever references the ORIGINAL path
+// (image_url), exactly as before this change — the resized variants live at
+// predictable derived Storage paths (deriveVariantPath) and are picked up
+// automatically by resolveImageUrl's fallback logic, with no schema change
+// and no need to reprocess or touch any existing product_images row.
 export async function uploadProductImage(
   productId: string,
   file: File,
   isPrimary: boolean,
   displayOrder: number
-): Promise<void> {
-  const safeName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+): Promise<UploadImageResult> {
+  const validationError = validateImageFile(file);
+  if (validationError) throw new Error(validationError.message);
 
+  const uniqueSuffix = typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID().slice(0, 8)
+    : Math.random().toString(36).slice(2, 10);
+  const extension = file.name.includes('.') ? file.name.slice(file.name.lastIndexOf('.')) : '.jpg';
+  const baseNameFromFile = file.name.slice(0, file.name.includes('.') ? file.name.lastIndexOf('.') : undefined);
+  const safeBase = `${Date.now()}-${uniqueSuffix}-${baseNameFromFile.replace(/[^a-zA-Z0-9\-_]/g, '_')}`;
+  const originalName = `${safeBase}${extension.replace(/[^a-zA-Z0-9.]/g, '') || '.jpg'}`;
+
+  // The original is the row of record — if this fails, abort with nothing
+  // uploaded and nothing inserted (no orphan variants, no orphan row).
   const { error: uploadError } = await supabase.storage
     .from(IMAGE_BUCKET)
-    .upload(safeName, file, { cacheControl: '3600', upsert: false });
+    .upload(originalName, file, { cacheControl: '31536000', upsert: false });
   if (uploadError) throw uploadError;
+
+  // Resized variants are best-effort: if generation or upload of a variant
+  // fails, the product image is still fully usable via the original (see
+  // resolveImageUrl's fallback) — a warning is surfaced to the admin
+  // instead of failing the whole upload.
+  const variantWarnings: string[] = [];
+  try {
+    const { variants, errors } = await generateImageVariants(file);
+    variantWarnings.push(...errors.map((e) => `Failed to generate ${e}`));
+
+    for (const variant of variants) {
+      const variantPath = deriveVariantPath(originalName, variant.tier);
+      const { error: variantUploadError } = await supabase.storage
+        .from(IMAGE_BUCKET)
+        .upload(variantPath, variant.blob, {
+          cacheControl: '31536000',
+          upsert: false,
+          contentType: 'image/webp',
+        });
+      if (variantUploadError) {
+        variantWarnings.push(`Failed to upload ${variant.tier} variant: ${variantUploadError.message}`);
+      }
+    }
+  } catch (e) {
+    variantWarnings.push(`Failed to process resized variants: ${e instanceof Error ? e.message : String(e)}`);
+  }
 
   if (isPrimary) {
     await supabase
@@ -214,12 +263,14 @@ export async function uploadProductImage(
 
   const { error: insertError } = await supabase.from('product_images').insert({
     product_id: productId,
-    image_url: `/${safeName}`,
+    image_url: `/${originalName}`,
     alt_text: null,
     display_order: displayOrder,
     is_primary: isPrimary,
   });
   if (insertError) throw insertError;
+
+  return { variantWarnings };
 }
 
 export async function setPrimaryImage(productId: string, imageId: string): Promise<void> {

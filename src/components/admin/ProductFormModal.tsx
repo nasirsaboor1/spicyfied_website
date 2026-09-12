@@ -192,7 +192,14 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
     setUploading(true);
     setError('');
     try {
-      await uploadProductImage(productId, file, images.length === 0, images.length + 1);
+      const { variantWarnings } = await uploadProductImage(productId, file, images.length === 0, images.length + 1);
+      if (variantWarnings.length > 0) {
+        // Non-fatal: the original photo uploaded and is fully usable (the
+        // storefront falls back to it automatically). Surface this so the
+        // admin knows a resized variant didn't generate, without blocking
+        // or rolling back an otherwise-successful upload.
+        setError(`Photo uploaded, but a resized variant failed: ${variantWarnings.join('; ')}`);
+      }
       onSaved(productId!);
     } catch (err: any) {
       setError(err.message || 'Failed to upload image');

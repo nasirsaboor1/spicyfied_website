@@ -9,6 +9,27 @@ export function resolveImageUrl(path: string | null | undefined): string {
   return supabase.storage.from(IMAGE_BUCKET).getPublicUrl(objectPath).data.publicUrl;
 }
 
+// Mirrors lib/imageProcessing.ts's deriveVariantPath — kept as a small,
+// dependency-free duplicate here rather than imported, since that module
+// pulls in browser-only Canvas APIs that have no place in the data-read
+// path (or in the Node-based prerender/merchant-feed build scripts, which
+// need this same derivation and can't import browser code either).
+function deriveVariantUrl(path: string | null | undefined, suffix: string): string {
+  if (!path) return '';
+  const objectPath = path.startsWith('/') ? path.slice(1) : path;
+  const dot = objectPath.lastIndexOf('.');
+  const base = dot === -1 ? objectPath : objectPath.slice(0, dot);
+  return resolveImageUrl(`${base}${suffix}.webp`);
+}
+
+export function resolveThumbUrl(path: string | null | undefined): string {
+  return deriveVariantUrl(path, '--thumb');
+}
+
+export function resolveMediumUrl(path: string | null | undefined): string {
+  return deriveVariantUrl(path, '--medium');
+}
+
 const PRODUCT_SELECT =
   '*, categories(slug, name), product_variants(*), product_images(*), product_stories(story_title, story_content, heritage_info, sourcing_details)';
 
@@ -83,6 +104,8 @@ function normalizeImages(images: RawImage[]): ProductImage[] {
       id: img.id,
       product_id: img.product_id,
       image_url: resolveImageUrl(img.image_url),
+      thumb_url: resolveThumbUrl(img.image_url),
+      medium_url: resolveMediumUrl(img.image_url),
       sort_order: index + 1,
       created_at: '',
     }));

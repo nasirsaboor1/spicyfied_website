@@ -28,6 +28,13 @@ export interface ProductImage {
   id: string;
   product_id: string;
   image_url: string;
+  /** Resized WebP variant URLs, derived from image_url by filename
+   * convention (see lib/imageProcessing.ts). May point at an object that
+   * doesn't exist in Storage yet (an image uploaded before this pipeline
+   * existed, or a variant that failed to generate) — always pair with a
+   * fallback to image_url, never assume these resolve. */
+  thumb_url: string;
+  medium_url: string;
   sort_order: number;
   created_at: string;
 }
@@ -50,6 +57,8 @@ export interface CartItem {
   variant: ProductVariant;
   quantity: number;
   image?: string;
+  /** Always-resolving original, shown if `image` (a resized variant) 404s. */
+  imageFallback?: string;
 }
 
 export type Category = 'whole-spices' | 'dry-fruits' | 'seeds';
