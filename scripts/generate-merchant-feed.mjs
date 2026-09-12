@@ -88,10 +88,19 @@ async function main() {
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+  const IMAGE_BUCKET = 'Product Image';
+  const resolveImageUrl = (objectPath) => {
+    if (!objectPath) return null;
+    const cleaned = objectPath.startsWith('/') ? objectPath.slice(1) : objectPath;
+    return supabase.storage.from(IMAGE_BUCKET).getPublicUrl(cleaned).data.publicUrl;
+  };
 
+  // NOTE: `products` has no `category` column (leftover from a schema this
+  // app no longer uses) and this field was never actually read below —
+  // dropped rather than replaced with an unused join.
   const { data: products, error: prodErr } = await supabase
     .from('products')
-    .select('id, name, slug, description, health_benefits, category')
+    .select('id, name, slug, description, health_benefits')
     .eq('is_active', true)
     .order('name');
 
@@ -107,16 +116,18 @@ async function main() {
 
   const ids = products.map((p) => p.id);
 
-  const [{ data: variants }, { data: images }] = await Promise.all([
+  const [{ data: variants, error: variantsErr }, { data: images, error: imagesErr }] = await Promise.all([
     supabase
       .from('product_variants')
       .select('product_id, price, stock_quantity')
       .in('product_id', ids),
     supabase
       .from('product_images')
-      .select('product_id, image_url, sort_order')
+      .select('product_id, image_url, display_order, is_primary')
       .in('product_id', ids),
   ]);
+  if (variantsErr) console.warn('[merchant-feed] Failed to fetch product_variants:', variantsErr.message);
+  if (imagesErr) console.warn('[merchant-feed] Failed to fetch product_images:', imagesErr.message);
 
   const now = new Date().toUTCString();
 
@@ -128,9 +139,12 @@ async function main() {
 
     const pImages = (images || [])
       .filter((i) => i.product_id === p.id)
-      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+      .sort((a, b) => {
+        if (a.is_primary !== b.is_primary) return a.is_primary ? -1 : 1;
+        return (a.display_order || 0) - (b.display_order || 0);
+      });
 
-    const primaryImage = pImages[0]?.image_url ?? null;
+    const primaryImage = resolveImageUrl(pImages[0]?.image_url);
     const lowestPrice = pVariants.length ? Math.min(...pVariants) : null;
 
     return buildItem({ product: p, primaryImage, lowestPrice, variantCount: pVariants.length });

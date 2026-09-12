@@ -168,9 +168,21 @@ async function main() {
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+  const IMAGE_BUCKET = 'Product Image';
+  const resolveImageUrl = (objectPath) => {
+    if (!objectPath) return '';
+    const cleaned = objectPath.startsWith('/') ? objectPath.slice(1) : objectPath;
+    return supabase.storage.from(IMAGE_BUCKET).getPublicUrl(cleaned).data.publicUrl;
+  };
+
+  // NOTE: `products` has no `category`, `rating_average`, or `rating_count`
+  // columns — those were leftovers from a schema this app no longer uses.
+  // The real schema joins categories via `category_id`, and rating data
+  // lives in `reviews` (aggregated below), matching the pattern already
+  // used correctly by src/lib/products.ts and fetchProductRatingSummary().
   const { data: products, error: prodErr } = await supabase
     .from('products')
-    .select('id, name, slug, description, health_benefits, category, rating_average, rating_count')
+    .select('id, name, slug, description, health_benefits, categories(slug, name)')
     .eq('is_active', true);
 
   if (prodErr) {
@@ -179,19 +191,32 @@ async function main() {
   }
 
   const ids = (products || []).map((p) => p.id);
-  const { data: variants } = ids.length
+  const { data: variants, error: variantsErr } = ids.length
     ? await supabase.from('product_variants').select('product_id, price').in('product_id', ids)
     : { data: [] };
-  const { data: images } = ids.length
-    ? await supabase.from('product_images').select('product_id, image_url, sort_order').in('product_id', ids)
+  if (variantsErr) console.warn('Failed to fetch product_variants:', variantsErr.message);
+
+  const { data: images, error: imagesErr } = ids.length
+    ? await supabase.from('product_images').select('product_id, image_url, display_order, is_primary').in('product_id', ids)
     : { data: [] };
+  if (imagesErr) console.warn('Failed to fetch product_images:', imagesErr.message);
+
+  const { data: reviews, error: reviewsErr } = ids.length
+    ? await supabase.from('reviews').select('product_id, rating').eq('is_approved', true).in('product_id', ids)
+    : { data: [] };
+  if (reviewsErr) console.warn('Failed to fetch reviews:', reviewsErr.message);
 
   for (const p of products || []) {
     const pVariants = (variants || []).filter((v) => v.product_id === p.id).map((v) => Number(v.price));
     const pImages = (images || [])
       .filter((i) => i.product_id === p.id)
-      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
-    const primaryImage = pImages[0]?.image_url;
+      .sort((a, b) => {
+        if (a.is_primary !== b.is_primary) return a.is_primary ? -1 : 1;
+        return (a.display_order || 0) - (b.display_order || 0);
+      })
+      .map((i) => ({ ...i, url: resolveImageUrl(i.image_url) }));
+    const pReviews = (reviews || []).filter((r) => r.product_id === p.id);
+    const primaryImage = pImages[0]?.url;
     const low = pVariants.length ? Math.min(...pVariants) : undefined;
     const high = pVariants.length ? Math.max(...pVariants) : undefined;
 
@@ -204,15 +229,15 @@ async function main() {
       '@type': 'Product',
       name: p.name,
       description: p.description || undefined,
-      image: pImages.map((i) => i.image_url),
-      category: p.category || undefined,
+      image: pImages.map((i) => i.url),
+      category: p.categories?.name || undefined,
       brand: { '@type': 'Brand', name: 'Spicyfied' },
       aggregateRating:
-        p.rating_count && Number(p.rating_count) > 0
+        pReviews.length > 0
           ? {
               '@type': 'AggregateRating',
-              ratingValue: Number(p.rating_average || 0),
-              reviewCount: Number(p.rating_count),
+              ratingValue: Number((pReviews.reduce((sum, r) => sum + r.rating, 0) / pReviews.length).toFixed(2)),
+              reviewCount: pReviews.length,
             }
           : undefined,
       offers: pVariants.length
