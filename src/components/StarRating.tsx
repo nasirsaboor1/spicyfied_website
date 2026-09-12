@@ -30,7 +30,11 @@ export default function StarRating({
   };
 
   return (
-    <div className="flex items-center gap-1">
+    <div
+      className="flex items-center gap-1"
+      role={interactive ? undefined : 'img'}
+      aria-label={interactive ? undefined : `Rating: ${rating.toFixed(1)} out of 5`}
+    >
       {stars.map((star) => {
         const filled = star <= rating;
         return (
@@ -39,6 +43,9 @@ export default function StarRating({
             type="button"
             onClick={() => handleClick(star)}
             disabled={!interactive}
+            aria-label={interactive ? `Rate ${star} star${star > 1 ? 's' : ''}` : undefined}
+            aria-hidden={interactive ? undefined : true}
+            tabIndex={interactive ? undefined : -1}
             className={`${interactive ? 'cursor-pointer hover:scale-110 transition-transform' : 'cursor-default'}`}
           >
             <Star
