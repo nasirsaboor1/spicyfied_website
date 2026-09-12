@@ -11,7 +11,13 @@ interface ProductCardProps {
 export default function ProductCard({ product, variants, images, onClick }: ProductCardProps) {
   const firstImage = images.find(img => img.sort_order === 1) || images[0];
   const secondImage = images.find((img) => img !== firstImage);
-  const minPrice = variants.length > 0 ? Math.min(...variants.map(v => v.price)) : 0;
+  const cheapestVariant = variants.length > 0
+    ? variants.reduce((min, v) => (v.price < min.price ? v : min), variants[0])
+    : null;
+  const minPrice = cheapestVariant?.price ?? 0;
+  // Only products genuinely priced per-piece (e.g. Nutmeg) carry this unit;
+  // weight-priced products ('g'/'kg') are left exactly as before.
+  const isPerPiece = cheapestVariant?.weight_unit === 'pcs';
 
   return (
     <div
@@ -74,6 +80,7 @@ export default function ProductCard({ product, variants, images, onClick }: Prod
             <p className="text-xs text-gray-500 mb-1 tracking-wide uppercase">Starting from</p>
             <p className="text-xl font-bold text-ink">
               ₹{Math.round(minPrice)}
+              {isPerPiece && <span className="text-sm font-medium text-gray-500"> / pc</span>}
             </p>
           </div>
           <button

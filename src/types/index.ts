@@ -17,6 +17,7 @@ export interface ProductVariant {
   id: string;
   product_id: string;
   size: string;
+  weight_unit: string;
   price: number;
   stock_quantity: number;
   sort_order: number;

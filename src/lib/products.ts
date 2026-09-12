@@ -16,6 +16,7 @@ interface RawVariant {
   id: string;
   product_id: string;
   variant_name: string;
+  weight_unit: string;
   price: number;
   stock_quantity: number | null;
   is_default: boolean;
@@ -64,6 +65,7 @@ function normalizeVariants(variants: RawVariant[]): ProductVariant[] {
       id: v.id,
       product_id: v.product_id,
       size: v.variant_name,
+      weight_unit: v.weight_unit,
       price: Number(v.price),
       stock_quantity: v.stock_quantity ?? 0,
       sort_order: index,
