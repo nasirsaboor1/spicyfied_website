@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { supabase } from '../lib/supabase';
 import { getDeliveryFee } from '../lib/delivery';
-import BulkPricingNote from '../components/BulkPricingNote';
 import { INDIAN_STATES } from '../lib/indianStates';
 
 interface Address {
@@ -698,8 +697,6 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                   <span className="text-[#211C17]">₹{Math.round(totalAmount)}</span>
                 </div>
               </div>
-
-              <BulkPricingNote className="mb-4" />
 
               <div className="mb-4 p-4 bg-gray-50 rounded-lg space-y-3">
                 <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
