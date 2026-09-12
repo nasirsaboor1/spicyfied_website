@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { supabase } from './lib/supabase';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Cart from './components/Cart';
+import SpiceLoader from './components/SpiceLoader';
 import HomePage from './pages/HomePage';
 import ShopPage from './pages/ShopPage';
 import ProductDetailPage from './pages/ProductDetailPage';
@@ -13,15 +14,24 @@ import SignupPage from './pages/SignupPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrdersPage from './pages/OrdersPage';
 import DashboardPage from './pages/DashboardPage';
-import AdminPage from './pages/AdminPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsConditionsPage from './pages/TermsConditionsPage';
 import ShippingDeliveryPage from './pages/ShippingDeliveryPage';
 import RefundCancellationPage from './pages/RefundCancellationPage';
 import ContactPage from './pages/ContactPage';
-import RecipesPage from './pages/RecipesPage';
-import RecipeDetailPage from './pages/RecipeDetailPage';
+
+// Code-split out of the initial bundle every anonymous shopper downloads:
+// - AdminPage pulls in the entire admin panel (orders, product editor,
+//   CSV/packing-slip export, team management) — confirmed present in the
+//   single public JS chunk before this change (see PHASE4_WAVE2_REPORT.md,
+//   "Bundle Splitting"), even though only staff ever navigate to /admin.
+// - RecipesPage/RecipeDetailPage pull in the full recipe dataset
+//   (src/data/recipes) — real weight, not needed by a shopper who never
+//   opens Recipes.
+const AdminPage = lazy(() => import('./pages/AdminPage'));
+const RecipesPage = lazy(() => import('./pages/RecipesPage'));
+const RecipeDetailPage = lazy(() => import('./pages/RecipeDetailPage'));
 
 type Page = 'home' | 'shop' | 'product' | 'login' | 'signup' | 'checkout' | 'orders' | 'dashboard' | 'admin' | 'reset-password' | 'privacy' | 'terms' | 'shipping' | 'refund' | 'contact' | 'recipes' | 'recipe';
 
@@ -231,12 +241,15 @@ function App() {
           )}
 
         {currentPage === 'admin' && (
-          <AdminPage
-            onNavigateToLogin={navigateToLogin}
-          />
+          <Suspense fallback={<SpiceLoader label="Loading admin panel" className="min-h-screen" />}>
+            <AdminPage
+              onNavigateToLogin={navigateToLogin}
+            />
+          </Suspense>
         )}
 
         <main>
+        <Suspense fallback={<SpiceLoader label="Loading" className="min-h-[50vh]" />}>
         {currentPage === 'home' && (
           <HomePage
             onNavigateToProduct={navigateToProduct}
@@ -344,6 +357,7 @@ function App() {
             onNavigateToProduct={navigateToProduct}
           />
         )}
+        </Suspense>
         </main>
 
         {currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin' && currentPage !== 'reset-password' && (
