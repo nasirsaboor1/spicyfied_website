@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Lock, LogIn, CheckCircle, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, LogIn, CheckCircle, ShieldCheck, MessageCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface LoginPageProps {
@@ -8,15 +8,20 @@ interface LoginPageProps {
 }
 
 type Mode = 'otp-request' | 'otp-verify' | 'password' | 'forgot-password';
+type OtpChannel = 'email' | 'phone';
 
 export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginPageProps) {
-  const { signIn, requestPasswordReset, sendEmailOtp, verifyEmailOtp } = useAuth();
+  const { signIn, requestPasswordReset, sendEmailOtp, verifyEmailOtp, sendPhoneOtp, verifyPhoneOtp } = useAuth();
   const [mode, setMode] = useState<Mode>('otp-request');
+  const [otpChannel, setOtpChannel] = useState<OtpChannel>('email');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const e164Phone = `+91${phone.replace(/\D/g, '')}`;
 
   const [resetEmail, setResetEmail] = useState('');
   const [resetSending, setResetSending] = useState(false);
@@ -50,7 +55,8 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
     setError('');
     setLoading(true);
 
-    const { error: otpError } = await sendEmailOtp(email);
+    const { error: otpError } =
+      otpChannel === 'email' ? await sendEmailOtp(email) : await sendPhoneOtp(e164Phone);
 
     setLoading(false);
     if (otpError) {
@@ -70,7 +76,10 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
     setError('');
     setLoading(true);
 
-    const { error: verifyError } = await verifyEmailOtp(email, otpCode.trim());
+    const { error: verifyError } =
+      otpChannel === 'email'
+        ? await verifyEmailOtp(email, otpCode.trim())
+        : await verifyPhoneOtp(e164Phone, otpCode.trim());
 
     if (verifyError) {
       setError('Incorrect or expired code. Please try again.');
@@ -195,10 +204,10 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
             </h2>
             <p className="text-gray-600 mt-2">
               {mode === 'otp-verify'
-                ? `We sent a 6-digit code to ${email}`
+                ? `We sent a 6-digit code to ${otpChannel === 'email' ? email : `your WhatsApp (${e164Phone})`}`
                 : mode === 'password'
                 ? 'Sign in with your password'
-                : 'Sign in or create an account with your email'}
+                : 'Sign in or create an account'}
             </p>
           </div>
 
@@ -209,37 +218,93 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
           )}
 
           {mode === 'otp-request' && (
-            <form onSubmit={handleSendOtp} className="space-y-6">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
-                    placeholder="you@example.com"
-                  />
-                </div>
+            <>
+              <div className="flex rounded-lg border border-gray-200 p-1 mb-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtpChannel('email');
+                    setError('');
+                  }}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-semibold transition-colors ${
+                    otpChannel === 'email' ? 'bg-ink text-white' : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <Mail className="w-4 h-4" />
+                  Email
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtpChannel('phone');
+                    setError('');
+                  }}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-semibold transition-colors ${
+                    otpChannel === 'phone' ? 'bg-ink text-white' : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  WhatsApp
+                </button>
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-ink text-white py-3 rounded-lg font-semibold hover:bg-ink-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Sending code...' : 'Send Verification Code'}
-              </button>
+              <form onSubmit={handleSendOtp} className="space-y-6">
+                {otpChannel === 'email' ? (
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        id="email"
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                        placeholder="you@example.com"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                      WhatsApp Number
+                    </label>
+                    <div className="relative">
+                      <MessageCircle className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <span className="absolute left-10 top-1/2 transform -translate-y-1/2 text-gray-500">+91</span>
+                      <input
+                        id="phone"
+                        type="tel"
+                        inputMode="numeric"
+                        required
+                        maxLength={10}
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                        className="w-full pl-[4.5rem] pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                        placeholder="98765 43210"
+                      />
+                    </div>
+                  </div>
+                )}
 
-              <p className="text-xs text-gray-500 text-center">
-                New here? We'll create your account automatically once you verify your email.
+                <button
+                  type="submit"
+                  disabled={loading || (otpChannel === 'phone' && phone.length !== 10)}
+                  className="w-full bg-ink text-white py-3 rounded-lg font-semibold hover:bg-ink-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Sending code...' : 'Send Verification Code'}
+                </button>
+
+                <p className="text-xs text-gray-500 text-center">
+                  {otpChannel === 'email'
+                    ? "New here? We'll create your account automatically once you verify your email."
+                    : "New here? We'll create your account automatically once you verify your WhatsApp number."}
               </p>
-            </form>
+              </form>
+            </>
           )}
 
           {mode === 'otp-verify' && (
@@ -281,7 +346,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
                   }}
                   className="text-gray-600 hover:underline"
                 >
-                  Use a different email
+                  Use a different {otpChannel === 'email' ? 'email' : 'number'}
                 </button>
                 <button
                   type="button"

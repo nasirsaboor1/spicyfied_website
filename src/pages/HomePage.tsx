@@ -8,7 +8,7 @@ import SpiceDrift from '../components/SpiceDrift';
 import SpiceLoader from '../components/SpiceLoader';
 import { SCROLL_SPICE_PHOTOS } from '../lib/spicePhotos';
 import { SPICE_HERO_PHOTOS } from '../lib/spiceHeroPhotos';
-import { ChevronRight, Leaf, Gem, Flame, Sparkles } from 'lucide-react';
+import { ChevronRight, Leaf, Gem, Flame, Sparkles, Stamp } from 'lucide-react';
 
 interface HomePageProps {
   onNavigateToProduct: (slug: string) => void;
@@ -19,7 +19,7 @@ const PILLARS = [
   {
     icon: Leaf,
     title: 'Purity',
-    copy: 'No fillers, no colouring, nothing hidden — every batch is exactly what it says on the label.',
+    copy: 'No fillers, no colouring, nothing hidden. Every batch is exactly what it says on the label.',
   },
   {
     icon: Gem,
@@ -75,9 +75,13 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
         <SpiceDrift />
 
         <div className="relative max-w-[1400px] mx-auto">
-          <p className="text-saffron-light text-xs sm:text-sm font-medium tracking-[0.3em] uppercase mb-8">
-            Hand-Selected &middot; Small-Batch &middot; Unadulterated
-          </p>
+          <div className="inline-flex items-center gap-3 border border-saffron-light/30 bg-saffron-light/[0.06] px-4 py-2 mb-10">
+            <Stamp className="w-3.5 h-3.5 text-saffron-light flex-shrink-0" strokeWidth={1.5} />
+            <p className="text-saffron-light text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase">
+              Hand-Selected <span className="text-saffron-light/40">/</span> Small-Batch{' '}
+              <span className="text-saffron-light/40">/</span> Unadulterated
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-10 lg:gap-12 items-center">
             <div>
@@ -88,7 +92,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
               </h1>
               <p className="text-lg text-cream/75 max-w-xl leading-relaxed font-light mb-8">
                 Every batch is sourced with care, cleaned by hand, and packed to honour the
-                taste nature intended — no fillers, no shortcuts, no compromise.
+                taste nature intended, with no fillers, no shortcuts, no compromise.
               </p>
               <button
                 onClick={() => onNavigateToShop()}
@@ -328,7 +332,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
             <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-cream-soft">
               <Reveal className="flex items-baseline justify-between mb-8">
                 <h2 className="font-sans text-sm font-semibold tracking-[0.2em] uppercase text-ink">
-                  Everyday Essentials <span className="text-gray-400 font-normal normal-case tracking-normal">— the kitchen staples people reorder most</span>
+                  Everyday Essentials <span className="text-gray-400 font-normal normal-case tracking-normal">· the kitchen staples people reorder most</span>
                 </h2>
                 <button
                   onClick={() => onNavigateToShop('whole-spices')}

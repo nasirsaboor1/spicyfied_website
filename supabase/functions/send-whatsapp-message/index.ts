@@ -1,12 +1,11 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { sendWhatsAppTemplate, toWhatsAppNumber } from "../_shared/whatsapp.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
-
-const GRAPH_API_VERSION = "v21.0";
 
 type MessageType = "order_confirmation" | "order_shipped";
 
@@ -31,15 +30,6 @@ interface OrderRow {
 function extractPickupContact(notes: string | null): { name: string | null; phone: string | null } {
   const match = notes?.match(/Pickup contact:\s*([^,]+),\s*([\d+\-\s]{7,})/);
   return { name: match ? match[1].trim() : null, phone: match ? match[2].trim() : null };
-}
-
-function toWhatsAppNumber(rawPhone: string): string | null {
-  const digits = rawPhone.replace(/\D/g, "");
-  if (!digits) return null;
-  if (digits.length === 10) return `91${digits}`;
-  if (digits.length === 12 && digits.startsWith("91")) return digits;
-  if (digits.length === 11 && digits.startsWith("0")) return `91${digits.slice(1)}`;
-  return digits;
 }
 
 Deno.serve(async (req: Request) => {
@@ -142,7 +132,7 @@ Deno.serve(async (req: Request) => {
       type === "order_confirmation"
         ? {
             name: "order_confirmation",
-            language: { code: "en_US" },
+            language: { code: "en" },
             components: [
               {
                 type: "body",
@@ -156,7 +146,7 @@ Deno.serve(async (req: Request) => {
           }
         : {
             name: "order_shipped",
-            language: { code: "en_US" },
+            language: { code: "en" },
             components: [
               {
                 type: "body",
@@ -171,27 +161,11 @@ Deno.serve(async (req: Request) => {
             ],
           };
 
-    const waResponse = await fetch(
-      `https://graph.facebook.com/${GRAPH_API_VERSION}/${phoneNumberId}/messages`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messaging_product: "whatsapp",
-          to: waNumber,
-          type: "template",
-          template,
-        }),
-      }
-    );
+    const result = await sendWhatsAppTemplate(accessToken, phoneNumberId, waNumber, template);
 
-    if (!waResponse.ok) {
-      const errText = await waResponse.text();
-      console.error("WhatsApp send failed:", errText);
-      return jsonResponse({ error: "whatsapp_send_failed", message: errText }, 502);
+    if (!result.ok) {
+      console.error("WhatsApp send failed:", result.error);
+      return jsonResponse({ error: "whatsapp_send_failed", message: result.error }, 502);
     }
 
     return jsonResponse({ success: true }, 200);
