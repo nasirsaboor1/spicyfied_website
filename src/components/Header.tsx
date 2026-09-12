@@ -62,7 +62,7 @@ export default function Header({
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center gap-8">
+          <nav aria-label="Main" className="hidden md:flex items-center gap-8">
             <a href="/" className={navLinkClass}>Home</a>
             <a href="/shop" className={navLinkClass} onClick={(e) => { e.preventDefault(); handleCategoryClick('all'); }}>Shop</a>
             <div className="relative group">
@@ -92,6 +92,7 @@ export default function Header({
 
             <button
               onClick={() => setIsCartOpen(true)}
+              aria-label="Open cart"
               className="relative p-2 hover:bg-white/10 rounded-full transition-colors"
             >
               <ShoppingCart className="w-6 h-6" />
@@ -106,6 +107,8 @@ export default function Header({
               <div className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  aria-label="Account menu"
+                  aria-expanded={isUserMenuOpen}
                   className="flex items-center gap-2 p-2 hover:bg-white/10 rounded-full transition-colors"
                 >
                   <div className="w-8 h-8 bg-saffron-light rounded-full flex items-center justify-center text-ink font-bold">
@@ -185,7 +188,8 @@ export default function Header({
             </button>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Open menu"
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={isMenuOpen}
               className="p-2"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

@@ -111,9 +111,10 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
                 <div key={pillar.title} className="flex items-start gap-3">
                   <pillar.icon className="w-4 h-4 text-saffron-light mt-1 flex-shrink-0" strokeWidth={1.5} />
                   <div>
-                    <h3 className="font-sans text-xs font-semibold tracking-[0.15em] uppercase text-cream mb-1">
+                    {/* Not a document-outline heading — a short label beside an icon, styled to match. */}
+                    <p className="font-sans text-xs font-semibold tracking-[0.15em] uppercase text-cream mb-1">
                       {pillar.title}
-                    </h3>
+                    </p>
                     <p className="text-sm text-cream/60 leading-relaxed">{pillar.copy}</p>
                   </div>
                 </div>

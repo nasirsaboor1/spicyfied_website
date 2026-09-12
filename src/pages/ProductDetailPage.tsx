@@ -190,7 +190,7 @@ export default function ProductDetailPage({
   return (
     <div className="min-h-screen bg-cream pt-6 pb-24 md:pb-20">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <nav className="flex items-center gap-1.5 text-xs sm:text-sm text-ink/50 mb-6 flex-wrap">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs sm:text-sm text-ink/50 mb-6 flex-wrap">
           <button onClick={onNavigateHome} className="hover:text-ink transition-colors">
             Home
           </button>
@@ -227,12 +227,14 @@ export default function ProductDetailPage({
                 <>
                   <button
                     onClick={prevImage}
+                    aria-label="Previous image"
                     className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-colors"
                   >
                     <ChevronLeft className="w-6 h-6 text-ink" />
                   </button>
                   <button
                     onClick={nextImage}
+                    aria-label="Next image"
                     className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-colors"
                   >
                     <ChevronRight className="w-6 h-6 text-ink" />
@@ -291,9 +293,9 @@ export default function ProductDetailPage({
 
             {product.variants.length > 0 && (
               <div>
-                <h3 className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
+                <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
                   Select Size
-                </h3>
+                </p>
                 <div className="grid grid-cols-3 gap-3">
                   {product.variants.map((variant, index) => (
                     <button
@@ -314,12 +316,13 @@ export default function ProductDetailPage({
             )}
 
             <div>
-              <h3 className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
+              <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
                 Quantity
-              </h3>
+              </p>
               <div className="flex items-center gap-3 bg-cream-soft rounded-lg w-fit">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  aria-label="Decrease quantity"
                   className="px-4 py-2 hover:bg-black/5 rounded-l-lg transition-colors font-bold text-ink"
                 >
                   -
@@ -327,6 +330,7 @@ export default function ProductDetailPage({
                 <span className="px-6 font-semibold text-ink">{quantity}</span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
+                  aria-label="Increase quantity"
                   className="px-4 py-2 hover:bg-black/5 rounded-r-lg transition-colors font-bold text-ink"
                 >
                   +
@@ -335,9 +339,9 @@ export default function ProductDetailPage({
             </div>
 
             <div>
-              <h3 className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
+              <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
                 Delivery
-              </h3>
+              </p>
               <div className="flex gap-2 max-w-sm">
                 <input
                   type="text"
@@ -452,9 +456,9 @@ export default function ProductDetailPage({
             )}
 
             <div className="border-t border-black/10 pt-6">
-              <h3 className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
+              <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
                 Description
-              </h3>
+              </p>
               <div className="text-gray-600 leading-relaxed whitespace-pre-line">
                 {product.description}
               </div>
@@ -462,9 +466,9 @@ export default function ProductDetailPage({
 
             {product.health_benefits && (
               <div className="border-t border-black/10 pt-6">
-                <h3 className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
+                <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
                   Health Benefits
-                </h3>
+                </p>
                 <div className="text-gray-600 leading-relaxed whitespace-pre-line">
                   {product.health_benefits}
                 </div>

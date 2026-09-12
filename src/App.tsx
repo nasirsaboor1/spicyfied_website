@@ -230,6 +230,13 @@ function App() {
             <Cart onNavigateToCheckout={navigateToCheckout} />
           )}
 
+        {currentPage === 'admin' && (
+          <AdminPage
+            onNavigateToLogin={navigateToLogin}
+          />
+        )}
+
+        <main>
         {currentPage === 'home' && (
           <HomePage
             onNavigateToProduct={navigateToProduct}
@@ -289,12 +296,6 @@ function App() {
           />
         )}
 
-        {currentPage === 'admin' && (
-          <AdminPage
-            onNavigateToLogin={navigateToLogin}
-          />
-        )}
-
         {currentPage === 'reset-password' && (
           <ResetPasswordPage onDone={handleLoginSuccess} />
         )}
@@ -343,6 +344,7 @@ function App() {
             onNavigateToProduct={navigateToProduct}
           />
         )}
+        </main>
 
         {currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin' && currentPage !== 'reset-password' && (
           <Footer

@@ -159,7 +159,8 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
             </div>
           </aside>
 
-          <main className="flex-1">
+          <div className="flex-1">
+            <h2 className="sr-only">Products</h2>
             <div className="flex items-center justify-between mb-6">
               <p className="text-gray-600">
                 {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
@@ -194,7 +195,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
                 ))}
               </div>
             )}
-          </main>
+          </div>
         </div>
       </div>
     </div>

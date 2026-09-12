@@ -27,6 +27,7 @@ export default function Cart({ onNavigateToCheckout }: CartProps) {
             </h2>
             <button
               onClick={() => setIsCartOpen(false)}
+              aria-label="Close cart"
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
               <X className="w-6 h-6" />
@@ -72,6 +73,7 @@ export default function Cart({ onNavigateToCheckout }: CartProps) {
                             onClick={() =>
                               updateQuantity(item.product.id, item.variant.id, item.quantity - 1)
                             }
+                            aria-label={`Decrease quantity of ${item.product.name}`}
                             className="p-1 hover:bg-gray-100 rounded-l-lg transition-colors"
                           >
                             <Minus className="w-4 h-4" />
@@ -81,6 +83,7 @@ export default function Cart({ onNavigateToCheckout }: CartProps) {
                             onClick={() =>
                               updateQuantity(item.product.id, item.variant.id, item.quantity + 1)
                             }
+                            aria-label={`Increase quantity of ${item.product.name}`}
                             className="p-1 hover:bg-gray-100 rounded-r-lg transition-colors"
                           >
                             <Plus className="w-4 h-4" />
@@ -89,6 +92,7 @@ export default function Cart({ onNavigateToCheckout }: CartProps) {
 
                         <button
                           onClick={() => removeFromCart(item.product.id, item.variant.id)}
+                          aria-label={`Remove ${item.product.name} from cart`}
                           className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
