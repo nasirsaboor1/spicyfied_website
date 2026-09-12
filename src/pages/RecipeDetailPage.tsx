@@ -7,6 +7,7 @@ import { productsForRecipe } from '../lib/recipeMatch';
 import { recipeImage } from '../lib/recipeImages';
 import { fetchProductsWithDetails } from '../lib/products';
 import type { ProductWithDetails } from '../types';
+import ResilientImage from '../components/ResilientImage';
 
 interface RecipeDetailPageProps {
   recipeId: string;
@@ -198,11 +199,13 @@ export default function RecipeDetailPage({
                   >
                     <div className="aspect-square bg-cream-soft overflow-hidden">
                       {img && (
-                        <img
-                          src={img.image_url}
+                        <ResilientImage
+                          src={img.thumb_url}
+                          fallbackSrc={img.image_url}
                           alt={p.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
+                          decoding="async"
                         />
                       )}
                     </div>

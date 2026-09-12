@@ -1,14 +1,20 @@
 import { Star } from 'lucide-react';
 import { Product, ProductVariant, ProductImage } from '../types';
+import ResilientImage from './ResilientImage';
 
 interface ProductCardProps {
   product: Product;
   variants: ProductVariant[];
   images: ProductImage[];
   onClick?: () => void;
+  /** True for the first few cards in a grid, i.e. the ones actually visible
+   * on load — measured live to be the LCP element on both Home and Shop.
+   * Those must not be lazy-loaded (that delays LCP); every other card
+   * should be, since it's genuinely off-screen at load time. */
+  priority?: boolean;
 }
 
-export default function ProductCard({ product, variants, images, onClick }: ProductCardProps) {
+export default function ProductCard({ product, variants, images, onClick, priority = false }: ProductCardProps) {
   const firstImage = images.find(img => img.sort_order === 1) || images[0];
   const secondImage = images.find((img) => img !== firstImage);
   const cheapestVariant = variants.length > 0
@@ -27,21 +33,27 @@ export default function ProductCard({ product, variants, images, onClick }: Prod
       <div className="relative aspect-square overflow-hidden bg-cream-soft">
         {firstImage ? (
           <>
-            <img
-              src={firstImage.image_url}
+            <ResilientImage
+              src={firstImage.thumb_url}
+              fallbackSrc={firstImage.image_url}
               alt={product.name}
               className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out ${
                 secondImage ? 'group-hover:opacity-0' : ''
               }`}
               style={secondImage ? { transitionProperty: 'transform, opacity' } : undefined}
-              loading="lazy"
+              loading={priority ? 'eager' : 'lazy'}
+              fetchPriority={priority ? 'high' : 'auto'}
+              decoding={priority ? 'sync' : 'async'}
             />
             {secondImage && (
-              <img
-                src={secondImage.image_url}
+              <ResilientImage
+                src={secondImage.thumb_url}
+                fallbackSrc={secondImage.image_url}
                 alt=""
                 aria-hidden="true"
                 className="absolute inset-0 w-full h-full object-cover opacity-0 scale-110 group-hover:opacity-100 transition-opacity duration-700 ease-out"
+                loading="lazy"
+                decoding="async"
               />
             )}
           </>

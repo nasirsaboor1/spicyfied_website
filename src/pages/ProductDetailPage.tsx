@@ -12,6 +12,7 @@ import SpiceLoader from '../components/SpiceLoader';
 import ProductCard from '../components/ProductCard';
 import Reveal from '../components/Reveal';
 import StarRating from '../components/StarRating';
+import ResilientImage from '../components/ResilientImage';
 
 interface ProductDetailPageProps {
   productSlug: string;
@@ -96,7 +97,13 @@ export default function ProductDetailPage({
     if (!product || product.variants.length === 0) return null;
     const selectedVariant = product.variants[selectedVariantIndex];
     const firstImage = product.images.find((img) => img.sort_order === 1) || product.images[0];
-    return { product, variant: selectedVariant, quantity, image: firstImage?.image_url };
+    return {
+      product,
+      variant: selectedVariant,
+      quantity,
+      image: firstImage?.thumb_url,
+      imageFallback: firstImage?.image_url,
+    };
   };
 
   const handleAddToCart = () => {
@@ -190,7 +197,7 @@ export default function ProductDetailPage({
   return (
     <div className="min-h-screen bg-cream pt-6 pb-24 md:pb-20">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs sm:text-sm text-ink/50 mb-6 flex-wrap">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs sm:text-sm text-ink/70 mb-6 flex-wrap">
           <button onClick={onNavigateHome} className="hover:text-ink transition-colors">
             Home
           </button>
@@ -212,10 +219,14 @@ export default function ProductDetailPage({
           <div className="space-y-4">
             <div className="relative aspect-square bg-cream-soft rounded-2xl overflow-hidden border border-black/5">
               {currentImage ? (
-                <img
-                  src={currentImage.image_url}
+                <ResilientImage
+                  src={currentImage.medium_url}
+                  fallbackSrc={currentImage.image_url}
                   alt={product.name}
                   className="w-full h-full object-cover"
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="sync"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-ink to-moss font-serif text-cream text-4xl font-semibold">
@@ -255,10 +266,13 @@ export default function ProductDetailPage({
                         : 'border-black/10 hover:border-black/30'
                     }`}
                   >
-                    <img
-                      src={image.image_url}
+                    <ResilientImage
+                      src={image.thumb_url}
+                      fallbackSrc={image.image_url}
                       alt={`${product.name} ${index + 1}`}
                       className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </button>
                 ))}
@@ -521,7 +535,7 @@ export default function ProductDetailPage({
               <h2 className="font-serif text-2xl md:text-3xl font-semibold text-ink">
                 You may also like
               </h2>
-              <p className="text-sm text-gray-500 hidden sm:block">More from the same shelf</p>
+              <p className="text-sm text-gray-600 hidden sm:block">More from the same shelf</p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {relatedProducts.map((p, i) => (

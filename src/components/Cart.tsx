@@ -1,5 +1,6 @@
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import ResilientImage from './ResilientImage';
 
 interface CartProps {
   onNavigateToCheckout?: () => void;
@@ -48,10 +49,13 @@ export default function Cart({ onNavigateToCheckout }: CartProps) {
                     className="flex gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200"
                   >
                     {item.image ? (
-                      <img
+                      <ResilientImage
                         src={item.image}
+                        fallbackSrc={item.imageFallback || item.image}
                         alt={item.product.name}
                         className="w-20 h-20 object-cover rounded-lg"
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <div className="w-20 h-20 bg-gradient-to-br from-[#211C17] to-[#3F5A34] rounded-lg flex items-center justify-center text-white font-bold">
