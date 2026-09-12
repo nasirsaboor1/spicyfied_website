@@ -128,7 +128,12 @@ function injectHead(template, seoBlock) {
 }
 
 function injectBody(template, h1, copy) {
-  const snippet = `<div id="prerender-seo" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;"><h1>${escapeHtml(
+  // Crawler/no-JS fallback content only — the real, accessible page is the
+  // hydrated React tree inside #root, which fully replaces this visually
+  // and has its own <h1>/<main>/landmarks. aria-hidden keeps a screen
+  // reader from ever seeing this (otherwise permanently off-screen,
+  // un-landmarked) duplicate instead of the real content (axe: region).
+  const snippet = `<div id="prerender-seo" aria-hidden="true" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;"><h1>${escapeHtml(
     h1,
   )}</h1><p>${escapeHtml(copy)}</p></div>`;
   return template.replace(/<div id="root">\s*<\/div>/, `<div id="root"></div>\n    ${snippet}`);

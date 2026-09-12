@@ -50,7 +50,7 @@ export default function ResetPasswordPage({ onDone }: ResetPasswordPageProps) {
             <div className="inline-block p-3 bg-[#211C17]/10 rounded-full mb-4">
               <Lock className="w-12 h-12 text-[#211C17]" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">Set New Password</h2>
+            <h1 className="text-3xl font-bold text-gray-900">Set New Password</h1>
           </div>
 
           {done ? (

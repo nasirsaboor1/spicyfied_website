@@ -88,7 +88,7 @@ export default function SignupPage({ onNavigateToLogin, onSignupSuccess }: Signu
             <div className="inline-block p-3 bg-[#211C17]/10 rounded-full mb-4">
               <UserPlus className="w-12 h-12 text-[#211C17]" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">Create Account</h2>
+            <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
             <p className="text-gray-600 mt-2">Join Spicyfied today</p>
           </div>
 

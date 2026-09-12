@@ -56,7 +56,7 @@ export default function Footer({
             <ul className="space-y-2 text-sm">
               <li><span className="text-cream/70">Everyday Essentials</span></li>
               <li><span className="text-cream/70">Healthy Snacking</span></li>
-              <li><span className="text-cream/40">Blended Spices (Coming Soon)</span></li>
+              <li><span className="text-cream/55">Blended Spices (Coming Soon)</span></li>
             </ul>
           </div>
 

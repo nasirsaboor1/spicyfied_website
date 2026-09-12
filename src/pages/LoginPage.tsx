@@ -113,7 +113,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
               <div className="inline-block p-3 bg-[#211C17]/10 rounded-full mb-4">
                 <Mail className="w-12 h-12 text-[#211C17]" />
               </div>
-              <h2 className="text-3xl font-bold text-gray-900">Reset Password</h2>
+              <h1 className="text-3xl font-bold text-gray-900">Reset Password</h1>
               <p className="text-gray-600 mt-2">
                 {resetSent
                   ? "We've sent a reset link to your email."
@@ -199,9 +199,9 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
                 <LogIn className="w-12 h-12 text-[#211C17]" />
               )}
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-gray-900">
               {mode === 'otp-verify' ? 'Enter Verification Code' : 'Welcome Back'}
-            </h2>
+            </h1>
             <p className="text-gray-600 mt-2">
               {mode === 'otp-verify'
                 ? `We sent a 6-digit code to ${otpChannel === 'email' ? email : `your WhatsApp (${e164Phone})`}`

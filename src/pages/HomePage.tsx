@@ -278,7 +278,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
             <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-cream-soft">
               <Reveal className="flex items-baseline justify-between mb-8">
                 <h2 className="font-sans text-sm font-semibold tracking-[0.2em] uppercase text-ink">
-                  Everyday Essentials <span className="text-gray-400 font-normal normal-case tracking-normal">— the kitchen staples people reorder most</span>
+                  Everyday Essentials <span className="text-gray-600 font-normal normal-case tracking-normal">— the kitchen staples people reorder most</span>
                 </h2>
                 <button
                   onClick={() => onNavigateToShop('whole-spices')}
@@ -307,7 +307,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
               <Reveal className="mb-10">
                 <div className="flex items-end justify-between border-b border-ochre/30 pb-4">
                   <div>
-                    <p className="text-ochre text-xs font-semibold tracking-[0.25em] uppercase mb-1">Nutrient Rich</p>
+                    <p className="text-ochre-dark text-xs font-semibold tracking-[0.25em] uppercase mb-1">Nutrient Rich</p>
                     <h2 className="font-serif text-4xl font-semibold text-ink">Healthy Snacking</h2>
                   </div>
                   <button

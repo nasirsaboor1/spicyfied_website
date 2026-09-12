@@ -16,6 +16,12 @@ export default {
         ochre: {
           DEFAULT: '#C9A227',
           light: '#DDBE5C',
+          // Added for WCAG AA text contrast: ochre DEFAULT on cream is
+          // 2.24:1 (fails 4.5:1) — this darker tone in the same hue
+          // computes to 5.51:1, mirroring how `saffron-dark` already exists
+          // for the same reason. Only for small text on light backgrounds;
+          // the brand's ochre DEFAULT/light are otherwise untouched.
+          dark: '#79611A',
         },
         moss: {
           DEFAULT: '#5B7052',

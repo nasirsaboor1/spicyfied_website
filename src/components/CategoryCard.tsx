@@ -40,7 +40,7 @@ export default function CategoryCard({ title, imageUrl, onClick, comingSoon }: C
       </div>
       <h3
         className={`mt-4 font-serif text-lg font-semibold text-center ${
-          comingSoon ? 'text-gray-400' : 'text-ink group-hover:text-moss'
+          comingSoon ? 'text-gray-600' : 'text-ink group-hover:text-moss'
         } transition-colors`}
       >
         {title}

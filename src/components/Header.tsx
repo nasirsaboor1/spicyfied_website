@@ -71,7 +71,7 @@ export default function Header({
                 <a href="/shop?category=whole-spices" className="block px-4 py-3 hover:bg-cream-soft" onClick={(e) => { e.preventDefault(); handleCategoryClick('whole-spices'); }}>Whole Spices</a>
                 <a href="/shop?category=dry-fruits" className="block px-4 py-3 hover:bg-cream-soft" onClick={(e) => { e.preventDefault(); handleCategoryClick('dry-fruits'); }}>Dry Fruits</a>
                 <a href="/shop?category=seeds" className="block px-4 py-3 hover:bg-cream-soft" onClick={(e) => { e.preventDefault(); handleCategoryClick('seeds'); }}>Seeds</a>
-                <div className="px-4 py-3 text-gray-400 border-t">Blended Spices (Coming Soon)</div>
+                <div className="px-4 py-3 text-gray-600 border-t">Blended Spices (Coming Soon)</div>
               </div>
             </div>
             <a href="/recipes" className={navLinkClass} onClick={(e) => { e.preventDefault(); onNavigateToRecipes?.(); }}>Recipes</a>
