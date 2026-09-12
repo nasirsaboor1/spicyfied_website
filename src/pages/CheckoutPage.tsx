@@ -267,11 +267,16 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
         .catch((err) => console.error('WhatsApp confirmation failed:', err));
 
       if (deliveryType === 'delivery' && paymentMethod !== 'cod') {
-        const paidViaRazorpay = await tryRazorpayPayment(order.id);
-        if (!paidViaRazorpay) {
-          // Razorpay isn't configured yet, or the user closed the payment
-          // window - the order is already saved as pending either way.
+        const paymentOutcome = await tryRazorpayPayment(order.id);
+        if (paymentOutcome === 'verify_failed') {
+          setError(
+            `Your payment may have gone through, but we couldn't confirm it on our end. Please contact us with your order number (${order.order_number}) so we can check and confirm it for you.`
+          );
+          setProcessing(false);
+          return;
         }
+        // 'cancelled' or 'unavailable' - the order is already saved as pending,
+        // the customer can complete payment later or we can follow up.
       }
 
       clearCart();
@@ -282,22 +287,24 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
     }
   };
 
-  const tryRazorpayPayment = async (orderId: string): Promise<boolean> => {
+  type RazorpayOutcome = 'paid' | 'cancelled' | 'verify_failed' | 'unavailable';
+
+  const tryRazorpayPayment = async (orderId: string): Promise<RazorpayOutcome> => {
     try {
       const { data, error: fnError } = await supabase.functions.invoke('create-razorpay-order', {
         body: { orderId },
       });
 
       if (fnError || !data?.razorpay_order_id) {
-        return false;
+        return 'unavailable';
       }
 
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
-        return false;
+        return 'unavailable';
       }
 
-      return await new Promise<boolean>((resolve) => {
+      return await new Promise<RazorpayOutcome>((resolve) => {
         const rzp = new window.Razorpay({
           key: data.key_id,
           amount: data.amount,
@@ -315,10 +322,10 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                 razorpay_signature: response.razorpay_signature,
               },
             });
-            resolve(!verifyError);
+            resolve(verifyError ? 'verify_failed' : 'paid');
           },
           modal: {
-            ondismiss: () => resolve(false),
+            ondismiss: () => resolve('cancelled'),
           },
           theme: { color: '#211C17' },
         });
@@ -326,7 +333,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
       });
     } catch (err) {
       console.error('Razorpay payment error:', err);
-      return false;
+      return 'unavailable';
     }
   };
 
