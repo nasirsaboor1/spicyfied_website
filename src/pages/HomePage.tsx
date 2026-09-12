@@ -6,8 +6,8 @@ import ProductCard from '../components/ProductCard';
 import Reveal from '../components/Reveal';
 import SpiceDrift from '../components/SpiceDrift';
 import SpiceLoader from '../components/SpiceLoader';
-import SpiceReveal from '../components/SpiceReveal';
 import { SCROLL_SPICE_PHOTOS } from '../lib/spicePhotos';
+import { SPICE_HERO_PHOTOS } from '../lib/spiceHeroPhotos';
 import { ChevronRight, Leaf, Gem, Flame, Sparkles } from 'lucide-react';
 
 interface HomePageProps {
@@ -79,20 +79,17 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
             Hand-Selected &middot; Small-Batch &middot; Unadulterated
           </p>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-10 lg:gap-16 items-end">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-10 lg:gap-12 items-center">
             <div>
-              <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.08] mb-6 max-w-2xl">
+              <h1 className="font-serif text-5xl md:text-6xl lg:text-[4.25rem] font-semibold leading-[1.08] mb-6 max-w-2xl">
                 Grown in purity,
                 <br />
                 refined by hand.
               </h1>
-              <p className="text-lg text-cream/75 max-w-xl leading-relaxed font-light">
+              <p className="text-lg text-cream/75 max-w-xl leading-relaxed font-light mb-8">
                 Every batch is sourced with care, cleaned by hand, and packed to honour the
                 taste nature intended — no fillers, no shortcuts, no compromise.
               </p>
-            </div>
-
-            <div className="lg:pb-2">
               <button
                 onClick={() => onNavigateToShop()}
                 className="group inline-flex items-center gap-3 bg-saffron-light text-ink pl-7 pr-6 py-4 font-semibold text-base hover:bg-saffron transition-colors"
@@ -100,6 +97,15 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
                 Explore the Collection
                 <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </button>
+            </div>
+
+            <div className="hidden lg:flex justify-center">
+              <img
+                src={SPICE_HERO_PHOTOS.cinnamon}
+                alt=""
+                aria-hidden="true"
+                className="w-full max-w-xs h-auto drop-shadow-[0_20px_40px_rgba(0,0,0,0.35)]"
+              />
             </div>
           </div>
 
@@ -123,19 +129,64 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
         </div>
       </section>
 
-      {/* A full-bleed, documentary scroll through the actual product -
-          one real macro photo filling the screen at a time, not ambient
-          background motion and not small bouncing cards. */}
-      <section className="bg-ink">
-        <div className="max-w-[1600px] mx-auto text-center px-4 pt-16 pb-10">
-          <p className="text-saffron-light text-xs font-semibold tracking-[0.25em] uppercase mb-3">
-            Look closer
-          </p>
-          <h2 className="font-serif text-3xl md:text-4xl font-semibold text-cream">
-            This is what you're actually buying.
-          </h2>
+      {/* A compact, always-visible look at the actual product - real
+          isolated photography in a static grid, not a multi-screen
+          scroll-pinned sequence. */}
+      <section className="bg-cream">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <Reveal className="text-center mb-10">
+            <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-3">
+              Look closer
+            </p>
+            <h2 className="font-serif text-3xl md:text-4xl font-semibold text-ink">
+              This is what you're actually buying.
+            </h2>
+          </Reveal>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 lg:gap-8">
+            {[
+              {
+                name: 'Cardamom',
+                slug: 'cardamom',
+                photo: SPICE_HERO_PHOTOS.cardamom,
+                caption: 'Hand-sorted pods, plump enough to snap between two fingers.',
+              },
+              {
+                name: 'Cinnamon',
+                slug: 'cinnamon',
+                photo: SPICE_HERO_PHOTOS.cinnamon,
+                caption: 'True Ceylon quills, thin bark rolled by hand into paper-fine layers.',
+              },
+              {
+                name: 'Clove',
+                slug: 'clove',
+                photo: SPICE_HERO_PHOTOS.clove,
+                caption: 'Sun-dried buds, still dark and oily at the stem.',
+              },
+            ].map((spice, i) => (
+              <Reveal key={spice.slug} delayMs={i * 80}>
+                <button
+                  onClick={() => onNavigateToProduct(spice.slug)}
+                  className="group w-full text-left bg-cream-soft border border-black/5 rounded-2xl overflow-hidden h-full flex flex-col"
+                >
+                  <div className="relative h-56 sm:h-64 flex items-center justify-center p-6">
+                    <img
+                      src={spice.photo}
+                      alt={spice.name}
+                      className="max-w-full max-h-full object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)] transition-transform group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="p-6 flex flex-col flex-1">
+                    <h3 className="font-serif text-xl font-semibold text-ink mb-2">
+                      {spice.name}
+                    </h3>
+                    <p className="text-charcoal/70 text-sm leading-relaxed">{spice.caption}</p>
+                  </div>
+                </button>
+              </Reveal>
+            ))}
+          </div>
         </div>
-        <SpiceReveal onNavigateToProduct={onNavigateToProduct} />
       </section>
 
       {/* Adulteration is the industry's dirty secret and the real */}

@@ -4,6 +4,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        'brand-green': '#1D4F2C',
         ink: {
           DEFAULT: '#1B2A1C',
           light: '#2A3F29',
@@ -25,6 +26,8 @@ export default {
           DEFAULT: '#FBF6EC',
           soft: '#F2EEDF',
         },
+        'sage-tint': '#E7EEE3',
+        charcoal: '#2B2B28',
       },
       fontFamily: {
         serif: ['"Fraunces"', 'Georgia', 'serif'],

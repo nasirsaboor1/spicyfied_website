@@ -63,12 +63,12 @@ export default function SignupPage({ onNavigateToLogin, onSignupSuccess }: Signu
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#211C17] to-[#3F5A34] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-cream flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <div className="text-center mb-8">
-            <div className="inline-block p-3 bg-[#211C17]/10 rounded-full mb-4">
-              <UserPlus className="w-12 h-12 text-[#211C17]" />
+            <div className="inline-block p-3 bg-ink/10 rounded-full mb-4">
+              <UserPlus className="w-12 h-12 text-ink" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900">Create Account</h2>
             <p className="text-gray-600 mt-2">Join Spicyfied today</p>
@@ -81,9 +81,9 @@ export default function SignupPage({ onNavigateToLogin, onSignupSuccess }: Signu
           )}
 
           {success && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-              <p className="text-sm text-green-600 font-medium">{success}</p>
+            <div className="mb-6 p-4 bg-sage-tint border border-moss/30 rounded-lg flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-brand-green" />
+              <p className="text-sm text-brand-green font-medium">{success}</p>
             </div>
           )}
 
@@ -101,7 +101,7 @@ export default function SignupPage({ onNavigateToLogin, onSignupSuccess }: Signu
                   required
                   value={formData.fullName}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -120,7 +120,7 @@ export default function SignupPage({ onNavigateToLogin, onSignupSuccess }: Signu
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                   placeholder="you@example.com"
                 />
               </div>
@@ -138,7 +138,7 @@ export default function SignupPage({ onNavigateToLogin, onSignupSuccess }: Signu
                   type="tel"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                   placeholder="Enter your phone number"
                 />
               </div>
@@ -157,7 +157,7 @@ export default function SignupPage({ onNavigateToLogin, onSignupSuccess }: Signu
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                   placeholder="Create a password"
                 />
               </div>
@@ -176,7 +176,7 @@ export default function SignupPage({ onNavigateToLogin, onSignupSuccess }: Signu
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                   placeholder="Confirm your password"
                 />
               </div>
@@ -185,7 +185,7 @@ export default function SignupPage({ onNavigateToLogin, onSignupSuccess }: Signu
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#211C17] text-white py-3 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-ink text-white py-3 rounded-lg font-semibold hover:bg-ink-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating account...' : 'Create Account'}
             </button>
@@ -196,7 +196,7 @@ export default function SignupPage({ onNavigateToLogin, onSignupSuccess }: Signu
               Already have an account?{' '}
               <button
                 onClick={onNavigateToLogin}
-                className="text-[#211C17] font-semibold hover:underline"
+                className="text-ink font-semibold hover:underline"
               >
                 Sign In
               </button>

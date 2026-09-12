@@ -43,27 +43,27 @@ export default function ResetPasswordPage({ onDone }: ResetPasswordPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#211C17] to-[#3F5A34] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-cream flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <div className="text-center mb-8">
-            <div className="inline-block p-3 bg-[#211C17]/10 rounded-full mb-4">
-              <Lock className="w-12 h-12 text-[#211C17]" />
+            <div className="inline-block p-3 bg-ink/10 rounded-full mb-4">
+              <Lock className="w-12 h-12 text-ink" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900">Set New Password</h2>
           </div>
 
           {done ? (
             <div className="text-center space-y-6">
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
-                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                <p className="text-sm text-green-800 text-left">
+              <div className="p-4 bg-sage-tint border border-moss/30 rounded-lg flex items-center gap-3">
+                <CheckCircle className="w-5 h-5 text-brand-green flex-shrink-0" />
+                <p className="text-sm text-ink text-left">
                   Password updated. You're signed in with your new password.
                 </p>
               </div>
               <button
                 onClick={onDone}
-                className="w-full bg-[#211C17] text-white py-3 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors"
+                className="w-full bg-ink text-white py-3 rounded-lg font-semibold hover:bg-ink-light transition-colors"
               >
                 Continue
               </button>
@@ -88,7 +88,7 @@ export default function ResetPasswordPage({ onDone }: ResetPasswordPageProps) {
                     minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                     placeholder="At least 8 characters"
                   />
                 </div>
@@ -106,7 +106,7 @@ export default function ResetPasswordPage({ onDone }: ResetPasswordPageProps) {
                     minLength={8}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                     placeholder="Re-enter password"
                   />
                 </div>
@@ -114,7 +114,7 @@ export default function ResetPasswordPage({ onDone }: ResetPasswordPageProps) {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full bg-[#211C17] text-white py-3 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-ink text-white py-3 rounded-lg font-semibold hover:bg-ink-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? 'Saving...' : 'Set New Password'}
               </button>

@@ -152,16 +152,16 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader className="w-8 h-8 animate-spin text-[#211C17]" />
+        <Loader className="w-8 h-8 animate-spin text-ink" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-cream py-12 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
-          <Package className="w-8 h-8 text-[#211C17]" />
+          <Package className="w-8 h-8 text-ink" />
           <h1 className="text-3xl font-bold text-gray-900">My Orders</h1>
         </div>
 
@@ -172,7 +172,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
             <p className="text-gray-600 mb-6">Start shopping to see your orders here</p>
             <button
               onClick={() => window.history.back()}
-              className="px-6 py-3 bg-[#211C17] text-white rounded-lg font-semibold hover:bg-[#140F0C] transition-colors"
+              className="px-6 py-3 bg-ink text-white rounded-lg font-semibold hover:bg-ink-light transition-colors"
             >
               Continue Shopping
             </button>
@@ -216,7 +216,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
                   <div className="flex items-center gap-4">
                     <div className="text-right">
                       <p className="text-sm text-gray-600">Total Amount</p>
-                      <p className="text-xl font-bold text-[#211C17]">
+                      <p className="text-xl font-bold text-ink">
                         ₹{Math.round(order.total_amount)}
                       </p>
                     </div>
@@ -245,7 +245,7 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
             <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
               {detailsLoading ? (
                 <div className="p-12 flex items-center justify-center">
-                  <Loader className="w-8 h-8 animate-spin text-[#211C17]" />
+                  <Loader className="w-8 h-8 animate-spin text-ink" />
                 </div>
               ) : (
                 <>
@@ -287,9 +287,9 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
                     </div>
 
                     {selectedOrder.delivery_type === 'pickup' ? (
-                      <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="bg-cream-soft rounded-lg p-4">
                         <div className="flex items-start gap-2">
-                          <Store className="w-5 h-5 text-[#211C17] mt-0.5" />
+                          <Store className="w-5 h-5 text-ink mt-0.5" />
                           <div>
                             <p className="font-semibold text-gray-900">Pickup from Spicyfied</p>
                             <p className="text-sm text-gray-600">
@@ -303,9 +303,9 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
                       </div>
                     ) : (
                       selectedOrder.address && (
-                        <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="bg-cream-soft rounded-lg p-4">
                           <div className="flex items-start gap-2 mb-2">
-                            <MapPin className="w-5 h-5 text-[#211C17] mt-0.5" />
+                            <MapPin className="w-5 h-5 text-ink mt-0.5" />
                             <div>
                               <p className="font-semibold text-gray-900">
                                 {selectedOrder.address.full_name}
@@ -331,14 +331,14 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
                         {selectedOrder.items.map((item) => (
                           <div
                             key={item.id}
-                            className="flex justify-between items-start p-3 bg-gray-50 rounded-lg"
+                            className="flex justify-between items-start p-3 bg-cream-soft rounded-lg"
                           >
                             <div className="flex-1">
                               <p className="font-semibold text-gray-900">{item.product_name}</p>
                               <p className="text-sm text-gray-600">{item.variant_name}</p>
                               <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                             </div>
-                            <p className="font-semibold text-[#211C17]">
+                            <p className="font-semibold text-ink">
                               ₹{Math.round(item.total_price)}
                             </p>
                           </div>
@@ -365,13 +365,13 @@ export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
                       </div>
                       <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t border-gray-200">
                         <span>Total</span>
-                        <span className="text-[#211C17]">
+                        <span className="text-ink">
                           ₹{Math.round(selectedOrder.total_amount)}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 text-sm text-gray-600 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-2 text-sm text-gray-600 p-3 bg-cream-soft rounded-lg">
                       <CreditCard className="w-4 h-4" />
                       <span>Payment Method: {paymentMethodLabel(selectedOrder.payment_method)}</span>
                     </div>

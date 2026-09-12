@@ -48,21 +48,18 @@ export default function Header({
   const totalItems = getTotalItems();
 
   const navLinkClass =
-    'relative font-medium tracking-wide after:absolute after:left-0 after:-bottom-1 after:h-px after:w-0 after:bg-saffron-light after:transition-all after:duration-300 hover:after:w-full hover:text-saffron-light transition-colors';
+    'relative whitespace-nowrap font-medium text-sm tracking-wide after:absolute after:left-0 after:-bottom-1 after:h-px after:w-0 after:bg-saffron-light after:transition-all after:duration-300 hover:after:w-full hover:text-saffron-light transition-colors';
 
   return (
     <header className="bg-ink text-cream sticky top-0 z-50 shadow-lg shadow-black/20">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          <div className="flex items-center gap-4 cursor-pointer pl-5" onClick={() => window.location.href = '/'}>
-            <img src="/spicyfied_logo_.jpeg" alt="Spicyfied" className="h-12 md:h-16 w-auto object-cover transition-transform hover:scale-105" />
-            <div>
-              <h1 className="font-serif text-4xl font-semibold tracking-wide text-cream">Spicyfied</h1>
-              <p className="text-saffron-light text-xs font-medium tracking-[0.2em] uppercase">Choose Pure, Choose Us</p>
-            </div>
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => window.location.href = '/'}>
+            <img src="/spicyfied_logo_.jpeg" alt="Spicyfied" className="h-9 md:h-10 w-auto object-cover transition-transform hover:scale-105" />
+            <h1 className="font-serif text-xl md:text-2xl font-semibold tracking-wide text-cream whitespace-nowrap">Spicyfied</h1>
           </div>
 
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-4 lg:gap-6 mx-4">
             <a href="/" className={navLinkClass}>Home</a>
             <a href="/shop" className={navLinkClass} onClick={(e) => { e.preventDefault(); handleCategoryClick('all'); }}>Shop</a>
             <div className="relative group">
@@ -78,25 +75,25 @@ export default function Header({
             <a href="/contact" className={navLinkClass} onClick={(e) => { e.preventDefault(); onNavigateToContact?.(); }}>Contact Us</a>
           </nav>
 
-          <div className="hidden md:flex items-center gap-4">
-            <div className="relative">
+          <div className="hidden md:flex items-center gap-2.5">
+            <div className="relative hidden lg:block">
               <input
                 type="text"
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="pl-10 pr-4 py-2 rounded-full bg-white/10 border border-white/20 text-cream placeholder-cream/50 focus:outline-none focus:bg-white/20 focus:border-saffron-light transition-all w-64"
+                className="pl-9 pr-3 py-1.5 rounded-lg bg-cream/95 text-ink placeholder-ink/40 border border-transparent focus:outline-none focus:ring-2 focus:ring-saffron-light transition-all w-40 xl:w-52 text-sm"
               />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-cream/60" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/50" />
             </div>
 
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2 hover:bg-white/10 rounded-full transition-colors"
+              className="relative p-1.5 hover:bg-white/10 rounded-full transition-colors"
             >
-              <ShoppingCart className="w-6 h-6" />
+              <ShoppingCart className="w-5 h-5" />
               {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-saffron-light text-ink text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-saffron-light text-ink text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                   {totalItems}
                 </span>
               )}
@@ -106,9 +103,9 @@ export default function Header({
               <div className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center gap-2 p-2 hover:bg-white/10 rounded-full transition-colors"
+                  className="flex items-center gap-2 p-1.5 hover:bg-white/10 rounded-full transition-colors"
                 >
-                  <div className="w-8 h-8 bg-saffron-light rounded-full flex items-center justify-center text-ink font-bold">
+                  <div className="w-7 h-7 bg-saffron-light rounded-full flex items-center justify-center text-ink font-bold">
                     {(customer?.full_name || user.email || '?')[0].toUpperCase()}
                   </div>
                 </button>
@@ -156,13 +153,13 @@ export default function Header({
               <div className="flex items-center gap-2">
                 <button
                   onClick={onNavigateToLogin}
-                  className="px-4 py-2 text-cream hover:bg-white/10 rounded-lg transition-colors font-medium"
+                  className="px-2.5 py-1.5 text-sm text-cream hover:bg-white/10 rounded-lg transition-colors font-medium whitespace-nowrap"
                 >
                   Login
                 </button>
                 <button
                   onClick={onNavigateToSignup}
-                  className="px-4 py-2 bg-saffron-light text-ink rounded-lg font-medium hover:bg-saffron transition-colors"
+                  className="px-3 py-1.5 text-sm border border-saffron-light/60 text-saffron-light rounded-lg font-medium hover:bg-saffron-light hover:text-ink transition-colors whitespace-nowrap"
                 >
                   Sign Up
                 </button>

@@ -22,7 +22,7 @@ export default function Cart({ onNavigateToCheckout }: CartProps) {
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <ShoppingBag className="w-6 h-6 text-[#211C17]" />
+              <ShoppingBag className="w-6 h-6 text-ink" />
               Your Cart
             </h2>
             <button
@@ -54,7 +54,7 @@ export default function Cart({ onNavigateToCheckout }: CartProps) {
                         className="w-20 h-20 object-cover rounded-lg"
                       />
                     ) : (
-                      <div className="w-20 h-20 bg-gradient-to-br from-[#211C17] to-[#3F5A34] rounded-lg flex items-center justify-center text-white font-bold">
+                      <div className="w-20 h-20 bg-gradient-to-br from-ink to-moss rounded-lg flex items-center justify-center text-white font-bold">
                         {item.product.name[0]}
                       </div>
                     )}
@@ -62,7 +62,7 @@ export default function Cart({ onNavigateToCheckout }: CartProps) {
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-800 truncate">{item.product.name}</h3>
                       <p className="text-sm text-gray-500 mt-1">{item.variant.size}</p>
-                      <p className="text-lg font-bold text-[#211C17] mt-1">
+                      <p className="text-lg font-bold text-ink mt-1">
                         ₹{Math.round(item.variant.price)}
                       </p>
 
@@ -106,14 +106,14 @@ export default function Cart({ onNavigateToCheckout }: CartProps) {
               <BulkPricingNote />
               <div className="flex justify-between items-center text-xl font-bold">
                 <span className="text-gray-800">Total:</span>
-                <span className="text-[#211C17]">₹{Math.round(getTotalPrice())}</span>
+                <span className="text-ink">₹{Math.round(getTotalPrice())}</span>
               </div>
               <button
                 onClick={() => {
                   onNavigateToCheckout?.();
                   setIsCartOpen(false);
                 }}
-                className="w-full bg-[#211C17] text-white py-4 rounded-lg font-semibold text-lg hover:bg-[#140F0C] transition-colors shadow-lg"
+                className="w-full bg-ink text-white py-4 rounded-lg font-semibold text-lg hover:bg-ink-light transition-colors shadow-lg"
               >
                 Proceed to Checkout
               </button>

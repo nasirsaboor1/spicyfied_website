@@ -97,12 +97,12 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
 
   if (mode === 'forgot-password') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#211C17] to-[#3F5A34] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-cream flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
           <div className="bg-white rounded-2xl shadow-2xl p-8">
             <div className="text-center mb-8">
-              <div className="inline-block p-3 bg-[#211C17]/10 rounded-full mb-4">
-                <Mail className="w-12 h-12 text-[#211C17]" />
+              <div className="inline-block p-3 bg-ink/10 rounded-full mb-4">
+                <Mail className="w-12 h-12 text-ink" />
               </div>
               <h2 className="text-3xl font-bold text-gray-900">Reset Password</h2>
               <p className="text-gray-600 mt-2">
@@ -114,9 +114,9 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
 
             {resetSent ? (
               <div className="text-center space-y-6">
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                  <p className="text-sm text-green-800 text-left">
+                <div className="p-4 bg-sage-tint border border-moss/30 rounded-lg flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-brand-green flex-shrink-0" />
+                  <p className="text-sm text-ink text-left">
                     Check <strong>{resetEmail}</strong> for a password reset link. It may take a
                     few minutes to arrive — check spam too.
                   </p>
@@ -127,7 +127,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
                     setResetSent(false);
                     setResetEmail('');
                   }}
-                  className="text-[#211C17] font-semibold hover:underline"
+                  className="text-ink font-semibold hover:underline"
                 >
                   Back to Sign In
                 </button>
@@ -151,7 +151,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
                       required
                       value={resetEmail}
                       onChange={(e) => setResetEmail(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                       placeholder="you@example.com"
                     />
                   </div>
@@ -159,14 +159,14 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
                 <button
                   type="submit"
                   disabled={resetSending}
-                  className="w-full bg-[#211C17] text-white py-3 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-ink text-white py-3 rounded-lg font-semibold hover:bg-ink-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {resetSending ? 'Sending...' : 'Send Reset Link'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setMode('password')}
-                  className="w-full text-center text-[#211C17] font-semibold hover:underline"
+                  className="w-full text-center text-ink font-semibold hover:underline"
                 >
                   Back to Sign In
                 </button>
@@ -179,15 +179,15 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#211C17] to-[#3F5A34] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-cream flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <div className="text-center mb-8">
-            <div className="inline-block p-3 bg-[#211C17]/10 rounded-full mb-4">
+            <div className="inline-block p-3 bg-ink/10 rounded-full mb-4">
               {mode === 'otp-verify' ? (
-                <ShieldCheck className="w-12 h-12 text-[#211C17]" />
+                <ShieldCheck className="w-12 h-12 text-ink" />
               ) : (
-                <LogIn className="w-12 h-12 text-[#211C17]" />
+                <LogIn className="w-12 h-12 text-ink" />
               )}
             </div>
             <h2 className="text-3xl font-bold text-gray-900">
@@ -222,7 +222,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                     placeholder="you@example.com"
                   />
                 </div>
@@ -231,7 +231,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#211C17] text-white py-3 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-ink text-white py-3 rounded-lg font-semibold hover:bg-ink-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Sending code...' : 'Send Verification Code'}
               </button>
@@ -258,7 +258,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
                   autoFocus
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent text-center text-2xl tracking-[0.5em] font-semibold"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent text-center text-2xl tracking-[0.5em] font-semibold"
                   placeholder="------"
                 />
               </div>
@@ -266,7 +266,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
               <button
                 type="submit"
                 disabled={loading || otpCode.length !== 6}
-                className="w-full bg-[#211C17] text-white py-3 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-ink text-white py-3 rounded-lg font-semibold hover:bg-ink-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Verifying...' : 'Verify & Continue'}
               </button>
@@ -286,7 +286,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
                 <button
                   type="button"
                   onClick={sendOtp}
-                  className="text-[#211C17] font-medium hover:underline"
+                  className="text-ink font-medium hover:underline"
                 >
                   Resend code
                 </button>
@@ -308,7 +308,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                     placeholder="you@example.com"
                   />
                 </div>
@@ -325,7 +325,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
                       setResetEmail(email);
                       setMode('forgot-password');
                     }}
-                    className="text-sm text-[#211C17] font-medium hover:underline"
+                    className="text-sm text-ink font-medium hover:underline"
                   >
                     Forgot password?
                   </button>
@@ -338,7 +338,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#211C17] focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                     placeholder="Enter your password"
                   />
                 </div>
@@ -347,7 +347,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#211C17] text-white py-3 rounded-lg font-semibold hover:bg-[#140F0C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-ink text-white py-3 rounded-lg font-semibold hover:bg-ink-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Signing in...' : 'Sign In'}
               </button>
@@ -363,7 +363,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
                     setMode('password');
                     setError('');
                   }}
-                  className="text-[#211C17] font-semibold hover:underline"
+                  className="text-ink font-semibold hover:underline"
                 >
                   Sign in with password
                 </button>
@@ -376,7 +376,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
                     setMode('otp-request');
                     setError('');
                   }}
-                  className="text-[#211C17] font-semibold hover:underline"
+                  className="text-ink font-semibold hover:underline"
                 >
                   Sign in with email code
                 </button>
@@ -386,7 +386,7 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
               Setting up a team account?{' '}
               <button
                 onClick={onNavigateToSignup}
-                className="text-[#211C17] font-semibold hover:underline"
+                className="text-ink font-semibold hover:underline"
               >
                 Sign Up
               </button>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { fetchProductsWithDetails } from '../lib/products';
 import { ProductWithDetails } from '../types';
 import ProductCard from '../components/ProductCard';
-import { SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal, PackageSearch } from 'lucide-react';
 
 interface ShopPageProps {
   onNavigateToProduct: (slug: string) => void;
@@ -76,10 +76,10 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-[#211C17] to-[#3F5A34] text-white py-12 px-4">
+    <div className="min-h-screen bg-cream">
+      <div className="bg-gradient-to-r from-ink to-moss text-white py-12 px-4">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold mb-2">Shop Our Collection</h1>
+          <h1 className="font-serif text-[28px] md:text-3xl font-semibold mb-2">Shop Our Collection</h1>
           <p className="text-white/90 text-lg">
             {selectedCategory === 'all'
               ? 'Browse all our premium products'
@@ -91,7 +91,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           <aside className={`lg:w-64 ${showFilters ? 'block' : 'hidden lg:block'}`}>
-            <div className="bg-white rounded-lg shadow-md p-6 sticky top-24 space-y-6">
+            <div className="bg-white rounded-lg border border-black/5 p-6 sticky top-24 space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-gray-800">Filters</h2>
                 <button
@@ -111,7 +111,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
                       onClick={() => setSelectedCategory(category.id)}
                       className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
                         selectedCategory === category.id
-                          ? 'bg-[#211C17] text-white'
+                          ? 'bg-ink text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -129,7 +129,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
                       type="number"
                       value={priceRange[0]}
                       onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#211C17]"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-ink"
                       placeholder="Min"
                     />
                     <span className="text-gray-500">-</span>
@@ -137,7 +137,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
                       type="number"
                       value={priceRange[1]}
                       onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#211C17]"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-ink"
                       placeholder="Max"
                     />
                   </div>
@@ -152,7 +152,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
                   setSelectedCategory('all');
                   setPriceRange([0, 10000]);
                 }}
-                className="w-full py-2 text-[#211C17] border border-[#211C17] rounded-lg font-medium hover:bg-[#211C17] hover:text-white transition-colors"
+                className="w-full py-2 text-ink border border-ink rounded-lg font-medium hover:bg-ink hover:text-white transition-colors"
               >
                 Reset Filters
               </button>
@@ -166,7 +166,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
               </p>
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="lg:hidden flex items-center gap-2 px-4 py-2 bg-[#211C17] text-white rounded-lg"
+                className="lg:hidden flex items-center gap-2 px-4 py-2 bg-ink text-white rounded-lg"
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 Filters
@@ -175,11 +175,32 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
 
             {loading ? (
               <div className="text-center py-20">
-                <div className="inline-block w-12 h-12 border-4 border-[#211C17] border-t-transparent rounded-full animate-spin"></div>
+                <div className="inline-block w-12 h-12 border-4 border-ink border-t-transparent rounded-full animate-spin"></div>
               </div>
             ) : filteredProducts.length === 0 ? (
               <div className="text-center py-20">
-                <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
+                <PackageSearch className="w-10 h-10 text-charcoal/30 mx-auto mb-4" />
+                <p className="text-ink font-medium mb-1">No products found</p>
+                <p className="text-charcoal/60 text-sm mb-6">
+                  Try clearing your filters, or browse everything we carry.
+                </p>
+                <div className="flex items-center justify-center gap-3">
+                  <button
+                    onClick={() => {
+                      setSelectedCategory('all');
+                      setPriceRange([0, 10000]);
+                    }}
+                    className="px-4 py-2 text-sm text-ink border border-ink rounded-lg font-medium hover:bg-ink hover:text-white transition-colors"
+                  >
+                    Reset Filters
+                  </button>
+                  <button
+                    onClick={() => setSelectedCategory('all')}
+                    className="px-4 py-2 text-sm bg-ink text-white rounded-lg font-medium hover:bg-saffron-light transition-colors"
+                  >
+                    View All Products
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

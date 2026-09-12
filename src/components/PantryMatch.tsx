@@ -6,7 +6,7 @@ interface PantryMatchProps {
   onNavigateToRecipe: (id: string) => void;
 }
 
-const QUICK_ADD_COUNT = 14;
+const QUICK_ADD_COUNT = 10;
 
 export default function PantryMatch({ onNavigateToRecipe }: PantryMatchProps) {
   const [have, setHave] = useState<string[]>([]);
@@ -36,16 +36,16 @@ export default function PantryMatch({ onNavigateToRecipe }: PantryMatchProps) {
   };
 
   return (
-    <div className="bg-ink text-cream rounded-3xl px-6 md:px-10 py-10 md:py-12">
+    <div className="bg-ink text-cream rounded-2xl px-6 md:px-8 py-8 md:py-10">
       <p className="text-saffron-light text-xs font-semibold tracking-[0.25em] uppercase mb-3">
         No trip to the store needed
       </p>
-      <h2 className="font-serif text-3xl md:text-4xl font-semibold mb-3">
+      <h2 className="font-serif text-2xl md:text-3xl font-semibold mb-3">
         What's in your kitchen?
       </h2>
       <p className="text-cream/70 max-w-xl mb-6">
-        Add what you already have and we'll find what you can cook right now
-        — sorted by how few things you're missing.
+        Tell us what you already have. We'll show you what you can cook right
+        now, sorted by how few things you're missing.
       </p>
 
       <form onSubmit={handleSubmit} className="flex gap-2 mb-4 max-w-lg">
@@ -94,7 +94,7 @@ export default function PantryMatch({ onNavigateToRecipe }: PantryMatchProps) {
               <button
                 key={s.name}
                 onClick={() => addIngredient(s.name)}
-                className="capitalize px-3 py-1.5 rounded-full text-sm border border-cream/20 text-cream/80 hover:border-saffron-light hover:text-saffron-light transition-colors"
+                className="capitalize px-2.5 py-1 rounded-full text-xs border border-cream/10 text-cream/70 hover:border-saffron-light hover:text-saffron-light transition-colors"
               >
                 {s.name}
               </button>

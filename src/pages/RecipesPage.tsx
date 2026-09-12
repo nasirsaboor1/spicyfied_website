@@ -29,12 +29,12 @@ export default function RecipesPage({
           <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-3">
             Cook with what you buy
           </p>
-          <h1 className="font-serif text-4xl md:text-5xl font-semibold text-ink mb-4 leading-tight">
+          <h1 className="font-serif text-3xl md:text-4xl font-semibold text-ink mb-4 leading-tight">
             Recipes from every kitchen the spice cabinet visits.
           </h1>
-          <p className="text-gray-600 text-lg">
-            A working set of dishes across sixteen cuisines — filter by the
-            kitchen you cook in most.
+          <p className="text-charcoal/70 text-lg">
+            Find recipes you can cook with what you already have — filter by
+            the kind of kitchen you cook in most.
           </p>
         </Reveal>
       </section>
