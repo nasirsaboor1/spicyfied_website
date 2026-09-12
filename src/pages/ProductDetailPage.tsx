@@ -293,7 +293,7 @@ export default function ProductDetailPage({
 
             {product.variants.length > 0 && (
               <div>
-                <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
+                <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron-dark mb-3">
                   Select Size
                 </p>
                 <div className="grid grid-cols-3 gap-3">
@@ -316,7 +316,7 @@ export default function ProductDetailPage({
             )}
 
             <div>
-              <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
+              <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron-dark mb-3">
                 Quantity
               </p>
               <div className="flex items-center gap-3 bg-cream-soft rounded-lg w-fit">
@@ -339,7 +339,7 @@ export default function ProductDetailPage({
             </div>
 
             <div>
-              <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
+              <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron-dark mb-3">
                 Delivery
               </p>
               <div className="flex gap-2 max-w-sm">
@@ -456,7 +456,7 @@ export default function ProductDetailPage({
             )}
 
             <div className="border-t border-black/10 pt-6">
-              <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
+              <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron-dark mb-3">
                 Description
               </p>
               <div className="text-gray-600 leading-relaxed whitespace-pre-line">
@@ -466,7 +466,7 @@ export default function ProductDetailPage({
 
             {product.health_benefits && (
               <div className="border-t border-black/10 pt-6">
-                <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
+                <p className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron-dark mb-3">
                   Health Benefits
                 </p>
                 <div className="text-gray-600 leading-relaxed whitespace-pre-line">

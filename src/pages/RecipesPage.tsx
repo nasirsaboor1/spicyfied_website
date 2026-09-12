@@ -26,7 +26,7 @@ export default function RecipesPage({
     <div className="min-h-screen bg-cream">
       <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
         <Reveal className="max-w-3xl">
-          <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-3">
+          <p className="text-saffron-dark text-xs font-semibold tracking-[0.25em] uppercase mb-3">
             Cook with what you buy
           </p>
           <h1 className="font-serif text-4xl md:text-5xl font-semibold text-ink mb-4 leading-tight">
@@ -102,7 +102,7 @@ export default function RecipesPage({
                   </div>
                   <div className="p-5 flex-1 flex flex-col">
                     <div className="flex items-center gap-2 mb-2 text-xs">
-                      <span className="text-saffron font-semibold tracking-wide uppercase">
+                      <span className="text-saffron-dark font-semibold tracking-wide uppercase">
                         {r.cuisine}
                       </span>
                       <span className="text-gray-400">·</span>

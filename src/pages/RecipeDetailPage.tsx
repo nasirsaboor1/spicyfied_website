@@ -76,7 +76,7 @@ export default function RecipeDetailPage({
         </div>
 
         <header className="mb-10">
-          <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-3">
+          <p className="text-saffron-dark text-xs font-semibold tracking-[0.25em] uppercase mb-3">
             {recipe.cuisine} · {recipe.category}
           </p>
           <h1 className="font-serif text-4xl md:text-5xl font-semibold text-ink leading-tight mb-4">
@@ -163,7 +163,7 @@ export default function RecipeDetailPage({
                   <div className="flex-1">
                     <p className="text-gray-800 leading-relaxed">{step.text}</p>
                     {step.timer && (
-                      <p className="flex items-center gap-1.5 text-xs text-saffron font-semibold mt-1.5">
+                      <p className="flex items-center gap-1.5 text-xs text-saffron-dark font-semibold mt-1.5">
                         <Timer className="w-3.5 h-3.5" />
                         {step.timer} min timer
                       </p>
@@ -177,7 +177,7 @@ export default function RecipeDetailPage({
 
         {shopThese.length > 0 && (
           <section className="mt-16 pt-10 border-t border-ink/10">
-            <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-2">
+            <p className="text-saffron-dark text-xs font-semibold tracking-[0.25em] uppercase mb-2">
               From our shelf
             </p>
             <h2 className="font-serif text-3xl font-semibold text-ink mb-6">

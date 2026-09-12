@@ -143,7 +143,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
       {/* reason a "premium" spice shop matters. Show it, don't tell it. */}
       <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-16">
         <Reveal className="max-w-3xl mx-auto text-center mb-14">
-          <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-3">
+          <p className="text-saffron-dark text-xs font-semibold tracking-[0.25em] uppercase mb-3">
             The shopkeeper's notebook
           </p>
           <h2 className="font-serif text-4xl md:text-5xl font-semibold text-ink mb-5 leading-tight">
@@ -195,7 +195,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
                   </span>
                 </div>
                 <div className="p-6 md:p-8 flex flex-col flex-1">
-                  <p className="font-sans text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-2">
+                  <p className="font-sans text-xs font-semibold tracking-[0.15em] uppercase text-saffron-dark mb-2">
                     The {t.name.toLowerCase()} test
                   </p>
                   <h3 className="font-serif text-2xl font-semibold text-ink mb-2">
@@ -211,7 +211,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
 
       <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <Reveal className="text-center mb-12">
-          <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-2">Our Collection</p>
+          <p className="text-saffron-dark text-xs font-semibold tracking-[0.25em] uppercase mb-2">Our Collection</p>
           <h2 className="font-serif text-4xl font-semibold text-ink mb-3">Shop by Category</h2>
           <p className="text-gray-600 text-lg">Every jar tells the story of where it came from</p>
         </Reveal>
@@ -248,7 +248,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
               <Reveal className="mb-10">
                 <div className="flex items-end justify-between border-b border-ink/10 pb-4">
                   <div>
-                    <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-1">Most Loved</p>
+                    <p className="text-saffron-dark text-xs font-semibold tracking-[0.25em] uppercase mb-1">Most Loved</p>
                     <h2 className="font-serif text-4xl font-semibold text-ink">Bestsellers</h2>
                   </div>
                   <button
