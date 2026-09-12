@@ -219,17 +219,17 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 justify-items-center">
           <CategoryCard
             title="Whole Spices"
-            imageUrl="https://raw.githubusercontent.com/nasirsaboor1/Spice/main/Cardamom%20(1)-min.JPG"
+            imageUrl="/images/categories/whole-spices.jpg"
             onClick={() => onNavigateToShop('whole-spices')}
           />
           <CategoryCard
             title="Dry Fruits"
-            imageUrl="https://raw.githubusercontent.com/nasirsaboor1/Spice/main/Walnut.jpg"
+            imageUrl="/images/categories/dry-fruits.jpg"
             onClick={() => onNavigateToShop('dry-fruits')}
           />
           <CategoryCard
             title="Seeds"
-            imageUrl="https://raw.githubusercontent.com/nasirsaboor1/Spice/main/Chia%20Seeds-min.JPG"
+            imageUrl="/images/categories/seeds.jpg"
             onClick={() => onNavigateToShop('seeds')}
           />
           <CategoryCard
