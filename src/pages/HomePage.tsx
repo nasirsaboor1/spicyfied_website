@@ -103,12 +103,16 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
               </button>
             </div>
 
-            <div className="hidden lg:flex justify-center">
+            <div className="relative flex justify-center mt-2 lg:mt-0">
+              <div
+                className="absolute w-56 h-56 md:w-72 md:h-72 rounded-full bg-saffron-light/10 blur-3xl pointer-events-none"
+                aria-hidden="true"
+              />
               <img
                 src={SPICE_HERO_PHOTOS.cinnamon}
                 alt=""
                 aria-hidden="true"
-                className="w-full max-w-xs h-auto drop-shadow-[0_20px_40px_rgba(0,0,0,0.35)]"
+                className="relative w-full max-w-[220px] lg:max-w-xs h-auto drop-shadow-[0_20px_40px_rgba(0,0,0,0.35)]"
               />
             </div>
           </div>
@@ -171,7 +175,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
               <Reveal key={spice.slug} delayMs={i * 80}>
                 <button
                   onClick={() => onNavigateToProduct(spice.slug)}
-                  className="group w-full text-left bg-cream-soft border border-black/5 rounded-2xl overflow-hidden h-full flex flex-col"
+                  className="group w-full text-left bg-cream-soft border border-black/5 hover:border-brand-green/40 transition-colors rounded-2xl overflow-hidden h-full flex flex-col"
                 >
                   <div className="relative h-56 sm:h-64 flex items-center justify-center p-6">
                     <img
@@ -195,7 +199,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
 
       {/* Adulteration is the industry's dirty secret and the real */}
       {/* reason a "premium" spice shop matters. Show it, don't tell it. */}
-      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-16">
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <Reveal className="max-w-3xl mx-auto text-center mb-14">
           <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-3">
             The shopkeeper's notebook
@@ -203,7 +207,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
           <h2 className="font-serif text-4xl md:text-5xl font-semibold text-ink mb-5 leading-tight">
             You'd be surprised what's in the jar.
           </h2>
-          <p className="text-gray-600 text-lg leading-relaxed">
+          <p className="text-charcoal/70 text-lg leading-relaxed">
             Spent cloves resold as fresh. Cassia labelled cinnamon. Papaya seeds
             passed off as pepper. Four one-minute tests you can do at home.
           </p>
@@ -255,7 +259,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
                   <h3 className="font-serif text-2xl font-semibold text-ink mb-2">
                     {t.instruction}
                   </h3>
-                  <p className="text-gray-600 leading-relaxed text-[15px]">{t.tell}</p>
+                  <p className="text-charcoal/70 leading-relaxed text-[15px]">{t.tell}</p>
                 </div>
               </article>
             </Reveal>
@@ -265,9 +269,9 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
 
       <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <Reveal className="text-center mb-12">
-          <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-2">Our Collection</p>
+          <p className="text-brand-green text-xs font-semibold tracking-[0.25em] uppercase mb-2">Our Collection</p>
           <h2 className="font-serif text-4xl font-semibold text-ink mb-3">Shop by Category</h2>
-          <p className="text-gray-600 text-lg">Every jar tells the story of where it came from</p>
+          <p className="text-charcoal/70 text-lg">Whole spices, dry fruits, and seeds, organised the way you shop for them</p>
         </Reveal>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 justify-items-center">
@@ -332,7 +336,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
             <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-cream-soft">
               <Reveal className="flex items-baseline justify-between mb-8">
                 <h2 className="font-sans text-sm font-semibold tracking-[0.2em] uppercase text-ink">
-                  Everyday Essentials <span className="text-gray-400 font-normal normal-case tracking-normal">· the kitchen staples people reorder most</span>
+                  Everyday Essentials <span className="text-charcoal/50 font-normal normal-case tracking-normal">· the kitchen staples people reorder most</span>
                 </h2>
                 <button
                   onClick={() => onNavigateToShop('whole-spices')}
@@ -388,6 +392,10 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
           )}
         </>
       )}
+
+      {/* Bridges the page's cream background into the footer's dark ink,
+          so the handoff reads as intentional rather than an abrupt cut. */}
+      <div className="h-16 bg-gradient-to-b from-cream to-ink" aria-hidden="true" />
     </div>
   );
 }
