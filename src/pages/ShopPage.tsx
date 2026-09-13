@@ -10,12 +10,21 @@ interface ShopPageProps {
   searchQuery?: string;
 }
 
+const PRICE_BRACKETS = [
+  { id: 'all', label: 'All Prices', min: 0, max: Infinity },
+  { id: 'under-200', label: 'Under ₹200', min: 0, max: 200 },
+  { id: '200-500', label: '₹200 – ₹500', min: 200, max: 500 },
+  { id: '500-1000', label: '₹500 – ₹1,000', min: 500, max: 1000 },
+  { id: '1000-2000', label: '₹1,000 – ₹2,000', min: 1000, max: 2000 },
+  { id: '2000-plus', label: '₹2,000+', min: 2000, max: Infinity },
+];
+
 export default function ShopPage({ onNavigateToProduct, initialCategory, searchQuery }: ShopPageProps) {
   const [products, setProducts] = useState<ProductWithDetails[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<ProductWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'all');
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
+  const [priceBracket, setPriceBracket] = useState<string>('all');
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
@@ -24,7 +33,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
 
   useEffect(() => {
     applyFilters();
-  }, [products, selectedCategory, priceRange, searchQuery]);
+  }, [products, selectedCategory, priceBracket, searchQuery]);
 
   useEffect(() => {
     if (initialCategory) {
@@ -59,10 +68,11 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
       );
     }
 
+    const bracket = PRICE_BRACKETS.find((b) => b.id === priceBracket) || PRICE_BRACKETS[0];
     filtered = filtered.filter((p) => {
       if (p.variants.length === 0) return true;
       const minPrice = Math.min(...p.variants.map((v) => v.price));
-      return minPrice >= priceRange[0] && minPrice <= priceRange[1];
+      return minPrice >= bracket.min && minPrice < bracket.max;
     });
 
     setFilteredProducts(filtered);
@@ -75,15 +85,19 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
     { id: 'seeds', name: 'Seeds' },
   ];
 
+  const selectedCategoryName = categories.find((c) => c.id === selectedCategory)?.name;
+
   return (
     <div className="min-h-screen bg-cream">
-      <div className="bg-gradient-to-r from-ink to-moss text-white py-12 px-4">
+      <div className="bg-ink text-cream py-12 px-4">
         <div className="max-w-7xl mx-auto">
-          <h1 className="font-serif text-[28px] md:text-3xl font-semibold mb-2">Shop Our Collection</h1>
-          <p className="text-white/90 text-lg">
+          <h1 className="font-serif text-[28px] md:text-3xl font-semibold mb-2">
+            {selectedCategory === 'all' ? 'Whole Spices, Dry Fruits & Seeds' : selectedCategoryName}
+          </h1>
+          <p className="text-cream/75 text-lg">
             {selectedCategory === 'all'
-              ? 'Browse all our premium products'
-              : `Explore our ${categories.find((c) => c.id === selectedCategory)?.name || ''}`}
+              ? 'Hand-cleaned and packed to protect their aroma — nothing added, nothing hidden, ready for everyday cooking.'
+              : 'Hand-cleaned and packed to protect their aroma, ready for everyday cooking.'}
           </p>
         </div>
       </div>
@@ -91,11 +105,11 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           <aside className={`lg:w-64 ${showFilters ? 'block' : 'hidden lg:block'}`}>
-            <div className="bg-white rounded-lg border border-black/5 p-6 sticky top-24 space-y-6">
+            <div className="bg-white rounded-lg border border-black/10 p-6 sticky top-24 space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-800">Filters</h2>
+                <h2 className="font-serif text-lg font-semibold text-ink">Filters</h2>
                 <button
-                  className="lg:hidden"
+                  className="lg:hidden text-charcoal/60 text-sm"
                   onClick={() => setShowFilters(false)}
                 >
                   Close
@@ -103,16 +117,16 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
               </div>
 
               <div>
-                <h3 className="font-semibold text-gray-800 mb-3">Category</h3>
+                <h3 className="text-xs font-semibold text-charcoal/60 uppercase tracking-wide mb-3">Category</h3>
                 <div className="space-y-2">
                   {categories.map((category) => (
                     <button
                       key={category.id}
                       onClick={() => setSelectedCategory(category.id)}
-                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                      className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         selectedCategory === category.id
-                          ? 'bg-ink text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-brand-green text-cream'
+                          : 'border border-black/10 text-charcoal hover:border-brand-green/40'
                       }`}
                     >
                       {category.name}
@@ -122,37 +136,30 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
               </div>
 
               <div>
-                <h3 className="font-semibold text-gray-800 mb-3">Price Range</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      value={priceRange[0]}
-                      onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-ink"
-                      placeholder="Min"
-                    />
-                    <span className="text-gray-500">-</span>
-                    <input
-                      type="number"
-                      value={priceRange[1]}
-                      onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-ink"
-                      placeholder="Max"
-                    />
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    ₹{priceRange[0]} - ₹{priceRange[1]}
-                  </p>
+                <h3 className="text-xs font-semibold text-charcoal/60 uppercase tracking-wide mb-3">Price</h3>
+                <div className="flex flex-wrap gap-2">
+                  {PRICE_BRACKETS.map((bracket) => (
+                    <button
+                      key={bracket.id}
+                      onClick={() => setPriceBracket(bracket.id)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                        priceBracket === bracket.id
+                          ? 'bg-brand-green text-cream'
+                          : 'border border-black/10 text-charcoal hover:border-brand-green/40'
+                      }`}
+                    >
+                      {bracket.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
               <button
                 onClick={() => {
                   setSelectedCategory('all');
-                  setPriceRange([0, 10000]);
+                  setPriceBracket('all');
                 }}
-                className="w-full py-2 text-ink border border-ink rounded-lg font-medium hover:bg-ink hover:text-white transition-colors"
+                className="w-full py-2 text-sm text-ink border border-ink rounded-lg font-medium hover:bg-ink hover:text-white transition-colors"
               >
                 Reset Filters
               </button>
@@ -161,7 +168,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
 
           <main className="flex-1">
             <div className="flex items-center justify-between mb-6">
-              <p className="text-gray-600">
+              <p className="text-charcoal/70 text-sm">
                 {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
               </p>
               <button
@@ -188,15 +195,18 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
                   <button
                     onClick={() => {
                       setSelectedCategory('all');
-                      setPriceRange([0, 10000]);
+                      setPriceBracket('all');
                     }}
                     className="px-4 py-2 text-sm text-ink border border-ink rounded-lg font-medium hover:bg-ink hover:text-white transition-colors"
                   >
                     Reset Filters
                   </button>
                   <button
-                    onClick={() => setSelectedCategory('all')}
-                    className="px-4 py-2 text-sm bg-ink text-white rounded-lg font-medium hover:bg-saffron-light transition-colors"
+                    onClick={() => {
+                      setSelectedCategory('all');
+                      setPriceBracket('all');
+                    }}
+                    className="px-4 py-2 text-sm bg-brand-green text-cream rounded-lg font-medium hover:bg-brand-green/90 transition-colors"
                   >
                     View All Products
                   </button>
