@@ -112,10 +112,12 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Customer Reviews</h2>
-          <div className="flex items-center gap-4">
-            <StarRating rating={averageRating} size="md" showNumber />
-            <span className="text-gray-600">({reviews.length} reviews)</span>
-          </div>
+          {reviews.length > 0 && (
+            <div className="flex items-center gap-4">
+              <StarRating rating={averageRating} size="md" showNumber />
+              <span className="text-gray-600">({reviews.length} reviews)</span>
+            </div>
+          )}
         </div>
 
         {user && !hasReviewed && (
@@ -214,7 +216,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
         {reviews.length === 0 && (
           <div className="text-center py-12 bg-white rounded-xl shadow-md">
             <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">No reviews yet. Be the first to review this product!</p>
+            <p className="text-gray-500">No reviews yet. Be the first to review this product.</p>
           </div>
         )}
       </div>

@@ -27,6 +27,30 @@ const CATEGORY_LABELS: Record<string, string> = {
   seeds: 'Seeds',
 };
 
+const CATEGORY_DESCRIPTORS: Record<string, string> = {
+  'whole-spices': 'Whole Spice',
+  'dry-fruits': 'Dry Fruit',
+  seeds: 'Seed',
+};
+
+function getProvenanceLine(product: ProductWithDetails): string {
+  const excerpt = product.story?.title || product.story?.content || null;
+  if (excerpt) {
+    const trimmed = excerpt.trim();
+    return trimmed.length > 100 ? `${trimmed.slice(0, 100).trimEnd()}…` : trimmed;
+  }
+  return CATEGORY_DESCRIPTORS[product.category] || 'Everyday cooking';
+}
+
+function getUnitPrice(size: string, price: number): string | null {
+  const match = size.trim().match(/^(\d+(?:\.\d+)?)\s*(kg|g|ml|l)$/i);
+  if (!match) return null;
+  const qty = parseFloat(match[1]);
+  if (!qty || qty <= 0 || !Number.isFinite(price) || price <= 0) return null;
+  const unit = match[2].toLowerCase();
+  return `₹${(price / qty).toFixed(2)}/${unit}`;
+}
+
 export default function ProductDetailPage({
   productSlug,
   onNavigateBack,
@@ -185,6 +209,7 @@ export default function ProductDetailPage({
   const selectedVariant = product.variants[selectedVariantIndex];
   const currentImage = product.images[currentImageIndex];
   const categoryLabel = CATEGORY_LABELS[product.category];
+  const unitPrice = selectedVariant ? getUnitPrice(selectedVariant.size, selectedVariant.price) : null;
   const total = selectedVariant ? Math.round(selectedVariant.price * quantity) : 0;
 
   return (
@@ -212,11 +237,13 @@ export default function ProductDetailPage({
           <div className="space-y-4">
             <div className="relative aspect-square bg-cream-soft rounded-2xl overflow-hidden border border-black/5">
               {currentImage ? (
-                <img
-                  src={currentImage.image_url}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
+                <div className="absolute inset-0 p-8 md:p-12 flex items-center justify-center">
+                  <img
+                    src={currentImage.image_url}
+                    alt={product.name}
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-ink to-moss font-serif text-cream text-4xl font-semibold">
                   {product.name[0]}
@@ -275,6 +302,7 @@ export default function ProductDetailPage({
               <h1 className="font-serif text-4xl md:text-5xl font-semibold text-ink leading-tight mb-3">
                 {product.name}
               </h1>
+              <p className="text-sm text-charcoal/60 mb-1">{getProvenanceLine(product)}</p>
               {rating.count > 0 && (
                 <a href="#reviews" className="inline-flex items-center gap-2 group">
                   <StarRating rating={rating.average} size="sm" />
@@ -285,9 +313,15 @@ export default function ProductDetailPage({
               )}
             </div>
 
-            <p className="font-serif text-3xl font-semibold text-ink">
-              ₹{selectedVariant ? Math.round(selectedVariant.price) : '0'}
-            </p>
+            <div>
+              <p className="font-serif text-3xl font-semibold text-ink">
+                ₹{selectedVariant ? Math.round(selectedVariant.price) : '0'}
+                {selectedVariant && (
+                  <span className="text-lg font-normal text-charcoal/50 ml-2">· {selectedVariant.size}</span>
+                )}
+              </p>
+              {unitPrice && <p className="text-sm text-charcoal/50 mt-1">{unitPrice}</p>}
+            </div>
 
             {product.variants.length > 0 && (
               <div>
@@ -463,7 +497,7 @@ export default function ProductDetailPage({
             {product.health_benefits && (
               <div className="border-t border-black/10 pt-6">
                 <h3 className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
-                  Health Benefits
+                  Uses &amp; Benefits
                 </h3>
                 <div className="text-gray-600 leading-relaxed whitespace-pre-line">
                   {product.health_benefits}
