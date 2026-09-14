@@ -33,6 +33,18 @@ const CATEGORY_DESCRIPTORS: Record<string, string> = {
   seeds: 'Seed',
 };
 
+const STOCK_STATUS_LABELS: Record<string, string> = {
+  in_stock: 'In Stock',
+  low_stock: 'Low Stock',
+  out_of_stock: 'Out of Stock',
+};
+
+const STOCK_STATUS_COLORS: Record<string, string> = {
+  in_stock: 'text-brand-green',
+  low_stock: 'text-saffron-dark',
+  out_of_stock: 'text-charcoal/50',
+};
+
 function getProvenanceLine(product: ProductWithDetails): string {
   const excerpt = product.story?.title || product.story?.content || null;
   if (excerpt) {
@@ -337,6 +349,38 @@ export default function ProductDetailPage({
                 )}
               </p>
               {unitPrice && <p className="text-sm text-charcoal/50 mt-1">{unitPrice}</p>}
+            </div>
+
+            <div className="border-t border-black/10 pt-6">
+              <h3 className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
+                Product Details
+              </h3>
+              <div className="divide-y divide-black/10">
+                {categoryLabel && (
+                  <div className="flex items-center justify-between py-2.5 text-sm">
+                    <span className="text-charcoal/60">Category</span>
+                    <span className="text-ink font-medium">{categoryLabel}</span>
+                  </div>
+                )}
+                {selectedVariant && (
+                  <div className="flex items-center justify-between py-2.5 text-sm">
+                    <span className="text-charcoal/60">Pack Size</span>
+                    <span className="text-ink font-medium">{selectedVariant.size}</span>
+                  </div>
+                )}
+                {unitPrice && (
+                  <div className="flex items-center justify-between py-2.5 text-sm">
+                    <span className="text-charcoal/60">Price per Unit</span>
+                    <span className="text-ink font-medium">{unitPrice}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between py-2.5 text-sm">
+                  <span className="text-charcoal/60">Availability</span>
+                  <span className={`font-medium ${STOCK_STATUS_COLORS[product.stock_status]}`}>
+                    {STOCK_STATUS_LABELS[product.stock_status]}
+                  </span>
+                </div>
+              </div>
             </div>
 
             {product.variants.length > 0 && (
