@@ -213,9 +213,10 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-cream">
           {currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin' && currentPage !== 'reset-password' && (
             <Header
+              onNavigateToHome={navigateToHome}
               onSearch={handleSearch}
               onCategoryChange={handleCategoryChange}
               onNavigateToLogin={navigateToLogin}

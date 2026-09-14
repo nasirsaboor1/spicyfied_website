@@ -64,6 +64,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const [notes, setNotes] = useState('');
 
   const [deliveryType, setDeliveryType] = useState<DeliveryType>('delivery');
@@ -447,8 +448,9 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                   <form onSubmit={handleAddAddress} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-charcoal mb-2">Full Name</label>
+                        <label htmlFor="addr-full-name" className="block text-sm font-medium text-charcoal mb-2">Full Name</label>
                         <input
+                          id="addr-full-name"
                           type="text"
                           required
                           value={addressForm.full_name}
@@ -457,8 +459,9 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-charcoal mb-2">Phone</label>
+                        <label htmlFor="addr-phone" className="block text-sm font-medium text-charcoal mb-2">Phone</label>
                         <input
+                          id="addr-phone"
                           type="tel"
                           required
                           value={addressForm.phone}
@@ -469,8 +472,9 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-charcoal mb-2">Address Line 1</label>
+                      <label htmlFor="addr-line1" className="block text-sm font-medium text-charcoal mb-2">Address Line 1</label>
                       <input
+                        id="addr-line1"
                         type="text"
                         required
                         value={addressForm.address_line1}
@@ -480,8 +484,9 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-charcoal mb-2">Address Line 2</label>
+                      <label htmlFor="addr-line2" className="block text-sm font-medium text-charcoal mb-2">Address Line 2</label>
                       <input
+                        id="addr-line2"
                         type="text"
                         value={addressForm.address_line2}
                         onChange={(e) => setAddressForm({ ...addressForm, address_line2: e.target.value })}
@@ -491,8 +496,9 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-charcoal mb-2">City</label>
+                        <label htmlFor="addr-city" className="block text-sm font-medium text-charcoal mb-2">City</label>
                         <input
+                          id="addr-city"
                           type="text"
                           required
                           value={addressForm.city}
@@ -501,8 +507,9 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-charcoal mb-2">State</label>
+                        <label htmlFor="addr-state" className="block text-sm font-medium text-charcoal mb-2">State</label>
                         <select
+                          id="addr-state"
                           required
                           value={addressForm.state}
                           onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
@@ -519,8 +526,9 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-charcoal mb-2">PIN Code</label>
+                        <label htmlFor="addr-postal-code" className="block text-sm font-medium text-charcoal mb-2">PIN Code</label>
                         <input
+                          id="addr-postal-code"
                           type="text"
                           required
                           pattern="[0-9]{6}"
@@ -604,8 +612,9 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">Your Name</label>
+                    <label htmlFor="pickup-name" className="block text-sm font-medium text-charcoal mb-2">Your Name</label>
                     <input
+                      id="pickup-name"
                       type="text"
                       required
                       value={pickupName}
@@ -614,8 +623,9 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">Phone</label>
+                    <label htmlFor="pickup-phone" className="block text-sm font-medium text-charcoal mb-2">Phone</label>
                     <input
+                      id="pickup-phone"
                       type="tel"
                       required
                       value={pickupPhone}
@@ -630,12 +640,15 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
             <div className="bg-white rounded-xl border border-black/10 p-6">
               <h2 className="text-lg font-semibold text-ink mb-4">Order Items</h2>
               <div className="space-y-4">
-                {cart.map((item) => (
-                  <div key={`${item.product.id}-${item.variant.id}`} className="flex gap-4 pb-4 border-b border-black/10">
-                    {item.image ? (
+                {cart.map((item) => {
+                  const itemKey = `${item.product.id}-${item.variant.id}`;
+                  return (
+                  <div key={itemKey} className="flex gap-4 pb-4 border-b border-black/10">
+                    {item.image && !failedImages[itemKey] ? (
                       <img
                         src={item.image}
                         alt={item.product.name}
+                        onError={() => setFailedImages((prev) => ({ ...prev, [itemKey]: true }))}
                         className="w-20 h-20 object-cover rounded-lg"
                       />
                     ) : (
@@ -654,13 +667,15 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
             <div className="bg-white rounded-xl border border-black/10 p-6">
               <h2 className="text-lg font-semibold text-ink mb-4">Order Notes</h2>
               <textarea
+                aria-label="Order notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Any special instructions?"

@@ -283,8 +283,9 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
             {editingProfile ? (
               <form onSubmit={handleUpdateProfile} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-charcoal mb-2">Full Name</label>
+                  <label htmlFor="profile-full-name" className="block text-sm font-medium text-charcoal mb-2">Full Name</label>
                   <input
+                    id="profile-full-name"
                     type="text"
                     required
                     value={profileForm.full_name}
@@ -294,8 +295,9 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-charcoal mb-2">Phone</label>
+                  <label htmlFor="profile-phone" className="block text-sm font-medium text-charcoal mb-2">Phone</label>
                   <input
+                    id="profile-phone"
                     type="tel"
                     required
                     value={profileForm.phone}
@@ -362,8 +364,9 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
               <form onSubmit={handleSaveAddress} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">Full Name</label>
+                    <label htmlFor="dash-addr-full-name" className="block text-sm font-medium text-charcoal mb-2">Full Name</label>
                     <input
+                      id="dash-addr-full-name"
                       type="text"
                       required
                       value={addressForm.full_name}
@@ -372,8 +375,9 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">Phone</label>
+                    <label htmlFor="dash-addr-phone" className="block text-sm font-medium text-charcoal mb-2">Phone</label>
                     <input
+                      id="dash-addr-phone"
                       type="tel"
                       required
                       value={addressForm.phone}
@@ -384,8 +388,9 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-charcoal mb-2">Address Line 1</label>
+                  <label htmlFor="dash-addr-line1" className="block text-sm font-medium text-charcoal mb-2">Address Line 1</label>
                   <input
+                    id="dash-addr-line1"
                     type="text"
                     required
                     value={addressForm.address_line1}
@@ -396,8 +401,9 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
 
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">City</label>
+                    <label htmlFor="dash-addr-city" className="block text-sm font-medium text-charcoal mb-2">City</label>
                     <input
+                      id="dash-addr-city"
                       type="text"
                       required
                       value={addressForm.city}
@@ -406,8 +412,9 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">State</label>
+                    <label htmlFor="dash-addr-state" className="block text-sm font-medium text-charcoal mb-2">State</label>
                     <input
+                      id="dash-addr-state"
                       type="text"
                       required
                       value={addressForm.state}
@@ -416,8 +423,9 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">PIN</label>
+                    <label htmlFor="dash-addr-postal-code" className="block text-sm font-medium text-charcoal mb-2">PIN</label>
                     <input
+                      id="dash-addr-postal-code"
                       type="text"
                       required
                       pattern="[0-9]{6}"

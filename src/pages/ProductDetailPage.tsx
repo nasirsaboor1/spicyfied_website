@@ -65,6 +65,8 @@ export default function ProductDetailPage({
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [mainImageFailed, setMainImageFailed] = useState(false);
+  const [failedThumbnails, setFailedThumbnails] = useState<Record<string, boolean>>({});
   const [addedToCart, setAddedToCart] = useState(false);
   const [burstKey, setBurstKey] = useState(0);
   const [pincode, setPincode] = useState('');
@@ -79,6 +81,10 @@ export default function ProductDetailPage({
     fetchProduct();
     window.scrollTo(0, 0);
   }, [productSlug]);
+
+  useEffect(() => {
+    setMainImageFailed(false);
+  }, [currentImageIndex]);
 
   const fetchProduct = async () => {
     setLoading(true);
@@ -236,11 +242,12 @@ export default function ProductDetailPage({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
           <div className="space-y-4">
             <div className="relative aspect-square bg-cream-soft rounded-2xl overflow-hidden border border-black/5">
-              {currentImage ? (
+              {currentImage && !mainImageFailed ? (
                 <div className="absolute inset-0 p-8 md:p-12 flex items-center justify-center">
                   <img
                     src={currentImage.image_url}
                     alt={product.name}
+                    onError={() => setMainImageFailed(true)}
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>
@@ -254,12 +261,14 @@ export default function ProductDetailPage({
                 <>
                   <button
                     onClick={prevImage}
+                    aria-label="Previous image"
                     className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-colors"
                   >
                     <ChevronLeft className="w-6 h-6 text-ink" />
                   </button>
                   <button
                     onClick={nextImage}
+                    aria-label="Next image"
                     className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-colors"
                   >
                     <ChevronRight className="w-6 h-6 text-ink" />
@@ -280,11 +289,18 @@ export default function ProductDetailPage({
                         : 'border-black/10 hover:border-black/30'
                     }`}
                   >
-                    <img
-                      src={image.image_url}
-                      alt={`${product.name} ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
+                    {failedThumbnails[image.id] ? (
+                      <div className="w-full h-full bg-gradient-to-br from-ink to-moss flex items-center justify-center text-cream text-xs font-semibold">
+                        {product.name[0]}
+                      </div>
+                    ) : (
+                      <img
+                        src={image.image_url}
+                        alt={`${product.name} ${index + 1}`}
+                        onError={() => setFailedThumbnails((prev) => ({ ...prev, [image.id]: true }))}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                   </button>
                 ))}
               </div>
@@ -306,7 +322,7 @@ export default function ProductDetailPage({
               {rating.count > 0 && (
                 <a href="#reviews" className="inline-flex items-center gap-2 group">
                   <StarRating rating={rating.average} size="sm" />
-                  <span className="text-sm text-gray-600 group-hover:text-ink transition-colors">
+                  <span className="text-sm text-charcoal/70 group-hover:text-ink transition-colors">
                     {rating.average.toFixed(1)} &middot; {rating.count} {rating.count === 1 ? 'review' : 'reviews'}
                   </span>
                 </a>
@@ -354,6 +370,7 @@ export default function ProductDetailPage({
               <div className="flex items-center gap-3 bg-cream-soft rounded-lg w-fit">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  aria-label="Decrease quantity"
                   className="px-4 py-2 hover:bg-black/5 rounded-l-lg transition-colors font-bold text-ink"
                 >
                   -
@@ -361,6 +378,7 @@ export default function ProductDetailPage({
                 <span className="px-6 font-semibold text-ink">{quantity}</span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
+                  aria-label="Increase quantity"
                   className="px-4 py-2 hover:bg-black/5 rounded-r-lg transition-colors font-bold text-ink"
                 >
                   +
@@ -373,7 +391,11 @@ export default function ProductDetailPage({
                 Delivery
               </h3>
               <div className="flex gap-2 max-w-sm">
+                <label htmlFor="pdp-pincode" className="sr-only">
+                  Pincode
+                </label>
                 <input
+                  id="pdp-pincode"
                   type="text"
                   inputMode="numeric"
                   maxLength={6}
@@ -395,7 +417,7 @@ export default function ProductDetailPage({
                 </button>
               </div>
               {deliveryFee !== null && (
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-sm text-charcoal/70 mt-2">
                   {deliveryFee === 0
                     ? 'Free delivery to this pincode.'
                     : `Delivery fee for this pincode: ₹${deliveryFee}`}
@@ -406,7 +428,7 @@ export default function ProductDetailPage({
             {product.stock_status === 'out_of_stock' ? (
               <div className="bg-cream-soft border border-black/10 rounded-lg p-5">
                 <p className="font-semibold text-ink mb-1">Currently out of stock</p>
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-sm text-charcoal/70 mb-4">
                   Leave your email and we'll let you know the moment it's back.
                 </p>
                 {notifySubmitted ? (
@@ -416,7 +438,11 @@ export default function ProductDetailPage({
                   </p>
                 ) : (
                   <form onSubmit={handleNotifyMe} className="flex flex-col sm:flex-row gap-2">
+                    <label htmlFor="notify-email" className="sr-only">
+                      Email address
+                    </label>
                     <input
+                      id="notify-email"
                       type="email"
                       required
                       value={notifyEmail}
@@ -489,7 +515,7 @@ export default function ProductDetailPage({
               <h3 className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
                 Description
               </h3>
-              <div className="text-gray-600 leading-relaxed whitespace-pre-line">
+              <div className="text-charcoal/70 leading-relaxed whitespace-pre-line">
                 {product.description}
               </div>
             </div>
@@ -499,7 +525,7 @@ export default function ProductDetailPage({
                 <h3 className="text-xs font-semibold tracking-[0.15em] uppercase text-saffron mb-3">
                   Uses &amp; Benefits
                 </h3>
-                <div className="text-gray-600 leading-relaxed whitespace-pre-line">
+                <div className="text-charcoal/70 leading-relaxed whitespace-pre-line">
                   {product.health_benefits}
                 </div>
               </div>
@@ -551,7 +577,7 @@ export default function ProductDetailPage({
               <h2 className="font-serif text-2xl md:text-3xl font-semibold text-ink">
                 You may also like
               </h2>
-              <p className="text-sm text-gray-500 hidden sm:block">More from the same shelf</p>
+              <p className="text-sm text-charcoal/50 hidden sm:block">More from the same shelf</p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {relatedProducts.map((p, i) => (
@@ -576,7 +602,7 @@ export default function ProductDetailPage({
       {product.stock_status !== 'out_of_stock' && (
         <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-black/10 px-4 py-3 flex items-center gap-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
           <div className="flex-shrink-0">
-            <p className="text-[10px] uppercase tracking-wide text-gray-500">Total</p>
+            <p className="text-[10px] uppercase tracking-wide text-charcoal/50">Total</p>
             <p className="font-serif text-lg font-semibold text-ink leading-tight">₹{total}</p>
           </div>
           <button

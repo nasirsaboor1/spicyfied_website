@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
 interface HeaderProps {
+  onNavigateToHome?: () => void;
   onSearch?: (query: string) => void;
   onCategoryChange?: (category: string) => void;
   onNavigateToLogin?: () => void;
@@ -15,6 +16,7 @@ interface HeaderProps {
 }
 
 export default function Header({
+  onNavigateToHome,
   onSearch,
   onCategoryChange,
   onNavigateToLogin,
@@ -54,21 +56,21 @@ export default function Header({
     <header className="bg-ink text-cream sticky top-0 z-50 shadow-lg shadow-black/20">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => window.location.href = '/'}>
-            <img src="/spicyfied_logo_.jpeg" alt="Spicyfied" className="h-9 md:h-10 w-auto object-cover transition-transform hover:scale-105" />
+          <button className="flex items-center gap-2.5" onClick={() => onNavigateToHome?.()} aria-label="Spicyfied home">
+            <img src="/spicyfied_logo_.jpeg" alt="" className="h-9 md:h-10 w-auto object-cover transition-transform hover:scale-105" />
             <h1 className="font-serif text-xl md:text-2xl font-semibold tracking-wide text-cream whitespace-nowrap">Spicyfied</h1>
-          </div>
+          </button>
 
           <nav className="hidden md:flex items-center gap-4 lg:gap-6 mx-4">
-            <a href="/" className={navLinkClass}>Home</a>
+            <a href="/" className={navLinkClass} onClick={(e) => { e.preventDefault(); onNavigateToHome?.(); }}>Home</a>
             <a href="/shop" className={navLinkClass} onClick={(e) => { e.preventDefault(); handleCategoryClick('all'); }}>Shop</a>
             <div className="relative group">
               <button className={navLinkClass}>Categories</button>
-              <div className="absolute top-full left-0 mt-2 w-48 bg-white text-ink rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+              <div className="absolute top-full left-0 mt-2 w-48 bg-white text-ink rounded-lg border border-black/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 <a href="/shop?category=whole-spices" className="block px-4 py-3 hover:bg-cream-soft" onClick={(e) => { e.preventDefault(); handleCategoryClick('whole-spices'); }}>Whole Spices</a>
                 <a href="/shop?category=dry-fruits" className="block px-4 py-3 hover:bg-cream-soft" onClick={(e) => { e.preventDefault(); handleCategoryClick('dry-fruits'); }}>Dry Fruits</a>
                 <a href="/shop?category=seeds" className="block px-4 py-3 hover:bg-cream-soft" onClick={(e) => { e.preventDefault(); handleCategoryClick('seeds'); }}>Seeds</a>
-                <div className="px-4 py-3 text-gray-400 border-t">Blended Spices (Coming Soon)</div>
+                <div className="px-4 py-3 text-charcoal/40 border-t border-black/10">Blended Spices (Coming Soon)</div>
               </div>
             </div>
             <a href="/recipes" className={navLinkClass} onClick={(e) => { e.preventDefault(); onNavigateToRecipes?.(); }}>Recipes</a>
@@ -111,10 +113,10 @@ export default function Header({
                 </button>
 
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-56 bg-white text-ink rounded-lg shadow-xl py-2">
-                    <div className="px-4 py-3 border-b border-gray-200">
+                  <div className="absolute right-0 top-full mt-2 w-56 bg-white text-ink rounded-lg border border-black/10 py-2">
+                    <div className="px-4 py-3 border-b border-black/10">
                       <p className="font-semibold text-ink">{customer?.full_name || 'My Account'}</p>
-                      <p className="text-sm text-gray-500">{user.email}</p>
+                      <p className="text-sm text-charcoal/60">{user.email}</p>
                     </div>
                     <button
                       onClick={() => {
@@ -202,7 +204,7 @@ export default function Header({
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-cream/60" />
             </div>
-            <a href="/" className="block hover:text-saffron-light transition-colors font-medium">Home</a>
+            <a href="/" className="block hover:text-saffron-light transition-colors font-medium" onClick={(e) => { e.preventDefault(); onNavigateToHome?.(); setIsMenuOpen(false); }}>Home</a>
             <a href="/shop" className="block hover:text-saffron-light transition-colors font-medium" onClick={(e) => { e.preventDefault(); handleCategoryClick('all'); }}>Shop</a>
             <div className="pl-4 space-y-2">
               <a href="/shop?category=whole-spices" className="block text-sm hover:text-saffron-light" onClick={(e) => { e.preventDefault(); handleCategoryClick('whole-spices'); }}>Whole Spices</a>

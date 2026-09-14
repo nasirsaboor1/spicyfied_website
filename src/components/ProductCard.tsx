@@ -19,6 +19,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 export default function ProductCard({ product, variants, images, onClick }: ProductCardProps) {
   const { addToCart, setIsCartOpen } = useCart();
   const [justAdded, setJustAdded] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
 
   const firstImage = images.find((img) => img.sort_order === 1) || images[0];
   const secondImage = images.find((img) => img !== firstImage);
@@ -49,11 +50,12 @@ export default function ProductCard({ product, variants, images, onClick }: Prod
       className="group bg-white rounded-xl overflow-hidden cursor-pointer border border-black/10 hover:border-brand-green/40 transition-colors duration-300"
     >
       <div className="relative aspect-square overflow-hidden bg-cream-soft">
-        {firstImage ? (
+        {firstImage && !imageFailed ? (
           <div className="absolute inset-0 p-5 flex items-center justify-center">
             <img
               src={firstImage.image_url}
               alt={product.name}
+              onError={() => setImageFailed(true)}
               className={`max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-700 ease-out ${
                 secondImage ? 'group-hover:opacity-0' : ''
               }`}

@@ -82,24 +82,24 @@ export default function RecipeDetailPage({
           <h1 className="font-serif text-4xl md:text-5xl font-semibold text-ink leading-tight mb-4">
             {recipe.title}
           </h1>
-          <p className="text-gray-700 text-lg leading-relaxed max-w-2xl">
+          <p className="text-charcoal/80 text-lg leading-relaxed max-w-2xl">
             {recipe.description}
           </p>
 
           <div className="flex flex-wrap items-center gap-6 mt-6 pt-6 border-t border-ink/10 text-sm">
-            <span className="flex items-center gap-2 text-gray-700">
+            <span className="flex items-center gap-2 text-charcoal/80">
               <Clock className="w-4 h-4 text-saffron" />
               <span>
                 <strong>{formatTime(recipe.prepTime)}</strong> prep
               </span>
             </span>
-            <span className="flex items-center gap-2 text-gray-700">
+            <span className="flex items-center gap-2 text-charcoal/80">
               <Timer className="w-4 h-4 text-saffron" />
               <span>
                 <strong>{formatTime(recipe.cookTime)}</strong> cook
               </span>
             </span>
-            <span className="flex items-center gap-2 text-gray-700">
+            <span className="flex items-center gap-2 text-charcoal/80">
               <ChefHat className="w-4 h-4 text-saffron" />
               <strong>{recipe.difficulty}</strong>
             </span>
@@ -139,10 +139,10 @@ export default function RecipeDetailPage({
                   <span className="font-semibold text-ink whitespace-nowrap min-w-[80px]">
                     {formatIngredient(ing.q, ing.u, ratio)}
                   </span>
-                  <span className="text-gray-700">
+                  <span className="text-charcoal/80">
                     {ing.n}
                     {ing.note && (
-                      <span className="text-gray-500 italic">, {ing.note}</span>
+                      <span className="text-charcoal/50 italic">, {ing.note}</span>
                     )}
                   </span>
                 </li>
@@ -161,7 +161,7 @@ export default function RecipeDetailPage({
                     {i + 1}
                   </span>
                   <div className="flex-1">
-                    <p className="text-gray-800 leading-relaxed">{step.text}</p>
+                    <p className="text-charcoal leading-relaxed">{step.text}</p>
                     {step.timer && (
                       <p className="flex items-center gap-1.5 text-xs text-saffron font-semibold mt-1.5">
                         <Timer className="w-3.5 h-3.5" />
@@ -210,7 +210,7 @@ export default function RecipeDetailPage({
                       <h3 className="font-serif text-base font-semibold text-ink group-hover:text-moss transition-colors line-clamp-1">
                         {p.name}
                       </h3>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-charcoal/50 mt-0.5">
                         from ₹{Math.round(minPrice)}
                       </p>
                     </div>

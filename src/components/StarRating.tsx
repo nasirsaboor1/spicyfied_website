@@ -39,18 +39,19 @@ export default function StarRating({
             type="button"
             onClick={() => handleClick(star)}
             disabled={!interactive}
+            aria-label={interactive ? `Rate ${star} star${star === 1 ? '' : 's'}` : undefined}
             className={`${interactive ? 'cursor-pointer hover:scale-110 transition-transform' : 'cursor-default'}`}
           >
             <Star
               className={`${sizeClasses[size]} ${
-                filled ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                filled ? 'fill-ochre text-ochre' : 'text-charcoal/20'
               }`}
             />
           </button>
         );
       })}
       {showNumber && (
-        <span className="ml-2 text-sm text-gray-600">
+        <span className="ml-2 text-sm text-charcoal/70">
           {rating.toFixed(1)}
         </span>
       )}

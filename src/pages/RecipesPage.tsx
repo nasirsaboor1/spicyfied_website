@@ -78,7 +78,7 @@ export default function RecipesPage({
 
       <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-24">
         {filtered.length === 0 ? (
-          <p className="text-center py-16 text-gray-500">
+          <p className="text-center py-16 text-charcoal/50">
             No recipes yet for this cuisine.
           </p>
         ) : (
@@ -105,16 +105,16 @@ export default function RecipesPage({
                       <span className="text-saffron font-semibold tracking-wide uppercase">
                         {r.cuisine}
                       </span>
-                      <span className="text-gray-400">·</span>
-                      <span className="text-gray-500">{r.category}</span>
+                      <span className="text-charcoal/40">·</span>
+                      <span className="text-charcoal/50">{r.category}</span>
                     </div>
                     <h3 className="font-serif text-xl font-semibold text-ink mb-2 group-hover:text-moss transition-colors">
                       {r.title}
                     </h3>
-                    <p className="text-sm text-gray-600 leading-relaxed line-clamp-2 mb-4 flex-1">
+                    <p className="text-sm text-charcoal/70 leading-relaxed line-clamp-2 mb-4 flex-1">
                       {r.description}
                     </p>
-                    <div className="flex items-center gap-4 text-xs text-gray-500 pt-3 border-t border-black/5">
+                    <div className="flex items-center gap-4 text-xs text-charcoal/50 pt-3 border-t border-black/5">
                       <span className="flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5" />
                         {r.prepTime + r.cookTime} min

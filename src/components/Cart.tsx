@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import BulkPricingNote from './BulkPricingNote';
@@ -8,6 +9,7 @@ interface CartProps {
 
 export default function Cart({ onNavigateToCheckout }: CartProps) {
   const { cart, removeFromCart, updateQuantity, getTotalPrice, isCartOpen, setIsCartOpen } = useCart();
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
 
   if (!isCartOpen) return null;
 
@@ -42,15 +44,18 @@ export default function Cart({ onNavigateToCheckout }: CartProps) {
               </div>
             ) : (
               <div className="space-y-4">
-                {cart.map((item) => (
+                {cart.map((item) => {
+                  const itemKey = `${item.product.id}-${item.variant.id}`;
+                  return (
                   <div
-                    key={`${item.product.id}-${item.variant.id}`}
+                    key={itemKey}
                     className="flex gap-4 p-4 bg-cream-soft rounded-lg border border-black/10"
                   >
-                    {item.image ? (
+                    {item.image && !failedImages[itemKey] ? (
                       <img
                         src={item.image}
                         alt={item.product.name}
+                        onError={() => setFailedImages((prev) => ({ ...prev, [itemKey]: true }))}
                         className="w-20 h-20 object-cover rounded-lg"
                       />
                     ) : (
@@ -72,6 +77,7 @@ export default function Cart({ onNavigateToCheckout }: CartProps) {
                             onClick={() =>
                               updateQuantity(item.product.id, item.variant.id, item.quantity - 1)
                             }
+                            aria-label="Decrease quantity"
                             className="p-1 hover:bg-black/5 rounded-l-lg transition-colors"
                           >
                             <Minus className="w-4 h-4" />
@@ -81,6 +87,7 @@ export default function Cart({ onNavigateToCheckout }: CartProps) {
                             onClick={() =>
                               updateQuantity(item.product.id, item.variant.id, item.quantity + 1)
                             }
+                            aria-label="Increase quantity"
                             className="p-1 hover:bg-black/5 rounded-r-lg transition-colors"
                           >
                             <Plus className="w-4 h-4" />
@@ -89,6 +96,7 @@ export default function Cart({ onNavigateToCheckout }: CartProps) {
 
                         <button
                           onClick={() => removeFromCart(item.product.id, item.variant.id)}
+                          aria-label="Remove item"
                           className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -96,7 +104,8 @@ export default function Cart({ onNavigateToCheckout }: CartProps) {
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

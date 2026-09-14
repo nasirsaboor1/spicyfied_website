@@ -111,11 +111,11 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Customer Reviews</h2>
+          <h2 className="text-2xl font-bold text-ink mb-2">Customer Reviews</h2>
           {reviews.length > 0 && (
             <div className="flex items-center gap-4">
               <StarRating rating={averageRating} size="md" showNumber />
-              <span className="text-gray-600">({reviews.length} reviews)</span>
+              <span className="text-charcoal/70">({reviews.length} reviews)</span>
             </div>
           )}
         </div>
@@ -132,31 +132,34 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
       </div>
 
       {showReviewForm && (
-        <div className="bg-white rounded-xl shadow-md p-6 border-2 border-ink">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Write Your Review</h3>
+        <div className="bg-white rounded-xl border-2 border-ink p-6">
+          <h3 className="text-lg font-bold text-ink mb-4">Write Your Review</h3>
           <form onSubmit={handleSubmitReview} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label id="review-rating-label" className="block text-sm font-medium text-charcoal/70 mb-2">
                 Your Rating
               </label>
-              <StarRating
-                rating={reviewForm.rating}
-                size="lg"
-                interactive
-                onRatingChange={(rating) => setReviewForm({ ...reviewForm, rating })}
-              />
+              <div role="group" aria-labelledby="review-rating-label">
+                <StarRating
+                  rating={reviewForm.rating}
+                  size="lg"
+                  interactive
+                  onRatingChange={(rating) => setReviewForm({ ...reviewForm, rating })}
+                />
+              </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="review-comment" className="block text-sm font-medium text-charcoal/70 mb-2">
                 Your Review
               </label>
               <textarea
+                id="review-comment"
                 required
                 rows={4}
                 value={reviewForm.comment}
                 onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                className="w-full px-4 py-3 border border-black/10 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                 placeholder="Share your experience with this product..."
               />
             </div>
@@ -172,7 +175,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
               <button
                 type="button"
                 onClick={() => setShowReviewForm(false)}
-                className="flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+                className="flex-1 border border-ink text-ink py-2 rounded-lg font-semibold hover:bg-ink hover:text-cream transition-colors"
               >
                 Cancel
               </button>
@@ -190,11 +193,11 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
 
       <div className="space-y-4">
         {reviews.map((review) => (
-          <div key={review.id} className="bg-white rounded-xl shadow-md p-6">
+          <div key={review.id} className="bg-white rounded-xl border border-black/10 p-6">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  {review.title && <p className="font-semibold text-gray-900">{review.title}</p>}
+                  {review.title && <p className="font-semibold text-ink">{review.title}</p>}
                   {review.is_verified_purchase && (
                     <span className="flex items-center gap-1 px-2 py-1 bg-sage-tint text-ink text-xs font-semibold rounded">
                       <CheckCircle className="w-3 h-3" />
@@ -204,19 +207,19 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                 </div>
                 <StarRating rating={review.rating} size="sm" />
               </div>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-charcoal/50">
                 {review.created_at ? new Date(review.created_at).toLocaleDateString() : ''}
               </p>
             </div>
 
-            {review.comment && <p className="text-gray-700">{review.comment}</p>}
+            {review.comment && <p className="text-charcoal/80">{review.comment}</p>}
           </div>
         ))}
 
         {reviews.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-xl shadow-md">
-            <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">No reviews yet. Be the first to review this product.</p>
+          <div className="text-center py-12 bg-white rounded-xl border border-black/10">
+            <MessageSquare className="w-12 h-12 text-charcoal/20 mx-auto mb-4" />
+            <p className="text-charcoal/50">No reviews yet. Be the first to review this product.</p>
           </div>
         )}
       </div>
