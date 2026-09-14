@@ -56,7 +56,7 @@ function loadRazorpayScript(): Promise<boolean> {
 }
 
 export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: CheckoutPageProps) {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { cart, clearCart, getTotalPrice } = useCart();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
@@ -87,6 +87,10 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
   });
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
     if (!user) {
       onNavigateToLogin();
       return;
@@ -99,7 +103,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
     }
 
     loadAddresses();
-  }, [user, cart]);
+  }, [user, authLoading, cart]);
 
   useEffect(() => {
     if (deliveryType === 'pickup') {

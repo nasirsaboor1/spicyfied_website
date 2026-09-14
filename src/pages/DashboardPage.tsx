@@ -27,7 +27,7 @@ interface DashboardPageProps {
 }
 
 export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }: DashboardPageProps) {
-  const { user, customer, updateProfile } = useAuth();
+  const { user, customer, updateProfile, loading: authLoading } = useAuth();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [orderStats, setOrderStats] = useState<OrderStats>({ total: 0, pending: 0, delivered: 0 });
   const [loading, setLoading] = useState(true);
@@ -53,6 +53,10 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
   });
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
     if (!user) {
       onNavigateToLogin();
       return;
@@ -66,7 +70,7 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
     }
 
     loadData();
-  }, [user, customer]);
+  }, [user, authLoading, customer]);
 
   const loadData = async () => {
     try {

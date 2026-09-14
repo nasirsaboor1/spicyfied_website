@@ -48,20 +48,24 @@ interface OrdersPageProps {
 }
 
 export default function OrdersPage({ onNavigateToLogin }: OrdersPageProps) {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<OrderDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [detailsLoading, setDetailsLoading] = useState(false);
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
     if (!user) {
       onNavigateToLogin();
       return;
     }
 
     loadOrders();
-  }, [user]);
+  }, [user, authLoading]);
 
   const loadOrders = async () => {
     try {
