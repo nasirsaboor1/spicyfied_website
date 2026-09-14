@@ -90,7 +90,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
             <Stamp className="w-3.5 h-3.5 text-saffron-light flex-shrink-0" strokeWidth={1.5} />
             <p className="text-saffron-light text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase">
               Hand-Selected <span className="text-saffron-light/40">/</span> Small-Batch{' '}
-              <span className="text-saffron-light/40">/</span> Unadulterated
+              <span className="text-saffron-light/40">/</span> Carefully Packed
             </p>
           </div>
 
@@ -184,7 +184,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
                 name: 'Cinnamon',
                 slug: 'cinnamon',
                 photo: SPICE_HERO_PHOTOS.cinnamon,
-                caption: 'True Ceylon quills, thin bark rolled by hand into paper-fine layers.',
+                caption: 'Thin rolled bark with a warm, sweet aroma.',
               },
               {
                 name: 'Clove',

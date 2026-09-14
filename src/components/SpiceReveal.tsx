@@ -30,7 +30,7 @@ const SPICES: Spice[] = [
     name: 'Cinnamon',
     slug: 'cinnamon',
     photo: SPICE_HERO_PHOTOS.cinnamon,
-    caption: 'True Ceylon quills, thin bark rolled by hand into paper-fine layers.',
+    caption: 'Thin rolled bark with a warm, sweet aroma.',
     glow: 'radial-gradient(circle, rgba(184,92,46,0.32), transparent 70%)',
   },
   {

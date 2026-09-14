@@ -28,7 +28,7 @@ export default function Footer({
               </div>
             </div>
             <p className="text-cream/70 text-sm leading-relaxed">
-              Your trusted source for premium quality spices, dry fruits, and seeds. We bring you the finest products sourced from the best regions, ensuring purity and freshness in every pack.
+              Spices, dry fruits, and seeds selected for everyday cooking, aroma, and freshness. Packed with care for your kitchen.
             </p>
           </div>
 
