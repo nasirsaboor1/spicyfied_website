@@ -71,6 +71,17 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
 
   return (
     <div className="min-h-screen bg-cream">
+      <style>{`
+        @media (prefers-reduced-motion: no-preference) {
+          .hero-product-float {
+            animation: heroProductFloat 6s ease-in-out infinite;
+          }
+        }
+        @keyframes heroProductFloat {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+      `}</style>
       <section className="relative overflow-hidden bg-gradient-to-b from-ink via-ink to-[#223822] text-cream pt-24 pb-16 px-4">
         <SpiceDrift />
 
@@ -103,17 +114,27 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
               </button>
             </div>
 
-            <div className="relative flex justify-center mt-2 lg:mt-0">
-              <div
-                className="absolute w-56 h-56 md:w-72 md:h-72 rounded-full bg-saffron-light/10 blur-3xl pointer-events-none"
-                aria-hidden="true"
-              />
-              <img
-                src={SPICE_HERO_PHOTOS.cinnamon}
-                alt=""
-                aria-hidden="true"
-                className="relative w-full max-w-[220px] lg:max-w-xs h-auto drop-shadow-[0_20px_40px_rgba(0,0,0,0.35)]"
-              />
+            <div className="relative flex flex-col items-center mt-2 lg:mt-0">
+              <div className="relative flex justify-center">
+                <div
+                  className="absolute w-60 h-60 md:w-80 md:h-80 rounded-full bg-saffron-light/10 blur-3xl pointer-events-none"
+                  aria-hidden="true"
+                />
+                <img
+                  src={SPICE_HERO_PHOTOS.cinnamon}
+                  alt=""
+                  aria-hidden="true"
+                  className="hero-product-float relative w-full max-w-[240px] lg:max-w-sm h-auto drop-shadow-[0_20px_40px_rgba(0,0,0,0.35)]"
+                />
+              </div>
+              <div className="flex flex-wrap justify-center gap-2 mt-6 max-w-xs">
+                <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-cream/80 border border-cream/20 bg-white/[0.04] px-3 py-1.5 rounded-full">
+                  Thin, Rolled Bark
+                </span>
+                <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-cream/80 border border-cream/20 bg-white/[0.04] px-3 py-1.5 rounded-full">
+                  Paper-Fine Layers
+                </span>
+              </div>
             </div>
           </div>
 
@@ -141,7 +162,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
           isolated photography in a static grid, not a multi-screen
           scroll-pinned sequence. */}
       <section className="bg-cream">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
           <Reveal className="text-center mb-10">
             <p className="text-saffron text-xs font-semibold tracking-[0.25em] uppercase mb-3">
               Look closer
@@ -336,7 +357,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
             <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-cream-soft">
               <Reveal className="flex items-baseline justify-between mb-8">
                 <h2 className="font-sans text-sm font-semibold tracking-[0.2em] uppercase text-ink">
-                  Everyday Essentials <span className="text-charcoal/50 font-normal normal-case tracking-normal">· the kitchen staples people reorder most</span>
+                  Everyday Essentials <span className="text-charcoal/50 font-normal normal-case tracking-normal">· pantry staples for daily cooking</span>
                 </h2>
                 <button
                   onClick={() => onNavigateToShop('whole-spices')}
