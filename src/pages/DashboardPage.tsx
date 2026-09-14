@@ -225,7 +225,7 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
   return (
     <div className="min-h-screen bg-cream py-12 px-4">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">My Dashboard</h1>
+        <h1 className="font-serif text-[28px] md:text-3xl font-semibold text-ink mb-8">My Dashboard</h1>
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -234,44 +234,44 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="bg-white rounded-xl border border-black/10 p-6">
             <div className="flex items-center justify-between mb-2">
               <Package className="w-8 h-8 text-ink" />
               <span className="text-3xl font-bold text-ink">{orderStats.total}</span>
             </div>
-            <p className="text-gray-600 font-medium">Total Orders</p>
+            <p className="text-charcoal/70 font-medium">Total Orders</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="bg-white rounded-xl border border-black/10 p-6">
             <div className="flex items-center justify-between mb-2">
-              <Package className="w-8 h-8 text-blue-600" />
-              <span className="text-3xl font-bold text-blue-600">{orderStats.pending}</span>
+              <Package className="w-8 h-8 text-saffron-dark" />
+              <span className="text-3xl font-bold text-saffron-dark">{orderStats.pending}</span>
             </div>
-            <p className="text-gray-600 font-medium">Active Orders</p>
+            <p className="text-charcoal/70 font-medium">Active Orders</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="bg-white rounded-xl border border-black/10 p-6">
             <div className="flex items-center justify-between mb-2">
-              <CheckCircle className="w-8 h-8 text-green-600" />
-              <span className="text-3xl font-bold text-green-600">{orderStats.delivered}</span>
+              <CheckCircle className="w-8 h-8 text-brand-green" />
+              <span className="text-3xl font-bold text-brand-green">{orderStats.delivered}</span>
             </div>
-            <p className="text-gray-600 font-medium">Delivered</p>
+            <p className="text-charcoal/70 font-medium">Delivered</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="bg-white rounded-xl border border-black/10 p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
                 <User className="w-5 h-5 text-ink" />
                 Profile Information
               </h2>
               {!editingProfile && (
                 <button
                   onClick={() => setEditingProfile(true)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 hover:bg-black/5 rounded-lg transition-colors"
                 >
-                  <Edit2 className="w-4 h-4 text-gray-600" />
+                  <Edit2 className="w-4 h-4 text-charcoal/70" />
                 </button>
               )}
             </div>
@@ -279,24 +279,24 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
             {editingProfile ? (
               <form onSubmit={handleUpdateProfile} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                  <label className="block text-sm font-medium text-charcoal mb-2">Full Name</label>
                   <input
                     type="text"
                     required
                     value={profileForm.full_name}
                     onChange={(e) => setProfileForm({ ...profileForm, full_name: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                    className="w-full px-4 py-2 border border-black/10 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                  <label className="block text-sm font-medium text-charcoal mb-2">Phone</label>
                   <input
                     type="tel"
                     required
                     value={profileForm.phone}
                     onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                    className="w-full px-4 py-2 border border-black/10 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                   />
                 </div>
 
@@ -310,7 +310,7 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
                   <button
                     type="button"
                     onClick={() => setEditingProfile(false)}
-                    className="flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+                    className="flex-1 border border-ink text-ink py-2 rounded-lg font-semibold hover:bg-ink hover:text-cream transition-colors"
                   >
                     Cancel
                   </button>
@@ -319,24 +319,24 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
             ) : (
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-gray-600">Email</p>
-                  <p className="font-semibold text-gray-900">{user?.email}</p>
+                  <p className="text-sm text-charcoal/70">Email</p>
+                  <p className="font-semibold text-ink">{user?.email}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Full Name</p>
-                  <p className="font-semibold text-gray-900">{customer?.full_name || 'Not provided'}</p>
+                  <p className="text-sm text-charcoal/70">Full Name</p>
+                  <p className="font-semibold text-ink">{customer?.full_name || 'Not provided'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Phone</p>
-                  <p className="font-semibold text-gray-900">{customer?.phone || 'Not provided'}</p>
+                  <p className="text-sm text-charcoal/70">Phone</p>
+                  <p className="font-semibold text-ink">{customer?.phone || 'Not provided'}</p>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="bg-white rounded-xl border border-black/10 p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-ink" />
                 Saved Addresses
               </h2>
@@ -358,68 +358,68 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
               <form onSubmit={handleSaveAddress} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                    <label className="block text-sm font-medium text-charcoal mb-2">Full Name</label>
                     <input
                       type="text"
                       required
                       value={addressForm.full_name}
                       onChange={(e) => setAddressForm({ ...addressForm, full_name: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                      className="w-full px-4 py-2 border border-black/10 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                    <label className="block text-sm font-medium text-charcoal mb-2">Phone</label>
                     <input
                       type="tel"
                       required
                       value={addressForm.phone}
                       onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                      className="w-full px-4 py-2 border border-black/10 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Address Line 1</label>
+                  <label className="block text-sm font-medium text-charcoal mb-2">Address Line 1</label>
                   <input
                     type="text"
                     required
                     value={addressForm.address_line1}
                     onChange={(e) => setAddressForm({ ...addressForm, address_line1: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                    className="w-full px-4 py-2 border border-black/10 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                   />
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                    <label className="block text-sm font-medium text-charcoal mb-2">City</label>
                     <input
                       type="text"
                       required
                       value={addressForm.city}
                       onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                      className="w-full px-4 py-2 border border-black/10 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
+                    <label className="block text-sm font-medium text-charcoal mb-2">State</label>
                     <input
                       type="text"
                       required
                       value={addressForm.state}
                       onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                      className="w-full px-4 py-2 border border-black/10 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">PIN</label>
+                    <label className="block text-sm font-medium text-charcoal mb-2">PIN</label>
                     <input
                       type="text"
                       required
                       pattern="[0-9]{6}"
                       value={addressForm.postal_code}
                       onChange={(e) => setAddressForm({ ...addressForm, postal_code: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                      className="w-full px-4 py-2 border border-black/10 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -438,46 +438,46 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
                       setEditingAddress(null);
                       resetAddressForm();
                     }}
-                    className="flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+                    className="flex-1 border border-ink text-ink py-2 rounded-lg font-semibold hover:bg-ink hover:text-cream transition-colors"
                   >
                     Cancel
                   </button>
                 </div>
               </form>
             ) : addresses.length === 0 ? (
-              <p className="text-gray-600 text-center py-4">No saved addresses yet</p>
+              <p className="text-charcoal/70 text-center py-4">No saved addresses yet</p>
             ) : (
               <div className="space-y-3">
                 {addresses.map((address) => (
                   <div
                     key={address.id}
-                    className="p-4 border border-gray-200 rounded-lg"
+                    className="p-4 border border-black/10 rounded-lg"
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <p className="font-semibold text-gray-900">{address.full_name}</p>
+                          <p className="font-semibold text-ink">{address.full_name}</p>
                           {address.is_default && (
                             <span className="px-2 py-0.5 bg-ink text-white text-xs rounded">
                               Default
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600">{address.phone}</p>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-sm text-charcoal/70">{address.phone}</p>
+                        <p className="text-sm text-charcoal/70 mt-1">
                           {address.address_line1}, {address.city}, {address.state} {address.postal_code}
                         </p>
                       </div>
                       <div className="flex gap-1">
                         <button
                           onClick={() => handleEditAddress(address)}
-                          className="p-2 hover:bg-gray-100 rounded transition-colors"
+                          className="p-2 hover:bg-black/5 rounded transition-colors"
                         >
-                          <Edit2 className="w-4 h-4 text-gray-600" />
+                          <Edit2 className="w-4 h-4 text-charcoal/70" />
                         </button>
                         <button
                           onClick={() => handleDeleteAddress(address.id)}
-                          className="p-2 hover:bg-gray-100 rounded transition-colors"
+                          className="p-2 hover:bg-black/5 rounded transition-colors"
                         >
                           <Trash2 className="w-4 h-4 text-red-600" />
                         </button>
@@ -501,14 +501,14 @@ export default function DashboardPage({ onNavigateToLogin, onNavigateToOrders }:
         <div className="mt-8">
           <button
             onClick={onNavigateToOrders}
-            className="w-full bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow text-left"
+            className="w-full bg-white rounded-xl border border-black/10 hover:border-brand-green/40 transition-colors text-left p-6"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Package className="w-6 h-6 text-ink" />
                 <div>
-                  <h3 className="font-bold text-gray-900">View All Orders</h3>
-                  <p className="text-sm text-gray-600">Track and manage your orders</p>
+                  <h3 className="font-semibold text-ink">View All Orders</h3>
+                  <p className="text-sm text-charcoal/70">Track and manage your orders</p>
                 </div>
               </div>
               <span className="text-ink font-semibold">View →</span>

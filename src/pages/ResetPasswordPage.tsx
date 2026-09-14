@@ -45,12 +45,12 @@ export default function ResetPasswordPage({ onDone }: ResetPasswordPageProps) {
   return (
     <div className="min-h-screen bg-cream flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
+        <div className="bg-white rounded-2xl border border-black/10 p-8">
           <div className="text-center mb-8">
             <div className="inline-block p-3 bg-ink/10 rounded-full mb-4">
               <Lock className="w-12 h-12 text-ink" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">Set New Password</h2>
+            <h2 className="font-serif text-3xl font-semibold text-ink">Set New Password</h2>
           </div>
 
           {done ? (
@@ -76,11 +76,11 @@ export default function ResetPasswordPage({ onDone }: ResetPasswordPageProps) {
                 </div>
               )}
               <div>
-                <label htmlFor="new-password" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="new-password" className="block text-sm font-medium text-charcoal mb-2">
                   New Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-charcoal/40" />
                   <input
                     id="new-password"
                     type="password"
@@ -88,17 +88,17 @@ export default function ResetPasswordPage({ onDone }: ResetPasswordPageProps) {
                     minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 border border-black/10 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                     placeholder="At least 8 characters"
                   />
                 </div>
               </div>
               <div>
-                <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="confirm-password" className="block text-sm font-medium text-charcoal mb-2">
                   Confirm New Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-charcoal/40" />
                   <input
                     id="confirm-password"
                     type="password"
@@ -106,7 +106,7 @@ export default function ResetPasswordPage({ onDone }: ResetPasswordPageProps) {
                     minLength={8}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 border border-black/10 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
                     placeholder="Re-enter password"
                   />
                 </div>

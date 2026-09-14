@@ -219,7 +219,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
                   onChange={handleInputChange}
                   required
                   maxLength={100}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-ink focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-black/10 focus:ring-2 focus:ring-ink focus:border-transparent outline-none transition-all"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -236,7 +236,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
                   onChange={handleInputChange}
                   required
                   maxLength={100}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-ink focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-black/10 focus:ring-2 focus:ring-ink focus:border-transparent outline-none transition-all"
                   placeholder="your.email@example.com"
                 />
               </div>
@@ -252,7 +252,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
                   value={formData.phone}
                   onChange={handleInputChange}
                   maxLength={20}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-ink focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-black/10 focus:ring-2 focus:ring-ink focus:border-transparent outline-none transition-all"
                   placeholder="+91 XXXXX XXXXX"
                 />
               </div>
@@ -269,7 +269,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
                   onChange={handleInputChange}
                   required
                   maxLength={200}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-ink focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-black/10 focus:ring-2 focus:ring-ink focus:border-transparent outline-none transition-all"
                   placeholder="What's this about?"
                 />
               </div>
@@ -286,7 +286,7 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
                   required
                   maxLength={2000}
                   rows={6}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-ink focus:border-transparent outline-none transition-all resize-none"
+                  className="w-full px-4 py-3 rounded-lg border border-black/10 focus:ring-2 focus:ring-ink focus:border-transparent outline-none transition-all resize-none"
                   placeholder="Tell us how we can help you..."
                 />
                 <p className="text-sm text-charcoal/60 mt-1">
