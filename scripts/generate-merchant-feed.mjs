@@ -91,7 +91,7 @@ async function main() {
 
   const { data: products, error: prodErr } = await supabase
     .from('products')
-    .select('id, name, slug, description, health_benefits, category')
+    .select('id, name, slug, description, health_benefits')
     .eq('is_active', true)
     .order('name');
 

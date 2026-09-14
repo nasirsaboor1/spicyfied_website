@@ -170,7 +170,7 @@ async function main() {
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
   const { data: products, error: prodErr } = await supabase
     .from('products')
-    .select('id, name, slug, description, health_benefits, category, rating_average, rating_count')
+    .select('id, name, slug, description, health_benefits, category_id, categories(name)')
     .eq('is_active', true);
 
   if (prodErr) {
@@ -185,6 +185,18 @@ async function main() {
   const { data: images } = ids.length
     ? await supabase.from('product_images').select('product_id, image_url, sort_order').in('product_id', ids)
     : { data: [] };
+  // Ratings aren't columns on products - they're computed from approved reviews,
+  // same as fetchProductRatingSummary() in src/lib/products.ts.
+  const { data: reviews } = ids.length
+    ? await supabase.from('reviews').select('product_id, rating').in('product_id', ids).eq('is_approved', true)
+    : { data: [] };
+  const ratingsByProduct = new Map();
+  for (const r of reviews || []) {
+    const entry = ratingsByProduct.get(r.product_id) || { total: 0, count: 0 };
+    entry.total += r.rating;
+    entry.count += 1;
+    ratingsByProduct.set(r.product_id, entry);
+  }
 
   for (const p of products || []) {
     const pVariants = (variants || []).filter((v) => v.product_id === p.id).map((v) => Number(v.price));
@@ -194,6 +206,7 @@ async function main() {
     const primaryImage = pImages[0]?.image_url;
     const low = pVariants.length ? Math.min(...pVariants) : undefined;
     const high = pVariants.length ? Math.max(...pVariants) : undefined;
+    const ratingSummary = ratingsByProduct.get(p.id);
 
     const title = `Buy ${p.name} Online | Spicyfied`;
     const description = (p.description || `Shop premium ${p.name} at Spicyfied. Farm-fresh quality, fast delivery across India.`).slice(0, 300);
@@ -205,14 +218,14 @@ async function main() {
       name: p.name,
       description: p.description || undefined,
       image: pImages.map((i) => i.image_url),
-      category: p.category || undefined,
+      category: p.categories?.name || undefined,
       brand: { '@type': 'Brand', name: 'Spicyfied' },
       aggregateRating:
-        p.rating_count && Number(p.rating_count) > 0
+        ratingSummary && ratingSummary.count > 0
           ? {
               '@type': 'AggregateRating',
-              ratingValue: Number(p.rating_average || 0),
-              reviewCount: Number(p.rating_count),
+              ratingValue: Number((ratingSummary.total / ratingSummary.count).toFixed(2)),
+              reviewCount: ratingSummary.count,
             }
           : undefined,
       offers: pVariants.length
