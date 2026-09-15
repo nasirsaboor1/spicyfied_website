@@ -95,26 +95,29 @@ export type Database = {
       back_in_stock_notifications: {
         Row: {
           created_at: string | null
-          email: string
+          email: string | null
           id: string
           is_notified: boolean | null
           product_id: string
+          user_id: string | null
           variant_id: string | null
         }
         Insert: {
           created_at?: string | null
-          email: string
+          email?: string | null
           id?: string
           is_notified?: boolean | null
           product_id: string
+          user_id?: string | null
           variant_id?: string | null
         }
         Update: {
           created_at?: string | null
-          email?: string
+          email?: string | null
           id?: string
           is_notified?: boolean | null
           product_id?: string
+          user_id?: string | null
           variant_id?: string | null
         }
         Relationships: [
@@ -127,6 +130,75 @@ export type Database = {
           },
           {
             foreignKeyName: "back_in_stock_notifications_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_alert_recipients: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean
+          label: string | null
+          phone: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          phone: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          phone?: string
+        }
+        Relationships: []
+      }
+      stock_alert_queue: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: string
+          processed_at: string | null
+          product_id: string
+          stock_quantity: number | null
+          variant_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id?: string
+          processed_at?: string | null
+          product_id: string
+          stock_quantity?: number | null
+          variant_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          processed_at?: string | null
+          product_id?: string
+          stock_quantity?: number | null
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_alert_queue_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_alert_queue_variant_id_fkey"
             columns: ["variant_id"]
             isOneToOne: false
             referencedRelation: "product_variants"

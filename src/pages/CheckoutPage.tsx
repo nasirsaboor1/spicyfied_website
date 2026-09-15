@@ -271,6 +271,10 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
         .invoke('send-whatsapp-message', { body: { orderId: order.id, type: 'order_confirmation' } })
         .catch((err) => console.error('WhatsApp confirmation failed:', err));
 
+      // Best-effort: flush any stock alerts this order just triggered (low stock,
+      // out of stock, or a restock notification) - never let this block or fail checkout.
+      supabase.functions.invoke('process-stock-alerts').catch((err) => console.error('Stock alert flush failed:', err));
+
       if (deliveryType === 'delivery' && paymentMethod !== 'cod') {
         const paymentOutcome = await tryRazorpayPayment(order.id);
         if (paymentOutcome === 'verify_failed') {

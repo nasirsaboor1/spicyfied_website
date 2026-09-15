@@ -253,6 +253,8 @@ function App() {
             onNavigateToProduct={navigateToProduct}
             onNavigateToCheckout={navigateToCheckout}
             onNavigateHome={navigateToHome}
+            onNavigateToLogin={navigateToLogin}
+            onNavigateToDashboard={navigateToDashboard}
           />
         )}
 

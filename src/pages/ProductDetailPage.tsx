@@ -4,6 +4,7 @@ import { getDeliveryFee } from '../lib/delivery';
 import { supabase } from '../lib/supabase';
 import { ProductWithDetails } from '../types';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { ChevronLeft, ChevronRight, Check, ShoppingCart, Star, BellRing } from 'lucide-react';
 import ProductReviews from '../components/ProductReviews';
 import BulkPricingNote from '../components/BulkPricingNote';
@@ -19,6 +20,8 @@ interface ProductDetailPageProps {
   onNavigateToProduct?: (slug: string) => void;
   onNavigateToCheckout?: () => void;
   onNavigateHome?: () => void;
+  onNavigateToLogin?: () => void;
+  onNavigateToDashboard?: () => void;
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -69,7 +72,10 @@ export default function ProductDetailPage({
   onNavigateToProduct,
   onNavigateToCheckout,
   onNavigateHome,
+  onNavigateToLogin,
+  onNavigateToDashboard,
 }: ProductDetailPageProps) {
+  const { user, customer } = useAuth();
   const [product, setProduct] = useState<ProductWithDetails | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<ProductWithDetails[]>([]);
   const [rating, setRating] = useState({ average: 0, count: 0 });
@@ -84,7 +90,6 @@ export default function ProductDetailPage({
   const [pincode, setPincode] = useState('');
   const [deliveryFee, setDeliveryFee] = useState<number | null>(null);
   const [checkingDelivery, setCheckingDelivery] = useState(false);
-  const [notifyEmail, setNotifyEmail] = useState('');
   const [notifySubmitting, setNotifySubmitting] = useState(false);
   const [notifySubmitted, setNotifySubmitted] = useState(false);
   const { addToCart, setIsCartOpen } = useCart();
@@ -107,7 +112,6 @@ export default function ProductDetailPage({
     setCurrentImageIndex(0);
     setPincode('');
     setDeliveryFee(null);
-    setNotifyEmail('');
     setNotifySubmitted(false);
 
     try {
@@ -157,15 +161,14 @@ export default function ProductDetailPage({
     onNavigateToCheckout?.();
   };
 
-  const handleNotifyMe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!product || !notifyEmail.trim() || notifySubmitting) return;
+  const handleNotifyMe = async () => {
+    if (!product || !user || notifySubmitting) return;
     setNotifySubmitting(true);
     try {
       const { error } = await supabase.from('back_in_stock_notifications').insert({
         product_id: product.id,
         variant_id: product.variants[selectedVariantIndex]?.id || null,
-        email: notifyEmail.trim(),
+        user_id: user.id,
       });
       if (error) throw error;
       setNotifySubmitted(true);
@@ -472,37 +475,41 @@ export default function ProductDetailPage({
             {product.stock_status === 'out_of_stock' ? (
               <div className="bg-cream-soft border border-black/10 rounded-lg p-5">
                 <p className="font-semibold text-ink mb-1">Currently out of stock</p>
-                <p className="text-sm text-charcoal/70 mb-4">
-                  Leave your email and we'll let you know the moment it's back.
-                </p>
                 {notifySubmitted ? (
-                  <p className="text-sm text-moss font-medium flex items-center gap-2">
+                  <p className="text-sm text-moss font-medium flex items-center gap-2 mt-2">
                     <Check className="w-4 h-4" />
-                    We'll email you when it's back in stock.
+                    We'll message you on WhatsApp when it's back in stock.
                   </p>
-                ) : (
-                  <form onSubmit={handleNotifyMe} className="flex flex-col sm:flex-row gap-2">
-                    <label htmlFor="notify-email" className="sr-only">
-                      Email address
-                    </label>
-                    <input
-                      id="notify-email"
-                      type="email"
-                      required
-                      value={notifyEmail}
-                      onChange={(e) => setNotifyEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      className="flex-1 px-4 py-2.5 rounded-lg border border-black/10 bg-white focus:outline-none focus:border-ink text-ink"
-                    />
+                ) : user && customer?.phone && customer.phone_verified ? (
+                  <>
+                    <p className="text-sm text-charcoal/70 mb-4">
+                      We'll message your WhatsApp ({customer.phone}) the moment it's back.
+                    </p>
                     <button
-                      type="submit"
+                      type="button"
+                      onClick={handleNotifyMe}
                       disabled={notifySubmitting}
                       className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-ink text-cream font-semibold hover:bg-ink-light transition-colors disabled:opacity-50"
                     >
                       <BellRing className="w-4 h-4" />
-                      {notifySubmitting ? 'Saving...' : 'Notify Me'}
+                      {notifySubmitting ? 'Saving...' : 'Notify Me on WhatsApp'}
                     </button>
-                  </form>
+                  </>
+                ) : user ? (
+                  <p className="text-sm text-charcoal/70">
+                    Add and verify a WhatsApp number in your{' '}
+                    <button type="button" onClick={onNavigateToDashboard} className="underline text-ink font-medium">
+                      Dashboard
+                    </button>{' '}
+                    to get notified when this is back in stock.
+                  </p>
+                ) : (
+                  <p className="text-sm text-charcoal/70">
+                    <button type="button" onClick={onNavigateToLogin} className="underline text-ink font-medium">
+                      Log in
+                    </button>{' '}
+                    to get a WhatsApp message when this is back in stock.
+                  </p>
                 )}
               </div>
             ) : (
