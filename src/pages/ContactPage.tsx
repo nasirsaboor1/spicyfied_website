@@ -124,8 +124,8 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
                   <Phone className="w-5 h-5 text-brand-green flex-shrink-0 mt-0.5" />
                   <div>
                     <h3 className="font-semibold text-ink mb-1">Call Us</h3>
-                    <a href="tel:+919415268143" className="text-charcoal hover:text-saffron-light transition-colors">
-                      +91 94152 68143
+                    <a href="tel:+919044631515" className="text-charcoal hover:text-saffron-light transition-colors">
+                      +91-9044631515
                     </a>
                   </div>
                 </div>
