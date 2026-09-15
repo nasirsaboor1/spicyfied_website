@@ -220,9 +220,8 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
 
     try {
       const subtotal = getTotalPrice();
-      const taxAmount = subtotal * 0.05;
       const shippingFee = deliveryType === 'pickup' ? 0 : await getDeliveryFee(address!.postal_code);
-      const totalAmount = subtotal + taxAmount + shippingFee;
+      const totalAmount = subtotal + shippingFee;
 
       const orderNotes =
         deliveryType === 'pickup'
@@ -237,7 +236,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
           email: user!.email!,
           status: 'pending',
           subtotal,
-          tax_amount: taxAmount,
+          tax_amount: 0,
           shipping_amount: shippingFee,
           total_amount: totalAmount,
           payment_method: paymentMethod,
@@ -371,9 +370,8 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
   }
 
   const subtotal = getTotalPrice();
-  const taxAmount = subtotal * 0.05;
   const shippingFee = deliveryType === 'pickup' ? 0 : deliveryFee ?? 0;
-  const totalAmount = subtotal + taxAmount + shippingFee;
+  const totalAmount = subtotal + shippingFee;
   const canPlaceOrder =
     !processing &&
     !deliveryFeeLoading &&
@@ -697,10 +695,6 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                 <div className="flex justify-between text-charcoal/70">
                   <span>Subtotal</span>
                   <span>₹{Math.round(subtotal)}</span>
-                </div>
-                <div className="flex justify-between text-charcoal/70">
-                  <span>Tax (5%)</span>
-                  <span>₹{Math.round(taxAmount)}</span>
                 </div>
                 {deliveryType === 'delivery' && (
                   <div className="flex justify-between text-charcoal/70">
