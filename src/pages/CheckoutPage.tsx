@@ -265,18 +265,22 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
 
       if (itemsError) throw itemsError;
 
-      // Best-effort WhatsApp confirmation - never let this block or fail checkout.
-      supabase.functions
-        .invoke('send-whatsapp-message', { body: { orderId: order.id, type: 'order_confirmation' } })
-        .catch((err) => console.error('WhatsApp confirmation failed:', err));
-
       // Best-effort: flush any stock alerts this order just triggered (low stock,
       // out of stock, or a restock notification) - never let this block or fail checkout.
       supabase.functions.invoke('process-stock-alerts').catch((err) => console.error('Stock alert flush failed:', err));
 
+      const sendOrderConfirmation = () => {
+        // Best-effort WhatsApp confirmation - never let this block or fail checkout.
+        supabase.functions
+          .invoke('send-whatsapp-message', { body: { orderId: order.id, type: 'order_confirmation' } })
+          .catch((err) => console.error('WhatsApp confirmation failed:', err));
+      };
+
       if (deliveryType === 'delivery' && paymentMethod !== 'cod') {
         const paymentOutcome = await tryRazorpayPayment(order.id);
-        if (paymentOutcome === 'verify_failed') {
+        if (paymentOutcome === 'paid') {
+          sendOrderConfirmation();
+        } else if (paymentOutcome === 'verify_failed') {
           setError(
             `Your payment may have gone through, but we couldn't confirm it on our end. Please contact us with your order number (${order.order_number}) so we can check and confirm it for you.`
           );
@@ -284,7 +288,10 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
           return;
         }
         // 'cancelled' or 'unavailable' - the order is already saved as pending,
-        // the customer can complete payment later or we can follow up.
+        // no confirmation is sent, the customer can complete payment later or we can follow up.
+      } else {
+        // COD or pickup - no online payment step, the order is genuinely confirmed now.
+        sendOrderConfirmation();
       }
 
       clearCart();
