@@ -19,8 +19,6 @@ interface AuthContextType {
   updateProfile: (fullName: string, phone: string) => Promise<{ error: Error | null }>;
   requestPasswordReset: (email: string) => Promise<{ error: Error | null }>;
   updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
-  sendEmailOtp: (email: string) => Promise<{ error: Error | null }>;
-  verifyEmailOtp: (email: string, token: string) => Promise<{ error: Error | null }>;
   sendPhoneOtp: (phone: string) => Promise<{ error: Error | null }>;
   verifyPhoneOtp: (phone: string, token: string) => Promise<{ error: Error | null }>;
 }
@@ -160,33 +158,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const sendEmailOtp = async (email: string) => {
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { shouldCreateUser: true },
-      });
-      if (error) throw error;
-      return { error: null };
-    } catch (error) {
-      return { error: error as Error };
-    }
-  };
-
-  const verifyEmailOtp = async (email: string, token: string) => {
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        email,
-        token,
-        type: 'email',
-      });
-      if (error) throw error;
-      return { error: null };
-    } catch (error) {
-      return { error: error as Error };
-    }
-  };
-
   const sendPhoneOtp = async (phone: string) => {
     try {
       const { error } = await supabase.auth.signInWithOtp({
@@ -226,8 +197,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateProfile,
         requestPasswordReset,
         updatePassword,
-        sendEmailOtp,
-        verifyEmailOtp,
         sendPhoneOtp,
         verifyPhoneOtp,
       }}
