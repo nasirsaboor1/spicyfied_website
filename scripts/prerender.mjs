@@ -25,21 +25,21 @@ const SUPABASE_ANON = process.env.VITE_SUPABASE_ANON_KEY;
 const STATIC_ROUTES = [
   {
     path: '/',
-    title: 'Premium Indian Spices, Masalas & Dry Fruits Online | Spicyfied',
+    title: 'Whole Spices, Dry Fruits & Seeds Online in Varanasi | Spicyfied',
     description:
-      'Shop authentic Indian spices, whole and ground masalas, and premium dry fruits at Spicyfied. Farm-fresh quality, fast delivery across India.',
-    h1: 'Premium Indian Spices, Masalas & Dry Fruits',
+      'Shop whole spices, dry masalas, dry fruits and seeds at Spicyfied — based in Varanasi, delivering across India. Hand-selected, small-batch, carefully packed.',
+    h1: 'Whole Spices, Dry Fruits & Seeds — Based in Varanasi, Delivered Across India',
     copy:
-      'Discover a curated range of authentic Indian spices, whole masalas, ground masalas and premium dry fruits — sourced directly from trusted farms and delivered fresh to your doorstep.',
+      'Discover our range of whole spices, dry masalas, dry fruits and seeds — hand-selected, packed in small batches, and delivered fresh across India from our home in Varanasi.',
   },
   {
     path: '/shop',
-    title: 'Shop Spices, Masalas & Dry Fruits | Spicyfied',
+    title: 'Shop Whole Spices, Dry Fruits & Seeds | Spicyfied',
     description:
-      'Browse our full range of premium Indian spices, whole masalas, ground masalas and healthy dry fruits. Best prices and fast delivery.',
-    h1: 'Shop Spices, Masalas & Dry Fruits',
+      'Browse our full range of whole spices, dry masalas, dry fruits and seeds. Hand-selected, small-batch, carefully packed, delivered across India.',
+    h1: 'Shop Whole Spices, Dry Fruits & Seeds',
     copy:
-      'Browse every product in our catalogue — from everyday kitchen essentials to rare whole spices and premium dry fruits hand-picked for quality.',
+      'Browse every product in our catalogue — whole spices, dry masalas, dry fruits and seeds, hand-selected and packed in small batches.',
   },
   {
     path: '/contact',
@@ -77,6 +77,37 @@ const STATIC_ROUTES = [
     copy: 'Learn about our refund window, eligibility and cancellation process.',
   },
 ];
+
+const LOCAL_BUSINESS_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: 'Spicyfied',
+  image: `${SITE_URL}/spicyfied_logo.jpeg`,
+  url: SITE_URL,
+  telephone: '+91-9044631515',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'J-31/95, B-1, Amina Tower, Kachi Bagh, Pili Kothi',
+    addressLocality: 'Varanasi',
+    addressRegion: 'Uttar Pradesh',
+    postalCode: '221001',
+    addressCountry: 'IN',
+  },
+  openingHoursSpecification: [
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+      opens: '09:00',
+      closes: '20:00',
+    },
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: 'Sunday',
+      opens: '09:00',
+      closes: '14:00',
+    },
+  ],
+};
 
 function escapeHtml(s = '') {
   return String(s)
@@ -156,6 +187,7 @@ async function main() {
       title: route.title,
       description: route.description,
       canonical,
+      jsonLd: route.path === '/' ? LOCAL_BUSINESS_JSON_LD : undefined,
     });
     let html = injectHead(template, seo);
     html = injectBody(html, route.h1, route.copy);
@@ -209,7 +241,7 @@ async function main() {
     const ratingSummary = ratingsByProduct.get(p.id);
 
     const title = `Buy ${p.name} Online | Spicyfied`;
-    const description = (p.description || `Shop premium ${p.name} at Spicyfied. Farm-fresh quality, fast delivery across India.`).slice(0, 300);
+    const description = (p.description || `Shop ${p.name} at Spicyfied, packed for everyday kitchen use, delivered across India.`).slice(0, 300);
     const canonical = `${SITE_URL}/product/${p.slug}`;
 
     const jsonLd = {

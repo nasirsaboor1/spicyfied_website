@@ -13,7 +13,7 @@ const checks = [
   },
   {
     file: 'shop/index.html',
-    mustInclude: ['Shop Spices', 'canonical'],
+    mustInclude: ['Shop Whole Spices', 'canonical'],
   },
   {
     file: 'sitemap.xml',
