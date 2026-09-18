@@ -154,7 +154,13 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
     setSavingVariant(true);
     setError('');
     try {
-      await createVariant(productId, newVariant);
+      const sizeSlug = newVariant.variant_name
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      const sku = form.sku ? `${form.sku}-${sizeSlug}` : `SKU-${sizeSlug}-${Date.now()}`;
+      await createVariant(productId, { ...newVariant, sku });
       setNewVariant(emptyVariant);
       onSaved(productId!);
     } catch (err: any) {
