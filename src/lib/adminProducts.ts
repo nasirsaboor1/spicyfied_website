@@ -202,7 +202,7 @@ export async function uploadProductImage(
 
   const { error: uploadError } = await supabase.storage
     .from(IMAGE_BUCKET)
-    .upload(safeName, file, { cacheControl: '3600', upsert: false });
+    .upload(safeName, file, { cacheControl: '31536000', upsert: false });
   if (uploadError) throw uploadError;
 
   if (isPrimary) {
