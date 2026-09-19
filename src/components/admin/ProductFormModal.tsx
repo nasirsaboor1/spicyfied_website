@@ -17,6 +17,7 @@ import {
   deleteProductImage,
   upsertProductStory,
 } from '../../lib/adminProducts';
+import { compressImage } from '../../lib/compressImage';
 
 interface ProductFormModalProps {
   product: AdminProduct | null;
@@ -198,7 +199,8 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
     setUploading(true);
     setError('');
     try {
-      await uploadProductImage(productId, file, images.length === 0, images.length + 1);
+      const compressed = await compressImage(file);
+      await uploadProductImage(productId, compressed, images.length === 0, images.length + 1);
       onSaved(productId!);
     } catch (err: any) {
       setError(err.message || 'Failed to upload image');
