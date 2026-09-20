@@ -155,7 +155,6 @@ Deno.serve(async (req: Request) => {
                   { type: "text", text: typedOrder.order_number },
                   { type: "text", text: typedOrder.carrier || "—" },
                   { type: "text", text: typedOrder.tracking_number || "—" },
-                  { type: "text", text: total },
                 ],
               },
             ],
