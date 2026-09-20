@@ -249,6 +249,10 @@ export default function AdminOrdersView({ initialSearch }: AdminOrdersViewProps)
   };
 
   const handleNotifyWhatsApp = async (order: Order, type: NotifyType) => {
+    const label = type === 'order_shipped' ? 'shipped' : 'delivered';
+    if (!confirm(`Send a WhatsApp message to the customer letting them know order ${order.order_number} has ${label}?`)) {
+      return;
+    }
     setSendingWhatsApp(true);
     try {
       const { data, error } = await supabase.functions.invoke('send-whatsapp-message', {
@@ -527,6 +531,27 @@ export default function AdminOrdersView({ initialSearch }: AdminOrdersViewProps)
                   ))}
                 </div>
 
+                {(selectedOrder.status === 'shipped' || selectedOrder.status === 'delivered') && (
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-3 bg-green-50 border border-green-200 rounded-lg p-3">
+                    <p className="text-sm text-green-900">
+                      Let the customer know their order has {selectedOrder.status === 'shipped' ? 'shipped' : 'been delivered'}.
+                    </p>
+                    <button
+                      onClick={() =>
+                        handleNotifyWhatsApp(
+                          selectedOrder,
+                          selectedOrder.status === 'shipped' ? 'order_shipped' : 'order_delivered'
+                        )
+                      }
+                      disabled={sendingWhatsApp}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      {sendingWhatsApp ? 'Sending...' : 'Notify via WhatsApp'}
+                    </button>
+                  </div>
+                )}
+
                 {pendingCancel && (
                   <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-4">
                     <label className="block text-sm font-medium text-red-800 mb-2">
@@ -583,23 +608,6 @@ export default function AdminOrdersView({ initialSearch }: AdminOrdersViewProps)
                     ))}
                   </div>
                 )}
-
-                {selectedOrder.status === 'delivered' && (
-                  <div className="mt-3">
-                    <button
-                      onClick={() => handleNotifyWhatsApp(selectedOrder, 'order_delivered')}
-                      disabled={sendingWhatsApp}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      {sendingWhatsApp ? 'Sending...' : 'Notify via WhatsApp'}
-                    </button>
-                    <p className="mt-2 text-xs text-gray-500">
-                      Sends automatically once WhatsApp is configured; otherwise opens a
-                      pre-filled message for you to send by hand.
-                    </p>
-                  </div>
-                )}
               </div>
 
               <div>
@@ -644,18 +652,10 @@ export default function AdminOrdersView({ initialSearch }: AdminOrdersViewProps)
                     >
                       {savingShipment ? 'Saving...' : 'Save & mark shipped'}
                     </button>
-                    <button
-                      onClick={() => handleNotifyWhatsApp(selectedOrder, 'order_shipped')}
-                      disabled={sendingWhatsApp}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      {sendingWhatsApp ? 'Sending...' : 'Notify via WhatsApp'}
-                    </button>
                   </div>
                   <p className="text-xs text-gray-500">
-                    Sends automatically once WhatsApp is configured; otherwise opens a
-                    pre-filled message for you to send by hand.
+                    Saving here also sets the order status to Shipped - use the "Notify via
+                    WhatsApp" button above once it is.
                   </p>
                 </div>
               </div>
