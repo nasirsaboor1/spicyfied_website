@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { sendWhatsAppTemplate, toWhatsAppNumber } from "../_shared/whatsapp.ts";
+import { sendWhatsAppTemplate, toWhatsAppNumber, WhatsAppTemplate } from "../_shared/whatsapp.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -7,7 +7,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-type MessageType = "order_confirmation" | "order_shipped";
+type MessageType = "order_confirmation" | "order_shipped" | "order_delivered";
 
 interface SendRequest {
   orderId: string;
@@ -60,7 +60,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const { orderId, type } = (await req.json()) as SendRequest;
-    if (!orderId || (type !== "order_confirmation" && type !== "order_shipped")) {
+    if (!orderId || (type !== "order_confirmation" && type !== "order_shipped" && type !== "order_delivered")) {
       return jsonResponse({ error: "orderId and a valid type are required" }, 400);
     }
 
@@ -128,37 +128,52 @@ Deno.serve(async (req: Request) => {
 
     const total = Math.round(Number(typedOrder.total_amount)).toString();
 
-    const template =
-      type === "order_confirmation"
-        ? {
-            name: "order_confirmation",
-            language: { code: "en" },
-            components: [
-              {
-                type: "body",
-                parameters: [
-                  { type: "text", text: name },
-                  { type: "text", text: typedOrder.order_number },
-                  { type: "text", text: total },
-                ],
-              },
+    const templatesByType: Record<MessageType, WhatsAppTemplate> = {
+      order_confirmation: {
+        name: "order_confirmation",
+        language: { code: "en" },
+        components: [
+          {
+            type: "body",
+            parameters: [
+              { type: "text", text: name },
+              { type: "text", text: typedOrder.order_number },
+              { type: "text", text: total },
             ],
-          }
-        : {
-            name: "order_shipped",
-            language: { code: "en" },
-            components: [
-              {
-                type: "body",
-                parameters: [
-                  { type: "text", text: name },
-                  { type: "text", text: typedOrder.order_number },
-                  { type: "text", text: typedOrder.carrier || "—" },
-                  { type: "text", text: typedOrder.tracking_number || "—" },
-                ],
-              },
+          },
+        ],
+      },
+      order_shipped: {
+        name: "order_shipped",
+        language: { code: "en" },
+        components: [
+          {
+            type: "body",
+            parameters: [
+              { type: "text", text: name },
+              { type: "text", text: typedOrder.order_number },
+              { type: "text", text: typedOrder.carrier || "—" },
+              { type: "text", text: typedOrder.tracking_number || "—" },
             ],
-          };
+          },
+        ],
+      },
+      order_delivered: {
+        name: "order_delivered",
+        language: { code: "en" },
+        components: [
+          {
+            type: "body",
+            parameters: [
+              { type: "text", text: name },
+              { type: "text", text: typedOrder.order_number },
+            ],
+          },
+        ],
+      },
+    };
+
+    const template = templatesByType[type];
 
     const result = await sendWhatsAppTemplate(accessToken, phoneNumberId, waNumber, template);
 
