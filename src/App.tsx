@@ -23,7 +23,7 @@ import ContactPage from './pages/ContactPage';
 import RecipesPage from './pages/RecipesPage';
 import RecipeDetailPage from './pages/RecipeDetailPage';
 
-type Page = 'home' | 'shop' | 'product' | 'login' | 'signup' | 'checkout' | 'orders' | 'dashboard' | 'admin' | 'reset-password' | 'privacy' | 'terms' | 'shipping' | 'refund' | 'contact' | 'recipes' | 'recipe';
+type Page = 'home' | 'shop' | 'product' | 'login' | 'team-login' | 'signup' | 'checkout' | 'orders' | 'dashboard' | 'admin' | 'reset-password' | 'privacy' | 'terms' | 'shipping' | 'refund' | 'contact' | 'recipes' | 'recipe';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
@@ -45,6 +45,8 @@ function App() {
         setCurrentPage('shop');
       } else if (path === '/login') {
         setCurrentPage('login');
+      } else if (path === '/team-login') {
+        setCurrentPage('team-login');
       } else if (path === '/signup') {
         setCurrentPage('signup');
       } else if (path === '/checkout') {
@@ -208,7 +210,7 @@ function App() {
     <AuthProvider>
       <CartProvider>
         <div className="min-h-screen bg-cream">
-          {currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin' && currentPage !== 'reset-password' && (
+          {currentPage !== 'login' && currentPage !== 'team-login' && currentPage !== 'signup' && currentPage !== 'admin' && currentPage !== 'reset-password' && (
             <Header
               onNavigateToHome={navigateToHome}
               onSearch={handleSearch}
@@ -220,7 +222,7 @@ function App() {
               onNavigateToRecipes={() => navigateToRecipes()}
             />
           )}
-          {currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin' && currentPage !== 'reset-password' && (
+          {currentPage !== 'login' && currentPage !== 'team-login' && currentPage !== 'signup' && currentPage !== 'admin' && currentPage !== 'reset-password' && (
             <Cart onNavigateToCheckout={navigateToCheckout} />
           )}
 
@@ -254,6 +256,13 @@ function App() {
         {currentPage === 'login' && (
           <LoginPage
             onLoginSuccess={handleLoginSuccess}
+          />
+        )}
+
+        {currentPage === 'team-login' && (
+          <LoginPage
+            onLoginSuccess={handleLoginSuccess}
+            isTeamLogin
           />
         )}
 
@@ -339,7 +348,7 @@ function App() {
           />
         )}
 
-        {currentPage !== 'login' && currentPage !== 'signup' && currentPage !== 'admin' && currentPage !== 'reset-password' && (
+        {currentPage !== 'login' && currentPage !== 'team-login' && currentPage !== 'signup' && currentPage !== 'admin' && currentPage !== 'reset-password' && (
           <Footer
             onNavigateToPrivacy={navigateToPrivacy}
             onNavigateToTerms={navigateToTerms}

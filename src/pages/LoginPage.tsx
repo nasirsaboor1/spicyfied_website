@@ -4,13 +4,14 @@ import { useAuth } from '../context/AuthContext';
 
 interface LoginPageProps {
   onLoginSuccess: () => void;
+  isTeamLogin?: boolean;
 }
 
 type Mode = 'otp-request' | 'otp-verify' | 'password' | 'forgot-password';
 
-export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
+export default function LoginPage({ onLoginSuccess, isTeamLogin }: LoginPageProps) {
   const { signIn, requestPasswordReset, sendPhoneOtp, verifyPhoneOtp } = useAuth();
-  const [mode, setMode] = useState<Mode>('otp-request');
+  const [mode, setMode] = useState<Mode>(isTeamLogin ? 'password' : 'otp-request');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -200,7 +201,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
                 ? `We sent a 6-digit code to your WhatsApp (${e164Phone})`
                 : mode === 'password'
                 ? 'Sign in with your password'
-                : 'Sign in or create an account'}
+                : 'Enter your WhatsApp number to continue'}
             </p>
           </div>
 
@@ -360,20 +361,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
           )}
 
           <div className="mt-6 text-center space-y-2">
-            {mode !== 'password' ? (
-              <p className="text-charcoal/70 text-sm">
-                Admin or team member?{' '}
-                <button
-                  onClick={() => {
-                    setMode('password');
-                    setError('');
-                  }}
-                  className="text-ink font-semibold hover:underline"
-                >
-                  Sign in with password
-                </button>
-              </p>
-            ) : (
+            {mode === 'password' && (
               <p className="text-charcoal/70 text-sm">
                 Shopping with us?{' '}
                 <button
