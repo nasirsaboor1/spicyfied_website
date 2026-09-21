@@ -263,7 +263,12 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
 
       const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        // The order row was already created to get an order number; since it has
+        // no items, this is safe to clean up so it doesn't linger as an empty order.
+        supabase.rpc('cancel_empty_order', { p_order_id: order.id }).catch(() => {});
+        throw itemsError;
+      }
 
       // Best-effort: flush any stock alerts this order just triggered (low stock,
       // out of stock, or a restock notification) - never let this block or fail checkout.
