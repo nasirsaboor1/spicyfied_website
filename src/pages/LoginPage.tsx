@@ -360,22 +360,24 @@ export default function LoginPage({ onLoginSuccess, isTeamLogin }: LoginPageProp
             </form>
           )}
 
-          <div className="mt-6 text-center space-y-2">
-            {mode === 'password' && (
-              <p className="text-charcoal/70 text-sm">
-                Shopping with us?{' '}
-                <button
-                  onClick={() => {
-                    setMode('otp-request');
-                    setError('');
-                  }}
-                  className="text-ink font-semibold hover:underline"
-                >
-                  Sign in with WhatsApp code
-                </button>
-              </p>
-            )}
-          </div>
+          {!isTeamLogin && (
+            <div className="mt-6 text-center space-y-2">
+              {mode === 'password' && (
+                <p className="text-charcoal/70 text-sm">
+                  Shopping with us?{' '}
+                  <button
+                    onClick={() => {
+                      setMode('otp-request');
+                      setError('');
+                    }}
+                    className="text-ink font-semibold hover:underline"
+                  >
+                    Sign in with WhatsApp code
+                  </button>
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

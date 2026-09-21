@@ -6,6 +6,7 @@ interface FooterProps {
   onNavigateToShipping: () => void;
   onNavigateToRefund: () => void;
   onNavigateToContact: () => void;
+  onNavigateToTeamLogin?: () => void;
 }
 
 export default function Footer({
@@ -14,6 +15,7 @@ export default function Footer({
   onNavigateToShipping,
   onNavigateToRefund,
   onNavigateToContact,
+  onNavigateToTeamLogin,
 }: FooterProps) {
   return (
     <footer className="bg-ink text-cream/90 mt-20">
@@ -97,6 +99,14 @@ export default function Footer({
           <p className="text-sm text-cream/50 flex items-center gap-1">
             Made with <Heart className="w-4 h-4 text-saffron-light fill-current" /> for quality and purity
           </p>
+          {onNavigateToTeamLogin && (
+            <button
+              onClick={onNavigateToTeamLogin}
+              className="text-xs text-cream/30 hover:text-cream/60 transition-colors"
+            >
+              Team Login
+            </button>
+          )}
         </div>
       </div>
     </footer>

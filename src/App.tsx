@@ -120,6 +120,12 @@ function App() {
     window.scrollTo(0, 0);
   };
 
+  const navigateToTeamLogin = () => {
+    setCurrentPage('team-login');
+    window.history.pushState({}, '', '/team-login');
+    window.scrollTo(0, 0);
+  };
+
   const navigateToCheckout = () => {
     setCurrentPage('checkout');
     window.history.pushState({}, '', '/checkout');
@@ -355,6 +361,7 @@ function App() {
             onNavigateToShipping={navigateToShipping}
             onNavigateToRefund={navigateToRefund}
             onNavigateToContact={navigateToContact}
+            onNavigateToTeamLogin={navigateToTeamLogin}
           />
         )}
       </div>
