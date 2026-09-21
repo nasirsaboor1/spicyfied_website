@@ -81,6 +81,19 @@ export async function listCategories(): Promise<AdminCategory[]> {
   return data || [];
 }
 
+export async function createCategory(name: string): Promise<AdminCategory> {
+  const trimmed = name.trim();
+  if (!trimmed) throw new Error('Category name is required');
+
+  const { data, error } = await supabase
+    .from('categories')
+    .insert({ name: trimmed, slug: slugify(trimmed) })
+    .select('id, name, slug')
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export async function listAdminProducts(): Promise<AdminProduct[]> {
   const { data, error } = await supabase
     .from('products')

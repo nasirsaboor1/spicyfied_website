@@ -205,6 +205,7 @@ export default function AdminProductsView() {
           categories={categories}
           onClose={() => setEditingProduct(null)}
           onSaved={handleSaved}
+          onCategoryCreated={(category) => setCategories((prev) => [...prev, category])}
         />
       )}
     </div>

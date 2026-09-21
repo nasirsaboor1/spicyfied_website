@@ -9,6 +9,7 @@ import {
   slugify,
   createProduct,
   updateProduct,
+  createCategory,
   createVariant,
   updateVariant,
   deleteVariant,
@@ -24,6 +25,7 @@ interface ProductFormModalProps {
   categories: AdminCategory[];
   onClose: () => void;
   onSaved: (savedProductId: string) => void;
+  onCategoryCreated: (category: AdminCategory) => void;
 }
 
 const emptyForm: ProductFormValues = {
@@ -61,8 +63,12 @@ const emptyStory: StoryFormValues = {
   sourcing_details: '',
 };
 
-export default function ProductFormModal({ product, categories, onClose, onSaved }: ProductFormModalProps) {
+export default function ProductFormModal({ product, categories, onClose, onSaved, onCategoryCreated }: ProductFormModalProps) {
   const [productId, setProductId] = useState<string | null>(product?.id || null);
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [savingCategory, setSavingCategory] = useState(false);
+  const [categoryError, setCategoryError] = useState('');
   const [form, setForm] = useState<ProductFormValues>(
     product
       ? {
@@ -143,6 +149,23 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
       setError(err.message || 'Failed to save product');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleAddCategory = async () => {
+    if (!newCategoryName.trim()) return;
+    setSavingCategory(true);
+    setCategoryError('');
+    try {
+      const category = await createCategory(newCategoryName);
+      onCategoryCreated(category);
+      setForm((f) => ({ ...f, category_id: category.id }));
+      setNewCategoryName('');
+      setShowNewCategory(false);
+    } catch (err: any) {
+      setCategoryError(err.message || 'Failed to create category');
+    } finally {
+      setSavingCategory(false);
     }
   };
 
@@ -323,18 +346,62 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                <select
-                  value={form.category_id || ''}
-                  onChange={(e) => setForm({ ...form, category_id: e.target.value || null })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
-                >
-                  <option value="">No category</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
+                {showNewCategory ? (
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <input
+                        autoFocus
+                        type="text"
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        placeholder="New category name"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddCategory}
+                        disabled={savingCategory || !newCategoryName.trim()}
+                        className="px-3 py-2 bg-ink text-white text-sm font-semibold rounded-lg hover:bg-ink-light transition-colors disabled:opacity-50"
+                      >
+                        {savingCategory ? 'Adding...' : 'Add'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowNewCategory(false);
+                          setNewCategoryName('');
+                          setCategoryError('');
+                        }}
+                        className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                    {categoryError && <p className="text-sm text-red-600">{categoryError}</p>}
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <select
+                      value={form.category_id || ''}
+                      onChange={(e) => setForm({ ...form, category_id: e.target.value || null })}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ink focus:border-transparent"
+                    >
+                      <option value="">No category</option>
+                      {categories.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => setShowNewCategory(true)}
+                      className="px-3 py-2 text-sm font-semibold text-ink border border-gray-300 rounded-lg hover:bg-cream-soft transition-colors whitespace-nowrap"
+                    >
+                      + New
+                    </button>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
