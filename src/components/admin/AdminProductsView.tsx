@@ -1,5 +1,19 @@
-import { useState, useEffect } from 'react';
-import { Loader, Search, Package, Plus, Edit, Trash2, Star, EyeOff } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import {
+  Loader,
+  Search,
+  Package,
+  Plus,
+  Edit,
+  Trash2,
+  Star,
+  EyeOff,
+  AlertTriangle,
+  Layers,
+  IndianRupee,
+  ImageOff,
+  Tags,
+} from 'lucide-react';
 import {
   AdminProduct,
   AdminCategory,
@@ -62,6 +76,43 @@ export default function AdminProductsView() {
     }
   };
 
+  const stats = useMemo(() => {
+    const totalProducts = products.length;
+    const activeProducts = products.filter((p) => p.is_active).length;
+    const hiddenProducts = totalProducts - activeProducts;
+
+    const byCategory = categories
+      .map((c) => ({ id: c.id, name: c.name, count: products.filter((p) => p.category_id === c.id).length }))
+      .filter((c) => c.count > 0)
+      .sort((a, b) => b.count - a.count);
+    const uncategorisedCount = products.filter((p) => !p.category_id).length;
+
+    let totalUnits = 0;
+    let inventoryValue = 0;
+    for (const p of products) {
+      for (const v of p.product_variants) {
+        totalUnits += v.stock_quantity || 0;
+        inventoryValue += (v.stock_quantity || 0) * v.price;
+      }
+    }
+
+    return {
+      totalProducts,
+      activeProducts,
+      hiddenProducts,
+      byCategory,
+      uncategorisedCount,
+      totalUnits,
+      inventoryValue,
+      lowStockCount: products.filter((p) => p.stock_status === 'low_stock').length,
+      outOfStockCount: products.filter((p) => p.stock_status === 'out_of_stock').length,
+      featuredCount: products.filter((p) => p.is_featured).length,
+      newArrivalCount: products.filter((p) => p.is_new_arrival).length,
+      missingImageCount: products.filter((p) => p.product_images.length === 0).length,
+      missingVariantCount: products.filter((p) => p.product_variants.length === 0).length,
+    };
+  }, [products, categories]);
+
   const filteredProducts = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || p.category_id === categoryFilter;
@@ -82,6 +133,97 @@ export default function AdminProductsView() {
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-600">
           {error}
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="bg-white rounded-xl shadow-md p-4">
+          <div className="flex items-center gap-2 text-gray-500 text-xs font-semibold uppercase tracking-wide mb-1">
+            <Package className="w-4 h-4" />
+            Products
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{stats.totalProducts}</p>
+          <p className="text-xs text-gray-500">{stats.activeProducts} active · {stats.hiddenProducts} hidden</p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-4">
+          <div className="flex items-center gap-2 text-gray-500 text-xs font-semibold uppercase tracking-wide mb-1">
+            <AlertTriangle className="w-4 h-4" />
+            Stock Alerts
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{stats.lowStockCount + stats.outOfStockCount}</p>
+          <p className="text-xs text-gray-500">{stats.lowStockCount} low · {stats.outOfStockCount} out</p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-4">
+          <div className="flex items-center gap-2 text-gray-500 text-xs font-semibold uppercase tracking-wide mb-1">
+            <Layers className="w-4 h-4" />
+            Units in Stock
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{stats.totalUnits.toLocaleString('en-IN')}</p>
+          <p className="text-xs text-gray-500">across all sizes</p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-4">
+          <div className="flex items-center gap-2 text-gray-500 text-xs font-semibold uppercase tracking-wide mb-1">
+            <IndianRupee className="w-4 h-4" />
+            Inventory Value
+          </div>
+          <p className="text-2xl font-bold text-gray-900">
+            ₹{Math.round(stats.inventoryValue).toLocaleString('en-IN')}
+          </p>
+          <p className="text-xs text-gray-500">at current stock levels</p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-4">
+          <div className="flex items-center gap-2 text-gray-500 text-xs font-semibold uppercase tracking-wide mb-1">
+            <Star className="w-4 h-4" />
+            Marketing
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{stats.featuredCount}</p>
+          <p className="text-xs text-gray-500">featured · {stats.newArrivalCount} new arrivals</p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-4">
+          <div className="flex items-center gap-2 text-gray-500 text-xs font-semibold uppercase tracking-wide mb-1">
+            <ImageOff className="w-4 h-4" />
+            Needs Attention
+          </div>
+          <p className="text-2xl font-bold text-gray-900">
+            {stats.missingImageCount + stats.missingVariantCount}
+          </p>
+          <p className="text-xs text-gray-500">
+            {stats.missingImageCount} no photo · {stats.missingVariantCount} no sizes
+          </p>
+        </div>
+      </div>
+
+      {(stats.byCategory.length > 0 || stats.uncategorisedCount > 0) && (
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="flex items-center gap-2 mb-3">
+            <Tags className="w-4 h-4 text-gray-500" />
+            <h3 className="text-sm font-semibold text-gray-900">By Category</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {stats.byCategory.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setCategoryFilter(c.id)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                  categoryFilter === c.id
+                    ? 'bg-ink text-white border-ink'
+                    : 'border-gray-200 text-gray-700 hover:border-ink/40'
+                }`}
+              >
+                {c.name} <span className="opacity-60">({c.count})</span>
+              </button>
+            ))}
+            {stats.uncategorisedCount > 0 && (
+              <span className="px-3 py-1.5 rounded-full text-sm font-medium border border-amber-200 bg-amber-50 text-amber-800">
+                Uncategorised <span className="opacity-70">({stats.uncategorisedCount})</span>
+              </span>
+            )}
+          </div>
         </div>
       )}
 
