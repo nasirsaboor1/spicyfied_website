@@ -141,6 +141,7 @@ export default function ProductDetailPage({
   const buildCartItem = () => {
     if (!product || product.variants.length === 0) return null;
     const selectedVariant = product.variants[selectedVariantIndex];
+    if (!selectedVariant || selectedVariant.stock_quantity <= 0) return null;
     const firstImage = product.images.find((img) => img.sort_order === 1) || product.images[0];
     return { product, variant: selectedVariant, quantity, image: firstImage?.image_url };
   };
@@ -232,6 +233,8 @@ export default function ProductDetailPage({
   const categoryLabel = CATEGORY_LABELS[product.category];
   const unitPrice = selectedVariant ? getUnitPrice(selectedVariant.size, selectedVariant.price) : null;
   const total = selectedVariant ? Math.round(selectedVariant.price * quantity) : 0;
+  const isSelectedVariantOutOfStock = !!selectedVariant && selectedVariant.stock_quantity <= 0;
+  const isOutOfStock = product.stock_status === 'out_of_stock' || isSelectedVariantOutOfStock;
 
   return (
     <div className="min-h-screen bg-cream pt-6 pb-24 md:pb-20">
@@ -392,20 +395,28 @@ export default function ProductDetailPage({
                   Select Size
                 </h3>
                 <div className="grid grid-cols-3 gap-3">
-                  {product.variants.map((variant, index) => (
-                    <button
-                      key={variant.id}
-                      onClick={() => setSelectedVariantIndex(index)}
-                      className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${
-                        selectedVariantIndex === index
-                          ? 'border-ink bg-ink text-cream'
-                          : 'border-black/10 hover:border-ink/40 text-ink'
-                      }`}
-                    >
-                      <div className="text-sm">{variant.size}</div>
-                      <div className="text-xs mt-1 opacity-80">₹{Math.round(variant.price)}</div>
-                    </button>
-                  ))}
+                  {product.variants.map((variant, index) => {
+                    const variantOutOfStock = variant.stock_quantity <= 0;
+                    return (
+                      <button
+                        key={variant.id}
+                        onClick={() => setSelectedVariantIndex(index)}
+                        disabled={variantOutOfStock}
+                        className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${
+                          variantOutOfStock
+                            ? 'border-black/10 text-charcoal/30 cursor-not-allowed'
+                            : selectedVariantIndex === index
+                            ? 'border-ink bg-ink text-cream'
+                            : 'border-black/10 hover:border-ink/40 text-ink'
+                        }`}
+                      >
+                        <div className="text-sm">{variant.size}</div>
+                        <div className="text-xs mt-1 opacity-80">
+                          {variantOutOfStock ? 'Out of stock' : `₹${Math.round(variant.price)}`}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -472,9 +483,18 @@ export default function ProductDetailPage({
               )}
             </div>
 
-            {product.stock_status === 'out_of_stock' ? (
+            {isOutOfStock ? (
               <div className="bg-cream-soft border border-black/10 rounded-lg p-5">
-                <p className="font-semibold text-ink mb-1">Currently out of stock</p>
+                <p className="font-semibold text-ink mb-1">
+                  {product.stock_status === 'out_of_stock'
+                    ? 'Currently out of stock'
+                    : `${selectedVariant?.size} is currently out of stock`}
+                </p>
+                {product.stock_status !== 'out_of_stock' && !notifySubmitted && (
+                  <p className="text-sm text-charcoal/70 mb-2">
+                    Try a different size above, or get notified when this size is back.
+                  </p>
+                )}
                 {notifySubmitted ? (
                   <p className="text-sm text-moss font-medium flex items-center gap-2 mt-2">
                     <Check className="w-4 h-4" />
@@ -650,7 +670,7 @@ export default function ProductDetailPage({
         </div>
       </div>
 
-      {product.stock_status !== 'out_of_stock' && (
+      {!isOutOfStock && (
         <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-black/10 px-4 py-3 flex items-center gap-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
           <div className="flex-shrink-0">
             <p className="text-[10px] uppercase tracking-wide text-charcoal/50">Total</p>
