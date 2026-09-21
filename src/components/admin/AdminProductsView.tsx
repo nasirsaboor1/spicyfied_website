@@ -13,6 +13,10 @@ import {
   IndianRupee,
   ImageOff,
   Tags,
+  Download,
+  List,
+  LayoutList,
+  Check,
 } from 'lucide-react';
 import {
   AdminProduct,
@@ -21,6 +25,7 @@ import {
   listCategories,
   deleteProduct,
 } from '../../lib/adminProducts';
+import { exportProductsToExcel } from '../../lib/exportProducts';
 import ProductFormModal from './ProductFormModal';
 
 const STOCK_BADGE: Record<string, { label: string; className: string }> = {
@@ -38,6 +43,8 @@ export default function AdminProductsView() {
   const [lowStockOnly, setLowStockOnly] = useState(false);
   const [editingProduct, setEditingProduct] = useState<AdminProduct | null | 'new'>(null);
   const [error, setError] = useState('');
+  const [viewMode, setViewMode] = useState<'list' | 'detail'>('list');
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -73,6 +80,17 @@ export default function AdminProductsView() {
       setProducts((p) => p.filter((x) => x.id !== product.id));
     } catch (err: any) {
       alert(err.message || 'Failed to delete product');
+    }
+  };
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      await exportProductsToExcel(products, categories);
+    } catch (err: any) {
+      alert(err.message || 'Failed to export');
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -259,6 +277,34 @@ export default function AdminProductsView() {
           >
             Low/Out of Stock
           </button>
+          <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+            <button
+              onClick={() => setViewMode('list')}
+              title="List view"
+              className={`p-2.5 transition-colors ${
+                viewMode === 'list' ? 'bg-ink text-white' : 'text-gray-500 hover:bg-gray-50'
+              }`}
+            >
+              <List className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('detail')}
+              title="Detail view (shows stock per size)"
+              className={`p-2.5 transition-colors border-l border-gray-300 ${
+                viewMode === 'detail' ? 'bg-ink text-white' : 'text-gray-500 hover:bg-gray-50'
+              }`}
+            >
+              <LayoutList className="w-4 h-4" />
+            </button>
+          </div>
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" />
+            {exporting ? 'Exporting...' : 'Export to Excel'}
+          </button>
           <button
             onClick={() => setEditingProduct('new')}
             className="flex items-center justify-center gap-2 px-4 py-2 bg-ink text-white rounded-lg font-semibold hover:bg-ink-light transition-colors"
@@ -272,63 +318,123 @@ export default function AdminProductsView() {
           {filteredProducts.map((product) => {
             const primaryImage =
               product.product_images.find((i) => i.is_primary) || product.product_images[0];
+            const totalStock = product.product_variants.reduce(
+              (sum, v) => sum + (v.stock_quantity || 0),
+              0
+            );
+            const totalValue = product.product_variants.reduce(
+              (sum, v) => sum + (v.stock_quantity || 0) * v.price,
+              0
+            );
             return (
-              <div
-                key={product.id}
-                className="flex items-center gap-4 border border-gray-200 rounded-lg p-3"
-              >
-                {primaryImage ? (
-                  <img
-                    src={primaryImage.resolved_url}
-                    alt={product.name}
-                    className="w-14 h-14 object-cover rounded-lg flex-shrink-0"
-                  />
-                ) : (
-                  <div className="w-14 h-14 bg-cream-soft rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Package className="w-6 h-6 text-gray-400" />
-                  </div>
-                )}
+              <div key={product.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="flex items-center gap-4 p-3">
+                  {primaryImage ? (
+                    <img
+                      src={primaryImage.resolved_url}
+                      alt={product.name}
+                      className="w-14 h-14 object-cover rounded-lg flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 bg-cream-soft rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Package className="w-6 h-6 text-gray-400" />
+                    </div>
+                  )}
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold text-gray-900 truncate">{product.name}</h3>
-                    {product.is_featured && (
-                      <Star className="w-3.5 h-3.5 text-saffron flex-shrink-0" />
-                    )}
-                    {!product.is_active && (
-                      <span className="flex items-center gap-1 text-xs text-gray-500 flex-shrink-0">
-                        <EyeOff className="w-3 h-3" />
-                        Hidden
-                      </span>
-                    )}
-                    {STOCK_BADGE[product.stock_status] && (
-                      <span
-                        className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${STOCK_BADGE[product.stock_status].className}`}
-                      >
-                        {STOCK_BADGE[product.stock_status].label}
-                      </span>
-                    )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-semibold text-gray-900 truncate">{product.name}</h3>
+                      {product.is_featured && (
+                        <Star className="w-3.5 h-3.5 text-saffron flex-shrink-0" />
+                      )}
+                      {!product.is_active && (
+                        <span className="flex items-center gap-1 text-xs text-gray-500 flex-shrink-0">
+                          <EyeOff className="w-3 h-3" />
+                          Hidden
+                        </span>
+                      )}
+                      {STOCK_BADGE[product.stock_status] && (
+                        <span
+                          className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${STOCK_BADGE[product.stock_status].className}`}
+                        >
+                          {STOCK_BADGE[product.stock_status].label}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      {product.categories?.name || 'Uncategorised'} &middot; ₹
+                      {Math.round(product.base_price)} &middot; {product.product_variants.length}{' '}
+                      size{product.product_variants.length !== 1 ? 's' : ''} &middot; {totalStock} units in
+                      stock
+                      {viewMode === 'detail' && (
+                        <>
+                          {' '}
+                          &middot; ₹{Math.round(totalValue).toLocaleString('en-IN')} stock value
+                        </>
+                      )}
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-500">
-                    {product.categories?.name || 'Uncategorised'} &middot; ₹
-                    {Math.round(product.base_price)} &middot; {product.product_variants.length}{' '}
-                    size{product.product_variants.length !== 1 ? 's' : ''} &middot;{' '}
-                    {product.product_variants.reduce((sum, v) => sum + (v.stock_quantity || 0), 0)} units in stock
-                  </p>
+
+                  <button
+                    onClick={() => setEditingProduct(product)}
+                    className="p-2 text-ink hover:bg-cream-soft rounded-lg transition-colors"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(product)}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
 
-                <button
-                  onClick={() => setEditingProduct(product)}
-                  className="p-2 text-ink hover:bg-cream-soft rounded-lg transition-colors"
-                >
-                  <Edit className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(product)}
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                {viewMode === 'detail' && (
+                  <div className="border-t border-gray-100 bg-gray-50 px-3 py-2 overflow-x-auto">
+                    {product.product_variants.length === 0 ? (
+                      <p className="text-sm text-gray-400 py-1">No sizes added yet.</p>
+                    ) : (
+                      <table className="w-full text-sm min-w-[480px]">
+                        <thead>
+                          <tr className="text-left text-gray-500">
+                            <th className="font-medium py-1.5 pr-4">Size</th>
+                            <th className="font-medium py-1.5 pr-4">SKU</th>
+                            <th className="font-medium py-1.5 pr-4">Price</th>
+                            <th className="font-medium py-1.5 pr-4">Stock</th>
+                            <th className="font-medium py-1.5 pr-4">Value</th>
+                            <th className="font-medium py-1.5">Default</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {product.product_variants.map((v) => (
+                            <tr key={v.id} className="border-t border-gray-200">
+                              <td className="py-1.5 pr-4 text-gray-900">{v.variant_name}</td>
+                              <td className="py-1.5 pr-4 font-mono text-xs text-gray-500">{v.sku}</td>
+                              <td className="py-1.5 pr-4 text-gray-900">₹{Math.round(v.price)}</td>
+                              <td
+                                className={`py-1.5 pr-4 font-medium ${
+                                  v.stock_quantity <= 0
+                                    ? 'text-red-600'
+                                    : v.stock_quantity <= 10
+                                    ? 'text-amber-600'
+                                    : 'text-gray-900'
+                                }`}
+                              >
+                                {v.stock_quantity}
+                              </td>
+                              <td className="py-1.5 pr-4 text-gray-500">
+                                ₹{Math.round((v.stock_quantity || 0) * v.price).toLocaleString('en-IN')}
+                              </td>
+                              <td className="py-1.5">
+                                {v.is_default && <Check className="w-4 h-4 text-moss" />}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
