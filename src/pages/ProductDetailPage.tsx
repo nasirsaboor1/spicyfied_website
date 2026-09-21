@@ -185,7 +185,7 @@ export default function ProductDetailPage({
     if (!pincode.trim() || checkingDelivery) return;
     setCheckingDelivery(true);
     try {
-      const fee = await getDeliveryFee(pincode.trim());
+      const fee = await getDeliveryFee(pincode.trim(), total);
       setDeliveryFee(fee);
     } finally {
       setCheckingDelivery(false);

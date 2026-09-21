@@ -123,7 +123,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
 
     let cancelled = false;
     setDeliveryFeeLoading(true);
-    getDeliveryFee(address.postal_code)
+    getDeliveryFee(address.postal_code, getTotalPrice())
       .then((fee) => {
         if (!cancelled) setDeliveryFee(fee);
       })
@@ -134,7 +134,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
     return () => {
       cancelled = true;
     };
-  }, [selectedAddress, addresses, deliveryType]);
+  }, [selectedAddress, addresses, deliveryType, cart]);
 
   const loadAddresses = async () => {
     try {
@@ -220,7 +220,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
 
     try {
       const subtotal = getTotalPrice();
-      const shippingFee = deliveryType === 'pickup' ? 0 : await getDeliveryFee(address!.postal_code);
+      const shippingFee = deliveryType === 'pickup' ? 0 : await getDeliveryFee(address!.postal_code, subtotal);
       const totalAmount = subtotal + shippingFee;
 
       const orderNotes =
@@ -725,8 +725,8 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
                 )}
                 {deliveryType === 'delivery' && (
                   <p className="text-xs text-charcoal/50">
-                    Free delivery within 5km of Varanasi (221001) &middot; ₹50 delivery charge
-                    elsewhere in India
+                    Varanasi (221001): free on orders ₹500+, else ₹25 delivery &middot; ₹50 delivery
+                    charge elsewhere in India
                   </p>
                 )}
                 <div className="border-t border-black/10 pt-3 flex justify-between text-lg font-bold text-ink">
