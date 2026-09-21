@@ -10,13 +10,13 @@ import AdminCustomersView from '../components/admin/AdminCustomersView';
 import AdminDeliveryView from '../components/admin/AdminDeliveryView';
 
 interface AdminPageProps {
-  onNavigateToLogin: () => void;
+  onNavigateToTeamLogin: () => void;
 }
 
 type AdminView = 'dashboard' | 'orders' | 'products' | 'customers' | 'delivery' | 'team';
 
-export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
-  const { user } = useAuth();
+export default function AdminPage({ onNavigateToTeamLogin }: AdminPageProps) {
+  const { user, loading: authLoading } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentView, setCurrentView] = useState<AdminView>('dashboard');
@@ -24,13 +24,17 @@ export default function AdminPage({ onNavigateToLogin }: AdminPageProps) {
   const [lowStockCount, setLowStockCount] = useState(0);
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
     if (!user) {
-      onNavigateToLogin();
+      onNavigateToTeamLogin();
       return;
     }
 
     checkAdminAccess();
-  }, [user]);
+  }, [user, authLoading]);
 
   useEffect(() => {
     if (!isAdmin) return;

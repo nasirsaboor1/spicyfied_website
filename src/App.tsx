@@ -301,7 +301,7 @@ function App() {
 
         {currentPage === 'admin' && (
           <AdminPage
-            onNavigateToLogin={navigateToLogin}
+            onNavigateToTeamLogin={navigateToTeamLogin}
           />
         )}
 
