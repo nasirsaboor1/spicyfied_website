@@ -43,6 +43,8 @@ function App() {
         setCurrentProductSlug(path.replace('/product/', ''));
       } else if (path === '/shop') {
         setCurrentPage('shop');
+        const params = new URLSearchParams(window.location.search);
+        setSelectedCategory(params.get('category') || 'all');
       } else if (path === '/login') {
         setCurrentPage('login');
       } else if (path === '/team-login') {
@@ -92,7 +94,8 @@ function App() {
   const navigateToShop = (category?: string) => {
     setCurrentPage('shop');
     setSelectedCategory(category || 'all');
-    window.history.pushState({}, '', '/shop');
+    const url = category && category !== 'all' ? `/shop?category=${category}` : '/shop';
+    window.history.pushState({}, '', url);
     window.scrollTo(0, 0);
   };
 
@@ -251,6 +254,7 @@ function App() {
           <ProductDetailPage
             productSlug={currentProductSlug}
             onNavigateBack={() => navigateToShop()}
+            onNavigateToShop={navigateToShop}
             onNavigateToProduct={navigateToProduct}
             onNavigateToCheckout={navigateToCheckout}
             onNavigateHome={navigateToHome}

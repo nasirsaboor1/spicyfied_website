@@ -23,8 +23,12 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
   const [products, setProducts] = useState<ProductWithDetails[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<ProductWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'all');
-  const [priceBracket, setPriceBracket] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    () => initialCategory || new URLSearchParams(window.location.search).get('category') || 'all'
+  );
+  const [priceBracket, setPriceBracket] = useState<string>(
+    () => new URLSearchParams(window.location.search).get('price') || 'all'
+  );
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
@@ -38,8 +42,42 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
   useEffect(() => {
     if (initialCategory) {
       setSelectedCategory(initialCategory);
+      updateUrlParams({ category: initialCategory });
     }
   }, [initialCategory]);
+
+  // Keeps the URL in sync with in-page filter changes (not full navigations) so
+  // browser back/forward and reloads restore whatever filter was actually applied.
+  const updateUrlParams = (next: { category?: string; price?: string }) => {
+    const params = new URLSearchParams(window.location.search);
+    const category = next.category ?? selectedCategory;
+    const price = next.price ?? priceBracket;
+
+    if (category && category !== 'all') params.set('category', category);
+    else params.delete('category');
+
+    if (price && price !== 'all') params.set('price', price);
+    else params.delete('price');
+
+    const qs = params.toString();
+    window.history.replaceState({}, '', qs ? `/shop?${qs}` : '/shop');
+  };
+
+  const handleCategorySelect = (id: string) => {
+    setSelectedCategory(id);
+    updateUrlParams({ category: id });
+  };
+
+  const handlePriceSelect = (id: string) => {
+    setPriceBracket(id);
+    updateUrlParams({ price: id });
+  };
+
+  const handleResetFilters = () => {
+    setSelectedCategory('all');
+    setPriceBracket('all');
+    updateUrlParams({ category: 'all', price: 'all' });
+  };
 
   const fetchProducts = async () => {
     try {
@@ -122,7 +160,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
                   {categories.map((category) => (
                     <button
                       key={category.id}
-                      onClick={() => setSelectedCategory(category.id)}
+                      onClick={() => handleCategorySelect(category.id)}
                       className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         selectedCategory === category.id
                           ? 'bg-brand-green text-cream'
@@ -141,7 +179,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
                   {PRICE_BRACKETS.map((bracket) => (
                     <button
                       key={bracket.id}
-                      onClick={() => setPriceBracket(bracket.id)}
+                      onClick={() => handlePriceSelect(bracket.id)}
                       className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                         priceBracket === bracket.id
                           ? 'bg-brand-green text-cream'
@@ -155,10 +193,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
               </div>
 
               <button
-                onClick={() => {
-                  setSelectedCategory('all');
-                  setPriceBracket('all');
-                }}
+                onClick={handleResetFilters}
                 className="w-full py-2 text-sm text-ink border border-ink rounded-lg font-medium hover:bg-ink hover:text-white transition-colors"
               >
                 Reset Filters
@@ -193,19 +228,13 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
                 </p>
                 <div className="flex items-center justify-center gap-3">
                   <button
-                    onClick={() => {
-                      setSelectedCategory('all');
-                      setPriceBracket('all');
-                    }}
+                    onClick={handleResetFilters}
                     className="px-4 py-2 text-sm text-ink border border-ink rounded-lg font-medium hover:bg-ink hover:text-white transition-colors"
                   >
                     Reset Filters
                   </button>
                   <button
-                    onClick={() => {
-                      setSelectedCategory('all');
-                      setPriceBracket('all');
-                    }}
+                    onClick={handleResetFilters}
                     className="px-4 py-2 text-sm bg-brand-green text-cream rounded-lg font-medium hover:bg-brand-green/90 transition-colors"
                   >
                     View All Products

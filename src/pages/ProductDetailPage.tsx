@@ -17,6 +17,7 @@ import StarRating from '../components/StarRating';
 interface ProductDetailPageProps {
   productSlug: string;
   onNavigateBack: () => void;
+  onNavigateToShop?: (category?: string) => void;
   onNavigateToProduct?: (slug: string) => void;
   onNavigateToCheckout?: () => void;
   onNavigateHome?: () => void;
@@ -69,6 +70,7 @@ function getUnitPrice(size: string, price: number): string | null {
 export default function ProductDetailPage({
   productSlug,
   onNavigateBack,
+  onNavigateToShop,
   onNavigateToProduct,
   onNavigateToCheckout,
   onNavigateHome,
@@ -250,7 +252,12 @@ export default function ProductDetailPage({
           {categoryLabel && (
             <>
               <span>/</span>
-              <span>{categoryLabel}</span>
+              <button
+                onClick={() => (onNavigateToShop ? onNavigateToShop(product.category) : onNavigateBack())}
+                className="hover:text-ink transition-colors"
+              >
+                {categoryLabel}
+              </button>
             </>
           )}
           <span>/</span>
