@@ -3,13 +3,12 @@ import { Mail, Lock, LogIn, CheckCircle, ShieldCheck, MessageCircle } from 'luci
 import { useAuth } from '../context/AuthContext';
 
 interface LoginPageProps {
-  onNavigateToSignup: () => void;
   onLoginSuccess: () => void;
 }
 
 type Mode = 'otp-request' | 'otp-verify' | 'password' | 'forgot-password';
 
-export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginPageProps) {
+export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const { signIn, requestPasswordReset, sendPhoneOtp, verifyPhoneOtp } = useAuth();
   const [mode, setMode] = useState<Mode>('otp-request');
   const [email, setEmail] = useState('');
@@ -388,15 +387,6 @@ export default function LoginPage({ onNavigateToSignup, onLoginSuccess }: LoginP
                 </button>
               </p>
             )}
-            <p className="text-charcoal/70">
-              Setting up a team account?{' '}
-              <button
-                onClick={onNavigateToSignup}
-                className="text-ink font-semibold hover:underline"
-              >
-                Sign Up
-              </button>
-            </p>
           </div>
         </div>
       </div>

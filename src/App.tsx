@@ -118,12 +118,6 @@ function App() {
     window.scrollTo(0, 0);
   };
 
-  const navigateToSignup = () => {
-    setCurrentPage('signup');
-    window.history.pushState({}, '', '/signup');
-    window.scrollTo(0, 0);
-  };
-
   const navigateToCheckout = () => {
     setCurrentPage('checkout');
     window.history.pushState({}, '', '/checkout');
@@ -220,7 +214,6 @@ function App() {
               onSearch={handleSearch}
               onCategoryChange={handleCategoryChange}
               onNavigateToLogin={navigateToLogin}
-              onNavigateToSignup={navigateToSignup}
               onNavigateToOrders={navigateToOrders}
               onNavigateToDashboard={navigateToDashboard}
               onNavigateToContact={navigateToContact}
@@ -260,7 +253,6 @@ function App() {
 
         {currentPage === 'login' && (
           <LoginPage
-            onNavigateToSignup={navigateToSignup}
             onLoginSuccess={handleLoginSuccess}
           />
         )}

@@ -8,7 +8,6 @@ interface HeaderProps {
   onSearch?: (query: string) => void;
   onCategoryChange?: (category: string) => void;
   onNavigateToLogin?: () => void;
-  onNavigateToSignup?: () => void;
   onNavigateToOrders?: () => void;
   onNavigateToDashboard?: () => void;
   onNavigateToContact?: () => void;
@@ -20,7 +19,6 @@ export default function Header({
   onSearch,
   onCategoryChange,
   onNavigateToLogin,
-  onNavigateToSignup,
   onNavigateToOrders,
   onNavigateToDashboard,
   onNavigateToContact,
@@ -159,12 +157,6 @@ export default function Header({
                 >
                   Login
                 </button>
-                <button
-                  onClick={onNavigateToSignup}
-                  className="px-3 py-1.5 text-sm border border-saffron-light/60 text-saffron-light rounded-lg font-medium hover:bg-saffron-light hover:text-ink transition-colors whitespace-nowrap"
-                >
-                  Sign Up
-                </button>
               </div>
             )}
           </div>
@@ -246,12 +238,6 @@ export default function Header({
                   className="w-full text-left hover:text-saffron-light transition-colors font-medium"
                 >
                   Login
-                </button>
-                <button
-                  onClick={() => { onNavigateToSignup?.(); setIsMenuOpen(false); }}
-                  className="w-full text-left hover:text-saffron-light transition-colors font-medium"
-                >
-                  Sign Up
                 </button>
               </div>
             )}
