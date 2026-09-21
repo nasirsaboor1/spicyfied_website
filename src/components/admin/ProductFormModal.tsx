@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Plus, Trash2, Star, Loader, Upload } from 'lucide-react';
+import { X, Plus, Trash2, Star, Loader, Upload, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   AdminProduct,
   AdminCategory,
@@ -16,6 +16,7 @@ import {
   uploadProductImage,
   setPrimaryImage,
   deleteProductImage,
+  updateImageOrder,
   upsertProductStory,
 } from '../../lib/adminProducts';
 import { compressImage } from '../../lib/compressImage';
@@ -26,6 +27,17 @@ interface ProductFormModalProps {
   onClose: () => void;
   onSaved: (savedProductId: string) => void;
   onCategoryCreated: (category: AdminCategory) => void;
+}
+
+function friendlyError(err: any, fallback: string): string {
+  const msg: string = err?.message || '';
+  if (/duplicate key value violates unique constraint/i.test(msg)) {
+    return 'That value is already saved. Please refresh this product and try again.';
+  }
+  if (/violates foreign key constraint/i.test(msg)) {
+    return "This can't be completed because it's linked to other data.";
+  }
+  return msg || fallback;
 }
 
 const emptyForm: ProductFormValues = {
@@ -92,6 +104,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
   const [tagsInput, setTagsInput] = useState((product?.tags || []).join(', '));
   const [slugTouched, setSlugTouched] = useState(!!product);
   const [saving, setSaving] = useState(false);
+  const [productSaved, setProductSaved] = useState(false);
   const [error, setError] = useState('');
 
   const [variants, setVariants] = useState(product?.product_variants || []);
@@ -127,6 +140,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
     e.preventDefault();
     setError('');
     setSaving(true);
+    setProductSaved(false);
 
     const values: ProductFormValues = {
       ...form,
@@ -145,8 +159,10 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
         setProductId(id);
       }
       onSaved(id);
+      setProductSaved(true);
+      setTimeout(() => setProductSaved(false), 2500);
     } catch (err: any) {
-      setError(err.message || 'Failed to save product');
+      setError(friendlyError(err, 'Failed to save product'));
     } finally {
       setSaving(false);
     }
@@ -163,7 +179,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
       setNewCategoryName('');
       setShowNewCategory(false);
     } catch (err: any) {
-      setCategoryError(err.message || 'Failed to create category');
+      setCategoryError(friendlyError(err, 'Failed to create category'));
     } finally {
       setSavingCategory(false);
     }
@@ -188,7 +204,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
       setNewVariant(emptyVariant);
       onSaved(productId!);
     } catch (err: any) {
-      setError(err.message || 'Failed to add variant');
+      setError(friendlyError(err, 'Failed to add variant'));
     } finally {
       setSavingVariant(false);
     }
@@ -200,7 +216,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
       await updateVariant(id, values);
       onSaved(productId!);
     } catch (err: any) {
-      setError(err.message || 'Failed to update variant');
+      setError(friendlyError(err, 'Failed to update variant'));
     }
   };
 
@@ -212,24 +228,63 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
       setVariants((v) => v.filter((x) => x.id !== id));
       onSaved(productId!);
     } catch (err: any) {
-      setError(err.message || 'Failed to delete variant');
+      setError(friendlyError(err, 'Failed to delete variant'));
     }
   };
 
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !productId) return;
+    const files = e.target.files;
+    if (!files || files.length === 0 || !productId) return;
     setUploading(true);
     setError('');
     try {
-      const compressed = await compressImage(file);
-      await uploadProductImage(productId, compressed, images.length === 0, images.length + 1);
+      let order = images.length;
+      let hasPrimary = images.some((i) => i.is_primary);
+      for (const file of Array.from(files)) {
+        const compressed = await compressImage(file);
+        await uploadProductImage(productId, compressed, !hasPrimary, order + 1);
+        hasPrimary = true;
+        order += 1;
+      }
       onSaved(productId!);
     } catch (err: any) {
-      setError(err.message || 'Failed to upload image');
+      setError(friendlyError(err, 'Failed to upload image(s)'));
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleMoveImage = async (imageId: string, direction: -1 | 1) => {
+    const sorted = [...images].sort((a, b) => {
+      if (a.is_primary !== b.is_primary) return a.is_primary ? -1 : 1;
+      return a.display_order - b.display_order;
+    });
+    const idx = sorted.findIndex((i) => i.id === imageId);
+    const targetIdx = idx + direction;
+    if (idx === -1 || targetIdx < 0 || targetIdx >= sorted.length) return;
+
+    const current = sorted[idx];
+    const target = sorted[targetIdx];
+    const swappedOrders = [target.display_order, current.display_order];
+
+    setImages((prev) =>
+      prev.map((img) => {
+        if (img.id === current.id) return { ...img, display_order: swappedOrders[0] };
+        if (img.id === target.id) return { ...img, display_order: swappedOrders[1] };
+        return img;
+      })
+    );
+
+    setError('');
+    try {
+      await Promise.all([
+        updateImageOrder(current.id, swappedOrders[0]),
+        updateImageOrder(target.id, swappedOrders[1]),
+      ]);
+      onSaved(productId!);
+    } catch (err: any) {
+      setError(friendlyError(err, 'Failed to reorder photos'));
     }
   };
 
@@ -240,7 +295,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
       await setPrimaryImage(productId, imageId);
       onSaved(productId!);
     } catch (err: any) {
-      setError(err.message || 'Failed to set primary image');
+      setError(friendlyError(err, 'Failed to set primary image'));
     }
   };
 
@@ -252,7 +307,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
       setImages((imgs) => imgs.filter((i) => i.id !== imageId));
       onSaved(productId!);
     } catch (err: any) {
-      setError(err.message || 'Failed to delete image');
+      setError(friendlyError(err, 'Failed to delete image'));
     }
   };
 
@@ -279,12 +334,13 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
     setError('');
     setStorySaved(false);
     try {
-      await upsertProductStory(productId, storyId, storyForm);
+      const id = await upsertProductStory(productId, storyId, storyForm);
+      setStoryId(id);
       setStorySaved(true);
       onSaved(productId);
       setTimeout(() => setStorySaved(false), 2000);
     } catch (err: any) {
-      setError(err.message || 'Failed to save story');
+      setError(friendlyError(err, 'Failed to save story'));
     } finally {
       setSavingStory(false);
     }
@@ -508,9 +564,17 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
             <button
               type="submit"
               disabled={saving}
-              className="w-full bg-ink text-white py-3 rounded-lg font-semibold hover:bg-ink-light transition-colors disabled:opacity-50"
+              className={`w-full py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 ${
+                productSaved ? 'bg-green-600 text-white' : 'bg-ink text-white hover:bg-ink-light'
+              }`}
             >
-              {saving ? 'Saving...' : productId ? 'Save Changes' : 'Create Product & Continue'}
+              {saving
+                ? 'Saving...'
+                : productSaved
+                ? 'Saved'
+                : productId
+                ? 'Save Changes'
+                : 'Create Product & Continue'}
             </button>
           </form>
 
@@ -599,42 +663,73 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
               </div>
 
               <div className="border-t border-gray-200 pt-6">
-                <h3 className="font-bold text-gray-900 mb-4">Photos</h3>
+                <h3 className="font-bold text-gray-900 mb-1">Photos</h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  The star sets a photo as the primary (first) image. Use the arrows to arrange the rest of
+                  the order.
+                </p>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4">
-                  {images.map((img) => (
-                    <div key={img.id} className="relative group">
-                      <img
-                        src={img.resolved_url}
-                        alt={img.alt_text || ''}
-                        className="w-full aspect-square object-cover rounded-lg border border-gray-200"
-                      />
-                      {img.is_primary && (
-                        <div className="absolute top-1 left-1 bg-saffron-light text-ink p-1 rounded-full">
-                          <Star className="w-3 h-3 fill-current" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                        {!img.is_primary && (
-                          <button
-                            type="button"
-                            onClick={() => handleSetPrimary(img.id)}
-                            title="Set as primary"
-                            className="p-1.5 bg-white rounded-full hover:bg-gray-100"
-                          >
-                            <Star className="w-3.5 h-3.5 text-ink" />
-                          </button>
+                  {[...images]
+                    .sort((a, b) => {
+                      if (a.is_primary !== b.is_primary) return a.is_primary ? -1 : 1;
+                      return a.display_order - b.display_order;
+                    })
+                    .map((img, index, sorted) => (
+                      <div key={img.id} className="relative group">
+                        <img
+                          src={img.resolved_url}
+                          alt={img.alt_text || ''}
+                          className="w-full aspect-square object-cover rounded-lg border border-gray-200"
+                        />
+                        {img.is_primary && (
+                          <div className="absolute top-1 left-1 bg-saffron-light text-ink p-1 rounded-full">
+                            <Star className="w-3 h-3 fill-current" />
+                          </div>
                         )}
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteImage(img.id)}
-                          title="Delete"
-                          className="p-1.5 bg-white rounded-full hover:bg-gray-100"
-                        >
-                          <Trash2 className="w-3.5 h-3.5 text-red-600" />
-                        </button>
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex flex-col items-center justify-center gap-2">
+                          <div className="flex items-center gap-2">
+                            {!img.is_primary && (
+                              <button
+                                type="button"
+                                onClick={() => handleSetPrimary(img.id)}
+                                title="Set as primary"
+                                className="p-1.5 bg-white rounded-full hover:bg-gray-100"
+                              >
+                                <Star className="w-3.5 h-3.5 text-ink" />
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteImage(img.id)}
+                              title="Delete"
+                              className="p-1.5 bg-white rounded-full hover:bg-gray-100"
+                            >
+                              <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                            </button>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleMoveImage(img.id, -1)}
+                              disabled={index === 0}
+                              title="Move earlier"
+                              className="p-1.5 bg-white rounded-full hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                              <ChevronLeft className="w-3.5 h-3.5 text-ink" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleMoveImage(img.id, 1)}
+                              disabled={index === sorted.length - 1}
+                              title="Move later"
+                              className="p-1.5 bg-white rounded-full hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                              <ChevronRight className="w-3.5 h-3.5 text-ink" />
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
 
                   <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-ink transition-colors text-gray-500 hover:text-ink">
                     {uploading ? (
@@ -649,6 +744,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
                       ref={fileInputRef}
                       type="file"
                       accept="image/*"
+                      multiple
                       className="hidden"
                       onChange={handleUploadImage}
                       disabled={uploading}

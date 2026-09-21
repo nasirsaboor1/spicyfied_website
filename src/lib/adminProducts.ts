@@ -186,7 +186,7 @@ export async function upsertProductStory(
   productId: string,
   existingStoryId: string | null,
   values: StoryFormValues
-): Promise<void> {
+): Promise<string> {
   const payload = {
     story_title: values.story_title || null,
     story_content: values.story_content || null,
@@ -197,10 +197,16 @@ export async function upsertProductStory(
   if (existingStoryId) {
     const { error } = await supabase.from('product_stories').update(payload).eq('id', existingStoryId);
     if (error) throw error;
-  } else {
-    const { error } = await supabase.from('product_stories').insert({ product_id: productId, ...payload });
-    if (error) throw error;
+    return existingStoryId;
   }
+
+  const { data, error } = await supabase
+    .from('product_stories')
+    .insert({ product_id: productId, ...payload })
+    .select('id')
+    .single();
+  if (error) throw error;
+  return data.id;
 }
 
 const IMAGE_BUCKET = 'Product Image';
@@ -246,5 +252,13 @@ export async function setPrimaryImage(productId: string, imageId: string): Promi
 
 export async function deleteProductImage(imageId: string): Promise<void> {
   const { error } = await supabase.from('product_images').delete().eq('id', imageId);
+  if (error) throw error;
+}
+
+export async function updateImageOrder(imageId: string, displayOrder: number): Promise<void> {
+  const { error } = await supabase
+    .from('product_images')
+    .update({ display_order: displayOrder })
+    .eq('id', imageId);
   if (error) throw error;
 }
