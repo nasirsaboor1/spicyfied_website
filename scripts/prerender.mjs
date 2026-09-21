@@ -96,14 +96,26 @@ const LOCAL_BUSINESS_JSON_LD = {
   openingHoursSpecification: [
     {
       '@type': 'OpeningHoursSpecification',
-      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-      opens: '09:00',
-      closes: '20:00',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Saturday'],
+      opens: '10:00',
+      closes: '20:30',
+    },
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: 'Friday',
+      opens: '10:00',
+      closes: '12:15',
+    },
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: 'Friday',
+      opens: '14:00',
+      closes: '20:30',
     },
     {
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: 'Sunday',
-      opens: '09:00',
+      opens: '10:30',
       closes: '14:00',
     },
   ],

@@ -187,12 +187,20 @@ export default function ContactPage({ onNavigateHome }: ContactPageProps) {
               <h2 className="text-lg font-semibold text-ink mb-6">Business Hours</h2>
               <div className="space-y-3 text-charcoal">
                 <div className="flex justify-between">
-                  <span className="font-medium">Monday - Saturday:</span>
-                  <span>9:00 AM - 8:00 PM</span>
+                  <span className="font-medium">Monday - Thursday:</span>
+                  <span>10:00 AM - 8:30 PM</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Friday:</span>
+                  <span>10:00 AM - 12:15 PM, 2:00 PM - 8:30 PM</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Saturday:</span>
+                  <span>10:00 AM - 8:30 PM</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Sunday:</span>
-                  <span>9:00 AM - 2:00 PM</span>
+                  <span>10:30 AM - 2:00 PM</span>
                 </div>
               </div>
             </div>
