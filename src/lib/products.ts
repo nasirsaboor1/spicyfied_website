@@ -109,6 +109,7 @@ function normalizeProduct(row: RawProduct): ProductWithDetails {
     description: row.description || '',
     health_benefits: row.health_benefits || '',
     category: row.categories?.slug || '',
+    category_name: row.categories?.name || '',
     is_bestseller: row.is_featured,
     is_active: true,
     stock_status: normalizeStockStatus(row.stock_status),
@@ -121,6 +122,21 @@ function normalizeProduct(row: RawProduct): ProductWithDetails {
     images: normalizeImages(row.product_images || []),
     story: normalizeStory(row.product_stories),
   };
+}
+
+export interface StorefrontCategory {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export async function fetchCategories(): Promise<StorefrontCategory[]> {
+  const { data, error } = await supabase
+    .from('categories')
+    .select('id, name, slug')
+    .order('display_order');
+  if (error) throw error;
+  return data || [];
 }
 
 export async function fetchProductsWithDetails(): Promise<ProductWithDetails[]> {

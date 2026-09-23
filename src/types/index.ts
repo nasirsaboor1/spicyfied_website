@@ -7,6 +7,7 @@ export interface Product {
   description: string;
   health_benefits: string;
   category: string;
+  category_name: string;
   is_bestseller: boolean;
   is_active: boolean;
   stock_status: StockStatus;
@@ -51,11 +52,3 @@ export interface CartItem {
   image?: string;
 }
 
-export type Category = 'whole-spices' | 'dry-fruits' | 'seeds';
-
-export interface CategoryInfo {
-  id: Category;
-  name: string;
-  slug: string;
-  image?: string;
-}

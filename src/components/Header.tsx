@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, ShoppingCart, Menu, X, User, Package, LogOut } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { fetchCategories, StorefrontCategory } from '../lib/products';
 
 interface HeaderProps {
   onNavigateToHome?: () => void;
@@ -27,8 +28,15 @@ export default function Header({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [categories, setCategories] = useState<StorefrontCategory[]>([]);
   const { getTotalItems, setIsCartOpen } = useCart();
   const { user, customer, signOut } = useAuth();
+
+  useEffect(() => {
+    fetchCategories()
+      .then(setCategories)
+      .catch((error) => console.error('Error fetching categories:', error));
+  }, []);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -65,10 +73,16 @@ export default function Header({
             <div className="relative group">
               <button className={navLinkClass}>Categories</button>
               <div className="absolute top-full left-0 mt-2 w-48 bg-white text-ink rounded-lg border border-black/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <a href="/shop?category=whole-spices" className="block px-4 py-3 hover:bg-cream-soft" onClick={(e) => { e.preventDefault(); handleCategoryClick('whole-spices'); }}>Whole Spices</a>
-                <a href="/shop?category=dry-fruits" className="block px-4 py-3 hover:bg-cream-soft" onClick={(e) => { e.preventDefault(); handleCategoryClick('dry-fruits'); }}>Dry Fruits</a>
-                <a href="/shop?category=seeds" className="block px-4 py-3 hover:bg-cream-soft" onClick={(e) => { e.preventDefault(); handleCategoryClick('seeds'); }}>Seeds</a>
-                <div className="px-4 py-3 text-charcoal/40 border-t border-black/10">Blended Spices (Coming Soon)</div>
+                {categories.map((category) => (
+                  <a
+                    key={category.id}
+                    href={`/shop?category=${category.slug}`}
+                    className="block px-4 py-3 hover:bg-cream-soft"
+                    onClick={(e) => { e.preventDefault(); handleCategoryClick(category.slug); }}
+                  >
+                    {category.name}
+                  </a>
+                ))}
               </div>
             </div>
             <a href="/recipes" className={navLinkClass} onClick={(e) => { e.preventDefault(); onNavigateToRecipes?.(); }}>Recipes</a>
@@ -199,10 +213,16 @@ export default function Header({
             <a href="/" className="block hover:text-saffron-light transition-colors font-medium" onClick={(e) => { e.preventDefault(); onNavigateToHome?.(); setIsMenuOpen(false); }}>Home</a>
             <a href="/shop" className="block hover:text-saffron-light transition-colors font-medium" onClick={(e) => { e.preventDefault(); handleCategoryClick('all'); }}>Shop</a>
             <div className="pl-4 space-y-2">
-              <a href="/shop?category=whole-spices" className="block text-sm hover:text-saffron-light" onClick={(e) => { e.preventDefault(); handleCategoryClick('whole-spices'); }}>Whole Spices</a>
-              <a href="/shop?category=dry-fruits" className="block text-sm hover:text-saffron-light" onClick={(e) => { e.preventDefault(); handleCategoryClick('dry-fruits'); }}>Dry Fruits</a>
-              <a href="/shop?category=seeds" className="block text-sm hover:text-saffron-light" onClick={(e) => { e.preventDefault(); handleCategoryClick('seeds'); }}>Seeds</a>
-              <div className="text-sm text-cream/50">Blended Spices (Coming Soon)</div>
+              {categories.map((category) => (
+                <a
+                  key={category.id}
+                  href={`/shop?category=${category.slug}`}
+                  className="block text-sm hover:text-saffron-light"
+                  onClick={(e) => { e.preventDefault(); handleCategoryClick(category.slug); }}
+                >
+                  {category.name}
+                </a>
+              ))}
             </div>
             <a href="/recipes" className="block hover:text-saffron-light transition-colors font-medium" onClick={(e) => { e.preventDefault(); onNavigateToRecipes?.(); setIsMenuOpen(false); }}>Recipes</a>
             <a href="/contact" className="block hover:text-saffron-light transition-colors font-medium" onClick={(e) => { e.preventDefault(); onNavigateToContact?.(); setIsMenuOpen(false); }}>Contact Us</a>

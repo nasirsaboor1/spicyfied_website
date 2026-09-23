@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchProductsWithDetails } from '../lib/products';
+import { fetchProductsWithDetails, fetchCategories, StorefrontCategory } from '../lib/products';
 import { ProductWithDetails } from '../types';
 import ProductCard from '../components/ProductCard';
 import { SlidersHorizontal, PackageSearch } from 'lucide-react';
@@ -30,9 +30,13 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
     () => new URLSearchParams(window.location.search).get('price') || 'all'
   );
   const [showFilters, setShowFilters] = useState(false);
+  const [categories, setCategories] = useState<StorefrontCategory[]>([]);
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories()
+      .then(setCategories)
+      .catch((error) => console.error('Error fetching categories:', error));
   }, []);
 
   useEffect(() => {
@@ -116,14 +120,9 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
     setFilteredProducts(filtered);
   };
 
-  const categories = [
-    { id: 'all', name: 'All Products' },
-    { id: 'whole-spices', name: 'Whole Spices' },
-    { id: 'dry-fruits', name: 'Dry Fruits' },
-    { id: 'seeds', name: 'Seeds' },
-  ];
+  const categoryFilterOptions = [{ slug: 'all', name: 'All Products' }, ...categories];
 
-  const selectedCategoryName = categories.find((c) => c.id === selectedCategory)?.name;
+  const selectedCategoryName = categoryFilterOptions.find((c) => c.slug === selectedCategory)?.name;
 
   return (
     <div className="min-h-screen bg-cream">
@@ -157,12 +156,12 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
               <div>
                 <h3 className="text-xs font-semibold text-charcoal/60 uppercase tracking-wide mb-3">Category</h3>
                 <div className="space-y-2">
-                  {categories.map((category) => (
+                  {categoryFilterOptions.map((category) => (
                     <button
-                      key={category.id}
-                      onClick={() => handleCategorySelect(category.id)}
+                      key={category.slug}
+                      onClick={() => handleCategorySelect(category.slug)}
                       className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        selectedCategory === category.id
+                        selectedCategory === category.slug
                           ? 'bg-brand-green text-cream'
                           : 'border border-black/10 text-charcoal hover:border-brand-green/40'
                       }`}

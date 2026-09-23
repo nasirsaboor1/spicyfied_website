@@ -10,12 +10,6 @@ interface ProductCardProps {
   onClick?: () => void;
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  'whole-spices': 'Whole Spice',
-  'dry-fruits': 'Dry Fruit',
-  seeds: 'Seed',
-};
-
 export default function ProductCard({ product, variants, images, onClick }: ProductCardProps) {
   const { addToCart, setIsCartOpen } = useCart();
   const [justAdded, setJustAdded] = useState(false);
@@ -27,7 +21,7 @@ export default function ProductCard({ product, variants, images, onClick }: Prod
   const minPrice = variants.length > 0 ? Math.min(...variants.map((v) => v.price)) : 0;
   const isSingleVariant = sortedVariants.length === 1;
   const isOutOfStock = product.stock_status === 'out_of_stock';
-  const categoryLabel = CATEGORY_LABELS[product.category] || product.category;
+  const categoryLabel = product.category_name || product.category;
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();

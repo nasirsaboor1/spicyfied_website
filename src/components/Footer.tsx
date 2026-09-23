@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
+import { fetchCategories, StorefrontCategory } from '../lib/products';
 
 interface FooterProps {
   onNavigateToPrivacy: () => void;
@@ -17,6 +19,14 @@ export default function Footer({
   onNavigateToContact,
   onNavigateToTeamLogin,
 }: FooterProps) {
+  const [categories, setCategories] = useState<StorefrontCategory[]>([]);
+
+  useEffect(() => {
+    fetchCategories()
+      .then(setCategories)
+      .catch((error) => console.error('Error fetching categories:', error));
+  }, []);
+
   return (
     <footer className="bg-ink text-cream/90 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -39,9 +49,13 @@ export default function Footer({
             <ul className="space-y-2 text-sm">
               <li><a href="/" className="hover:text-saffron-light transition-colors">Home</a></li>
               <li><a href="/shop" className="hover:text-saffron-light transition-colors">Shop</a></li>
-              <li><a href="/shop?category=whole-spices" className="hover:text-saffron-light transition-colors">Whole Spices</a></li>
-              <li><a href="/shop?category=dry-fruits" className="hover:text-saffron-light transition-colors">Dry Fruits</a></li>
-              <li><a href="/shop?category=seeds" className="hover:text-saffron-light transition-colors">Seeds</a></li>
+              {categories.map((category) => (
+                <li key={category.id}>
+                  <a href={`/shop?category=${category.slug}`} className="hover:text-saffron-light transition-colors">
+                    {category.name}
+                  </a>
+                </li>
+              ))}
               <li>
                 <button
                   onClick={onNavigateToContact}

@@ -25,18 +25,6 @@ interface ProductDetailPageProps {
   onNavigateToDashboard?: () => void;
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  'whole-spices': 'Whole Spices',
-  'dry-fruits': 'Dry Fruits',
-  seeds: 'Seeds',
-};
-
-const CATEGORY_DESCRIPTORS: Record<string, string> = {
-  'whole-spices': 'Whole Spice',
-  'dry-fruits': 'Dry Fruit',
-  seeds: 'Seed',
-};
-
 const STOCK_STATUS_LABELS: Record<string, string> = {
   in_stock: 'In Stock',
   low_stock: 'Low Stock',
@@ -55,7 +43,7 @@ function getProvenanceLine(product: ProductWithDetails): string {
     const trimmed = excerpt.trim();
     return trimmed.length > 100 ? `${trimmed.slice(0, 100).trimEnd()}…` : trimmed;
   }
-  return CATEGORY_DESCRIPTORS[product.category] || 'Everyday cooking';
+  return product.category_name || 'Everyday cooking';
 }
 
 function getUnitPrice(size: string, price: number): string | null {
@@ -232,7 +220,7 @@ export default function ProductDetailPage({
 
   const selectedVariant = product.variants[selectedVariantIndex];
   const currentImage = product.images[currentImageIndex];
-  const categoryLabel = CATEGORY_LABELS[product.category];
+  const categoryLabel = product.category_name;
   const unitPrice = selectedVariant ? getUnitPrice(selectedVariant.size, selectedVariant.price) : null;
   const total = selectedVariant ? Math.round(selectedVariant.price * quantity) : 0;
   const isSelectedVariantOutOfStock = !!selectedVariant && selectedVariant.stock_quantity <= 0;
