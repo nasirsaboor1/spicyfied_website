@@ -275,10 +275,16 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
       supabase.functions.invoke('process-stock-alerts').catch((err) => console.error('Stock alert flush failed:', err));
 
       const sendOrderConfirmation = () => {
-        // Best-effort WhatsApp confirmation - never let this block or fail checkout.
+        // Best-effort notifications - never let these block or fail checkout.
+        // Customer's own order confirmation:
         supabase.functions
           .invoke('send-whatsapp-message', { body: { orderId: order.id, type: 'order_confirmation' } })
           .catch((err) => console.error('WhatsApp confirmation failed:', err));
+        // Admin new-order alert (WhatsApp + email), fired at the same gated
+        // moment so online orders alert only once payment is confirmed:
+        supabase.functions
+          .invoke('notify-new-order', { body: { orderId: order.id } })
+          .catch((err) => console.error('New-order admin alert failed:', err));
       };
 
       if (deliveryType === 'delivery' && paymentMethod !== 'cod') {

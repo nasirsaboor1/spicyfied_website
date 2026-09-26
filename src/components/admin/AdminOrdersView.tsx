@@ -176,12 +176,27 @@ export default function AdminOrdersView({ initialSearch }: AdminOrdersViewProps)
     }
   };
 
-  const handleStatusButtonClick = (orderId: string, status: string) => {
+  const handleStatusButtonClick = (order: Order, status: string) => {
     if (status === 'cancelled') {
       setPendingCancel(true);
       return;
     }
-    handleUpdateStatus(orderId, status);
+
+    // Guard: moving an online (non-COD) order forward while its payment hasn't
+    // arrived. COD orders are legitimately unpaid until delivery, so they're
+    // excluded. "Confirmed/Processing/etc." only means fulfilment, not payment.
+    const isForward = status !== 'pending';
+    const isOnlineUnpaid = order.payment_method !== 'cod' && order.payment_status !== 'paid';
+    if (isForward && isOnlineUnpaid) {
+      const proceed = confirm(
+        `Heads up: this order's ${paymentMethodLabel(order.payment_method)} payment is still ` +
+          `"${order.payment_status || 'pending'}" — payment has not been received yet.\n\n` +
+          `Mark it "${STATUS_LABELS[status]}" anyway?`
+      );
+      if (!proceed) return;
+    }
+
+    handleUpdateStatus(order.id, status);
   };
 
   const handleSaveShipment = async () => {
@@ -518,7 +533,7 @@ export default function AdminOrdersView({ initialSearch }: AdminOrdersViewProps)
                   {STATUS_OPTIONS.map((status) => (
                     <button
                       key={status}
-                      onClick={() => handleStatusButtonClick(selectedOrder.id, status)}
+                      onClick={() => handleStatusButtonClick(selectedOrder, status)}
                       disabled={updatingStatus || selectedOrder.status === status}
                       className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-all border ${
                         selectedOrder.status === status
