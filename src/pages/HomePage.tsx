@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchProductsWithDetails } from '../lib/products';
+import { fetchProductsWithDetails, fetchCategories, StorefrontCategory } from '../lib/products';
 import { ProductWithDetails } from '../types';
 import CategoryCard from '../components/CategoryCard';
 import ProductCard from '../components/ProductCard';
@@ -38,14 +38,28 @@ const PILLARS = [
   },
 ];
 
+// Existing categories don't have an image set in the database yet, so these
+// keep their original homepage photos. A category with its own image_url in
+// the database overrides this; anything else falls back to the card's
+// letter-in-a-circle design.
+const CATEGORY_IMAGE_FALLBACK: Record<string, string> = {
+  'whole-spices': 'https://raw.githubusercontent.com/nasirsaboor1/Spice/main/Cardamom%20(1)-min.JPG',
+  'dry-fruits': 'https://raw.githubusercontent.com/nasirsaboor1/Spice/main/Walnut.jpg',
+  seeds: 'https://raw.githubusercontent.com/nasirsaboor1/Spice/main/Chia%20Seeds-min.JPG',
+};
+
 export default function HomePage({ onNavigateToProduct, onNavigateToShop }: HomePageProps) {
   const [bestsellers, setBestsellers] = useState<ProductWithDetails[]>([]);
   const [everydayEssentials, setEverydayEssentials] = useState<ProductWithDetails[]>([]);
   const [healthySnacking, setHealthySnacking] = useState<ProductWithDetails[]>([]);
+  const [categories, setCategories] = useState<StorefrontCategory[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories()
+      .then(setCategories)
+      .catch((error) => console.error('Error fetching categories:', error));
   }, []);
 
   const fetchProducts = async () => {
@@ -292,29 +306,19 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
         <Reveal className="text-center mb-12">
           <p className="text-brand-green text-xs font-semibold tracking-[0.25em] uppercase mb-2">Our Collection</p>
           <h2 className="font-serif text-4xl font-semibold text-ink mb-3">Shop by Category</h2>
-          <p className="text-charcoal/70 text-lg">Whole spices, dry fruits, and seeds, organised the way you shop for them</p>
+          <p className="text-charcoal/70 text-lg">Everything we carry, organised the way you shop for it</p>
         </Reveal>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 justify-items-center">
-          <CategoryCard
-            title="Whole Spices"
-            imageUrl="https://raw.githubusercontent.com/nasirsaboor1/Spice/main/Cardamom%20(1)-min.JPG"
-            onClick={() => onNavigateToShop('whole-spices')}
-          />
-          <CategoryCard
-            title="Dry Fruits"
-            imageUrl="https://raw.githubusercontent.com/nasirsaboor1/Spice/main/Walnut.jpg"
-            onClick={() => onNavigateToShop('dry-fruits')}
-          />
-          <CategoryCard
-            title="Seeds"
-            imageUrl="https://raw.githubusercontent.com/nasirsaboor1/Spice/main/Chia%20Seeds-min.JPG"
-            onClick={() => onNavigateToShop('seeds')}
-          />
-          <CategoryCard
-            title="Blended Spices"
-            comingSoon
-          />
+        <div className="flex flex-wrap justify-center gap-8 lg:gap-12">
+          {categories.map((category) => (
+            <CategoryCard
+              key={category.id}
+              title={category.name}
+              imageUrl={category.image_url || CATEGORY_IMAGE_FALLBACK[category.slug]}
+              onClick={() => onNavigateToShop(category.slug)}
+            />
+          ))}
+          <CategoryCard title="Blended Spices" comingSoon />
         </div>
       </section>
 

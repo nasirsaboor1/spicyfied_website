@@ -128,12 +128,13 @@ export interface StorefrontCategory {
   id: string;
   name: string;
   slug: string;
+  image_url: string | null;
 }
 
 export async function fetchCategories(): Promise<StorefrontCategory[]> {
   const { data, error } = await supabase
     .from('categories')
-    .select('id, name, slug')
+    .select('id, name, slug, image_url')
     .order('display_order');
   if (error) throw error;
   return data || [];
