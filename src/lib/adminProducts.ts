@@ -5,6 +5,8 @@ export interface AdminCategory {
   id: string;
   name: string;
   slug: string;
+  image_url?: string | null;
+  display_order?: number | null;
 }
 
 export interface AdminVariant {
@@ -75,7 +77,7 @@ export function slugify(text: string): string {
 export async function listCategories(): Promise<AdminCategory[]> {
   const { data, error } = await supabase
     .from('categories')
-    .select('id, name, slug')
+    .select('id, name, slug, image_url, display_order')
     .order('display_order');
   if (error) throw error;
   return data || [];
@@ -88,10 +90,39 @@ export async function createCategory(name: string): Promise<AdminCategory> {
   const { data, error } = await supabase
     .from('categories')
     .insert({ name: trimmed, slug: slugify(trimmed) })
-    .select('id, name, slug')
+    .select('id, name, slug, image_url, display_order')
     .single();
   if (error) throw error;
   return data;
+}
+
+export async function updateCategory(
+  id: string,
+  updates: { name?: string; image_url?: string | null; display_order?: number }
+): Promise<void> {
+  const payload: Record<string, unknown> = { ...updates };
+  if (typeof updates.name === 'string') {
+    payload.name = updates.name.trim();
+    payload.slug = slugify(updates.name);
+  }
+  const { error } = await supabase.from('categories').update(payload).eq('id', id);
+  if (error) throw error;
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  const { error } = await supabase.from('categories').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// Uploads a category image to the public storage bucket and returns its full
+// public URL, ready to store directly in categories.image_url.
+export async function uploadCategoryImage(file: File): Promise<string> {
+  const safeName = `category-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+  const { error: uploadError } = await supabase.storage
+    .from(IMAGE_BUCKET)
+    .upload(safeName, file, { cacheControl: '31536000', upsert: false });
+  if (uploadError) throw uploadError;
+  return supabase.storage.from(IMAGE_BUCKET).getPublicUrl(safeName).data.publicUrl;
 }
 
 export async function listAdminProducts(): Promise<AdminProduct[]> {

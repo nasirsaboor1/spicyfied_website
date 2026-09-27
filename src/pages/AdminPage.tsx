@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Loader, Package, ShoppingBag, BarChart3, Users, UserCircle, AlertTriangle, Truck } from 'lucide-react';
+import { Loader, Package, ShoppingBag, BarChart3, Users, UserCircle, AlertTriangle, Truck, FolderTree } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AdminOrdersView from '../components/admin/AdminOrdersView';
 import AdminProductsView from '../components/admin/AdminProductsView';
@@ -8,12 +8,13 @@ import AdminDashboardView from '../components/admin/AdminDashboardView';
 import AdminTeamView from '../components/admin/AdminTeamView';
 import AdminCustomersView from '../components/admin/AdminCustomersView';
 import AdminDeliveryView from '../components/admin/AdminDeliveryView';
+import AdminCategoriesView from '../components/admin/AdminCategoriesView';
 
 interface AdminPageProps {
   onNavigateToTeamLogin: () => void;
 }
 
-type AdminView = 'dashboard' | 'orders' | 'products' | 'customers' | 'delivery' | 'team';
+type AdminView = 'dashboard' | 'orders' | 'products' | 'categories' | 'customers' | 'delivery' | 'team';
 
 export default function AdminPage({ onNavigateToTeamLogin }: AdminPageProps) {
   const { user, loading: authLoading } = useAuth();
@@ -104,6 +105,7 @@ export default function AdminPage({ onNavigateToTeamLogin }: AdminPageProps) {
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'orders', label: 'Orders', icon: ShoppingBag },
     { id: 'products', label: 'Products', icon: Package, badge: lowStockCount },
+    { id: 'categories', label: 'Categories', icon: FolderTree },
     { id: 'customers', label: 'Customers', icon: UserCircle },
     { id: 'delivery', label: 'Delivery', icon: Truck },
     { id: 'team', label: 'Team', icon: Users },
@@ -167,6 +169,7 @@ export default function AdminPage({ onNavigateToTeamLogin }: AdminPageProps) {
             {currentView === 'dashboard' && <AdminDashboardView />}
             {currentView === 'orders' && <AdminOrdersView initialSearch={ordersSearch} />}
             {currentView === 'products' && <AdminProductsView />}
+            {currentView === 'categories' && <AdminCategoriesView />}
             {currentView === 'customers' && <AdminCustomersView onViewOrders={handleViewCustomerOrders} />}
             {currentView === 'delivery' && <AdminDeliveryView />}
             {currentView === 'team' && <AdminTeamView />}
