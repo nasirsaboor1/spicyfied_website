@@ -8,7 +8,7 @@ import SpiceDrift from '../components/SpiceDrift';
 import SpiceLoader from '../components/SpiceLoader';
 import { SCROLL_SPICE_PHOTOS } from '../lib/spicePhotos';
 import { SPICE_HERO_PHOTOS } from '../lib/spiceHeroPhotos';
-import { ChevronRight, Leaf, Gem, Flame, Sparkles, Stamp } from 'lucide-react';
+import { ChevronRight, ArrowRight, Leaf, Gem, Flame, Sparkles, Stamp, Soup, Package } from 'lucide-react';
 
 interface HomePageProps {
   onNavigateToProduct: (slug: string) => void;
@@ -168,6 +168,85 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* "Use less. Taste more. Waste less." - the shop's core value +
+          quality message. Rebuilt responsively from the brand banner:
+          cream messaging half + dark green proof half. */}
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 rounded-3xl overflow-hidden border border-black/5 shadow-sm">
+          {/* Left: message */}
+          <div className="bg-cream-soft p-8 sm:p-10 lg:p-14">
+            <p className="text-brand-green text-[11px] font-semibold tracking-[0.25em] uppercase mb-5">
+              Pure Spices. Real Flavour.
+            </p>
+            <h2 className="font-serif text-4xl sm:text-5xl font-semibold leading-[1.05] text-ink mb-4">
+              Use <span className="text-saffron">less.</span>
+              <br />
+              Taste <span className="text-saffron">more.</span>
+              <br />
+              Waste <span className="text-saffron">less.</span>
+            </h2>
+            <p className="text-charcoal/80 text-lg leading-relaxed mb-8 max-w-md">
+              Pure, undiluted spices with full natural intensity.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-9">
+              {[
+                { icon: Leaf, title: 'Pure', copy: 'Nothing unnecessary.' },
+                { icon: Soup, title: 'More Flavour', copy: 'Natural aroma and intensity.' },
+                { icon: Package, title: 'More Value', copy: 'More dishes per pack.' },
+              ].map((p) => (
+                <div key={p.title}>
+                  <div className="w-11 h-11 rounded-full bg-sage-tint flex items-center justify-center mb-2.5">
+                    <p.icon className="w-5 h-5 text-brand-green" strokeWidth={1.5} />
+                  </div>
+                  <h3 className="font-sans text-xs font-bold tracking-[0.08em] uppercase text-ink mb-1">
+                    {p.title}
+                  </h3>
+                  <p className="text-sm text-charcoal/70 leading-snug">{p.copy}</p>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => onNavigateToShop()}
+              className="group inline-flex items-center gap-3 bg-ink text-cream pl-7 pr-6 py-3.5 rounded-full font-semibold text-sm tracking-wide hover:bg-ink-light transition-colors"
+            >
+              EXPLORE OUR SPICES
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </button>
+          </div>
+
+          {/* Right: proof - the same dish, less spice */}
+          <div className="bg-ink text-cream p-8 sm:p-10 lg:p-14 flex flex-col justify-center">
+            <p className="text-center text-cream/70 text-xs font-semibold tracking-[0.25em] uppercase mb-8 leading-relaxed">
+              The same dish, less spice
+            </p>
+            <div className="flex items-center justify-center gap-4 sm:gap-6">
+              <div className="text-center">
+                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-dashed border-cream/40 flex items-center justify-center mb-3">
+                  <span className="font-serif text-4xl sm:text-5xl font-semibold text-cream">10g</span>
+                </div>
+                <p className="text-cream/60 text-[11px] font-semibold tracking-[0.12em] uppercase">
+                  Ordinary spice
+                </p>
+              </div>
+              <ArrowRight className="w-8 h-8 text-saffron flex-shrink-0 mb-8" strokeWidth={1.5} />
+              <div className="text-center">
+                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-dashed border-saffron/70 flex items-center justify-center mb-3">
+                  <span className="font-serif text-4xl sm:text-5xl font-semibold text-saffron">6&ndash;7g*</span>
+                </div>
+                <p className="text-saffron text-[11px] font-semibold tracking-[0.12em] uppercase">
+                  With Spicyfied
+                </p>
+              </div>
+            </div>
+            <p className="text-center text-cream/50 text-xs mt-8 leading-relaxed max-w-sm mx-auto">
+              *Usage varies by spice, recipe and taste. Start with less, add only if needed.
+            </p>
           </div>
         </div>
       </section>
