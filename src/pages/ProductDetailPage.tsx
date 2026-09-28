@@ -261,6 +261,7 @@ export default function ProductDetailPage({
                     src={currentImage.image_url}
                     alt={product.name}
                     onError={() => setMainImageFailed(true)}
+                    decoding="async"
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>
@@ -311,6 +312,8 @@ export default function ProductDetailPage({
                         src={image.image_url}
                         alt={`${product.name} ${index + 1}`}
                         onError={() => setFailedThumbnails((prev) => ({ ...prev, [image.id]: true }))}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover"
                       />
                     )}

@@ -14,6 +14,9 @@ export default function ProductCard({ product, variants, images, onClick }: Prod
   const { addToCart, setIsCartOpen } = useCart();
   const [justAdded, setJustAdded] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
+  // The hover image is only fetched once the pointer enters the card, so it is
+  // never downloaded on mobile (no hover) or for cards a visitor never touches.
+  const [showHoverImage, setShowHoverImage] = useState(false);
 
   const firstImage = images.find((img) => img.sort_order === 1) || images[0];
   const secondImage = images.find((img) => img !== firstImage);
@@ -41,6 +44,7 @@ export default function ProductCard({ product, variants, images, onClick }: Prod
   return (
     <div
       onClick={onClick}
+      onMouseEnter={() => setShowHoverImage(true)}
       className="group bg-white rounded-xl overflow-hidden cursor-pointer border border-black/10 hover:border-brand-green/40 transition-colors duration-300"
     >
       <div className="relative aspect-square overflow-hidden bg-cream-soft">
@@ -54,12 +58,15 @@ export default function ProductCard({ product, variants, images, onClick }: Prod
                 secondImage ? 'group-hover:opacity-0' : ''
               }`}
               loading="lazy"
+              decoding="async"
             />
-            {secondImage && (
+            {secondImage && showHoverImage && (
               <img
                 src={secondImage.image_url}
                 alt=""
                 aria-hidden="true"
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-contain p-5 opacity-0 scale-105 group-hover:opacity-100 transition-opacity duration-700 ease-out"
               />
             )}
