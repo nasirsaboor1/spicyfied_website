@@ -229,8 +229,8 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
             </p>
             <div className="flex items-center justify-center gap-3 sm:gap-6">
               <div className="text-center">
-                <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full border-2 border-dashed border-cream/40 flex items-center justify-center mb-3">
-                  <span className="font-serif text-3xl sm:text-4xl font-semibold text-cream whitespace-nowrap">10g</span>
+                <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-full border-2 border-dashed border-cream/40 flex items-center justify-center mb-3">
+                  <span className="font-serif text-4xl sm:text-5xl font-semibold text-cream">10g</span>
                 </div>
                 <p className="text-cream/60 text-[11px] font-semibold tracking-[0.12em] uppercase">
                   Ordinary spice
@@ -238,8 +238,9 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
               </div>
               <ArrowRight className="w-7 h-7 sm:w-8 sm:h-8 text-saffron flex-shrink-0 mb-8" strokeWidth={1.5} />
               <div className="text-center">
-                <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full border-2 border-dashed border-saffron/70 flex items-center justify-center mb-3">
-                  <span className="font-serif text-3xl sm:text-4xl font-semibold text-saffron whitespace-nowrap">6&ndash;7g*</span>
+                <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-full border-2 border-dashed border-saffron/70 flex flex-col items-center justify-center mb-3">
+                  <span className="font-serif text-4xl sm:text-5xl font-semibold text-saffron leading-none">6-7g</span>
+                  <span className="text-saffron/70 text-xs mt-0.5">*</span>
                 </div>
                 <p className="text-saffron text-[11px] font-semibold tracking-[0.12em] uppercase">
                   With Spicyfied
