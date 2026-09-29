@@ -17,8 +17,8 @@ export default function RefundCancellationPage({ onNavigateHome }: RefundCancell
         </button>
 
         <div>
-          <h1 className="text-[22px] md:text-2xl font-semibold text-ink mb-4">Cancellation & Refund Policy</h1>
-          <p className="text-charcoal/60 text-sm mb-8">Last Updated: January 2026</p>
+          <h1 className="text-[22px] md:text-2xl font-semibold text-ink mb-4">Cancellation, Returns & Refund Policy</h1>
+          <p className="text-charcoal/60 text-sm mb-8">Last Updated: September 2026</p>
 
           <div className="space-y-8 text-charcoal leading-relaxed">
             <section>
@@ -28,6 +28,43 @@ export default function RefundCancellationPage({ onNavigateHome }: RefundCancell
               </p>
               <p>
                 Once an order has been processed, we are unable to accept cancellations. Processing typically begins immediately after the 6-hour window closes.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-lg font-semibold text-ink mb-4">Returns & Replacements</h2>
+              <p className="mb-3">
+                All of our products are food items &mdash; spices, dry fruits, seeds, and similar edibles. For hygiene, food-safety, and quality reasons, <strong>we cannot accept returns or offer refunds once a product has left our facility</strong>, including for reasons of change of mind, personal taste or preference, or an item simply not being what you expected. A food product that has been delivered cannot be taken back or resold.
+              </p>
+              <p className="mb-3">
+                We do, however, stand fully behind every order. If something is wrong <strong>because of a mistake on our side</strong>, we will make it right. You are eligible for a replacement or refund if:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 mb-3">
+                <li>The product arrived <strong>damaged, leaking, or with broken packaging</strong>.</li>
+                <li>You received the <strong>wrong item</strong>.</li>
+                <li>An item you paid for was <strong>missing</strong> from your order.</li>
+                <li>The product was <strong>expired or spoiled on arrival</strong>.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-lg font-semibold text-ink mb-4">How to Raise a Claim</h2>
+              <p className="mb-3">
+                To keep this fair for everyone, replacement and refund claims must meet the following conditions:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 mb-3">
+                <li>
+                  Report the issue within <strong>48 hours</strong> of delivery by contacting us on WhatsApp or email with your order number.
+                </li>
+                <li>
+                  Share <strong>clear photos or a short video</strong> showing the problem &mdash; including the packaging, the seal, and any batch or date label where relevant.
+                </li>
+                <li>
+                  For any damage or quality claim, the product should be <strong>largely unused with the seal intact</strong>. We are unable to honour claims on products that have been substantially consumed.
+                </li>
+              </ul>
+              <p>
+                Once we receive and verify your claim, we will arrange a <strong>replacement or store credit</strong> as the first remedy, or a refund to your original payment method where a replacement is not suitable. Approved refunds are issued within <strong>7&ndash;10 days</strong>.
               </p>
             </section>
 
@@ -56,8 +93,11 @@ export default function RefundCancellationPage({ onNavigateHome }: RefundCancell
               <p className="mb-3">
                 Orders that are in violation of our website's terms of use may also be subject to cancellation at our discretion.
               </p>
-              <p>
+              <p className="mb-3">
                 Customers involved in fraudulent transactions or violations of our terms of use may be barred from future purchases on our website.
+              </p>
+              <p>
+                Replacement and refund claims are offered in good faith. Repeated, exaggerated, or clearly false claims of damage or quality issues will void eligibility for future replacements or refunds, at our discretion.
               </p>
             </section>
 
