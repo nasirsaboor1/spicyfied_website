@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { fetchProductsWithDetails, fetchCategories, StorefrontCategory } from '../lib/products';
 import { ProductWithDetails } from '../types';
 import CategoryCard from '../components/CategoryCard';
+import HeroSlider from '../components/HeroSlider';
 import ProductCard from '../components/ProductCard';
 import Reveal from '../components/Reveal';
 import SpiceDrift from '../components/SpiceDrift';
@@ -96,7 +97,10 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
           50% { transform: translateY(-8px); }
         }
       `}</style>
-      <section className="relative overflow-hidden bg-gradient-to-b from-ink via-ink to-[#223822] text-cream pt-24 pb-16 px-4">
+      <HeroSlider
+        labels={['Grown in purity, refined by hand', 'Use less. Taste more. Waste less.']}
+        slides={[
+      <div key="hero" className="relative flex-1 overflow-hidden bg-gradient-to-b from-ink via-ink to-[#223822] text-cream pt-24 pb-20 px-4">
         <SpiceDrift />
 
         <div className="relative max-w-[1400px] mx-auto">
@@ -170,15 +174,13 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
             </div>
           </div>
         </div>
-      </section>
+      </div>,
 
-      {/* "Use less. Taste more. Waste less." - the shop's core value +
-          quality message. Rebuilt responsively from the brand banner:
-          cream messaging half + dark green proof half. */}
-      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 rounded-3xl overflow-hidden border border-black/5 shadow-sm">
+      /* "Use less. Taste more. Waste less." - the shop's core value + quality
+         message, the second slide: cream messaging half + dark proof half. */
+      <div key="potency" className="flex-1 grid grid-cols-1 lg:grid-cols-2">
           {/* Left: message */}
-          <div className="bg-cream-soft p-8 sm:p-10 lg:p-14">
+          <div className="bg-cream-soft px-6 sm:px-10 lg:px-14 pt-12 pb-16 lg:pt-20 lg:pb-20 flex flex-col justify-center">
             <p className="text-brand-green text-[11px] font-semibold tracking-[0.25em] uppercase mb-5">
               Pure Spices. Real Flavour.
             </p>
@@ -213,7 +215,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
 
             <button
               onClick={() => onNavigateToShop()}
-              className="group inline-flex items-center gap-3 bg-ink text-cream pl-7 pr-6 py-3.5 rounded-full font-semibold text-sm tracking-wide hover:bg-ink-light transition-colors"
+              className="self-start group inline-flex items-center gap-3 bg-ink text-cream pl-7 pr-6 py-3.5 rounded-full font-semibold text-sm tracking-wide hover:bg-ink-light transition-colors"
             >
               EXPLORE OUR SPICES
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -221,23 +223,23 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
           </div>
 
           {/* Right: proof - the same dish, less spice */}
-          <div className="bg-ink text-cream p-8 sm:p-10 lg:p-14 flex flex-col justify-center">
+          <div className="bg-ink text-cream px-6 sm:px-10 lg:px-14 pt-12 pb-20 lg:py-20 flex flex-col justify-center">
             <p className="text-center text-cream/70 text-xs font-semibold tracking-[0.25em] uppercase mb-8 leading-relaxed">
               The same dish, less spice
             </p>
-            <div className="flex items-center justify-center gap-4 sm:gap-6">
+            <div className="flex items-center justify-center gap-3 sm:gap-6">
               <div className="text-center">
-                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-dashed border-cream/40 flex items-center justify-center mb-3">
-                  <span className="font-serif text-4xl sm:text-5xl font-semibold text-cream">10g</span>
+                <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full border-2 border-dashed border-cream/40 flex items-center justify-center mb-3">
+                  <span className="font-serif text-3xl sm:text-4xl font-semibold text-cream whitespace-nowrap">10g</span>
                 </div>
                 <p className="text-cream/60 text-[11px] font-semibold tracking-[0.12em] uppercase">
                   Ordinary spice
                 </p>
               </div>
-              <ArrowRight className="w-8 h-8 text-saffron flex-shrink-0 mb-8" strokeWidth={1.5} />
+              <ArrowRight className="w-7 h-7 sm:w-8 sm:h-8 text-saffron flex-shrink-0 mb-8" strokeWidth={1.5} />
               <div className="text-center">
-                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-dashed border-saffron/70 flex items-center justify-center mb-3">
-                  <span className="font-serif text-4xl sm:text-5xl font-semibold text-saffron">6&ndash;7g*</span>
+                <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full border-2 border-dashed border-saffron/70 flex items-center justify-center mb-3">
+                  <span className="font-serif text-3xl sm:text-4xl font-semibold text-saffron whitespace-nowrap">6&ndash;7g*</span>
                 </div>
                 <p className="text-saffron text-[11px] font-semibold tracking-[0.12em] uppercase">
                   With Spicyfied
@@ -248,8 +250,9 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
               *Usage varies by spice, recipe and taste. Start with less, add only if needed.
             </p>
           </div>
-        </div>
-      </section>
+      </div>,
+        ]}
+      />
 
       {/* A compact, always-visible look at the actual product - real
           isolated photography in a static grid, not a multi-screen
