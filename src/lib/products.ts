@@ -2,10 +2,13 @@ import { supabase } from './supabase';
 import { Product, ProductVariant, ProductImage, ProductWithDetails, ProductStory, StockStatus } from '../types';
 
 const IMAGE_BUCKET = 'Product Image';
+const IMAGE_CDN = import.meta.env.VITE_IMAGE_CDN_URL as string | undefined;
 
 export function resolveImageUrl(path: string | null | undefined): string {
   if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
   const objectPath = path.startsWith('/') ? path.slice(1) : path;
+  if (IMAGE_CDN) return `${IMAGE_CDN}/${encodeURIComponent(objectPath)}`;
   return supabase.storage.from(IMAGE_BUCKET).getPublicUrl(objectPath).data.publicUrl;
 }
 
