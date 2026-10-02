@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchProductBySlug, fetchProductsWithDetails, fetchProductRatingSummary } from '../lib/products';
+import { fetchProductBySlug, fetchRelatedProducts, fetchProductRatingSummary } from '../lib/products';
 import { getDeliveryFee } from '../lib/delivery';
 import { supabase } from '../lib/supabase';
 import { ProductWithDetails } from '../types';
@@ -117,10 +117,7 @@ export default function ProductDetailPage({
 
       fetchProductRatingSummary(productData.id).then(setRating);
 
-      const all = await fetchProductsWithDetails();
-      const related = all
-        .filter((p) => p.category === productData.category && p.id !== productData.id)
-        .slice(0, 4);
+      const related = await fetchRelatedProducts(productData.category, productData.id, 4);
       setRelatedProducts(related);
     } catch (error) {
       console.error('Error fetching product:', error);

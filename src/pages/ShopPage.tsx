@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchProductsWithDetails, fetchCategories, StorefrontCategory } from '../lib/products';
+import { fetchProductsForListing, fetchCategories, StorefrontCategory } from '../lib/products';
 import { ProductWithDetails } from '../types';
 import ProductCard from '../components/ProductCard';
 import { SlidersHorizontal, PackageSearch } from 'lucide-react';
@@ -85,7 +85,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
 
   const fetchProducts = async () => {
     try {
-      const productsWithDetails = await fetchProductsWithDetails();
+      const productsWithDetails = await fetchProductsForListing();
       setProducts(productsWithDetails);
     } catch (error) {
       console.error('Error fetching products:', error);

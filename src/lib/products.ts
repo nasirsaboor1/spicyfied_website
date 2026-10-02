@@ -15,6 +15,14 @@ export function resolveImageUrl(path: string | null | undefined): string {
 const PRODUCT_SELECT =
   '*, categories(slug, name), product_variants(*), product_images(*), product_stories(story_title, story_content, heritage_info, sourcing_details)';
 
+// Grid/listing views (home, shop, recipe matches, related products) only ever
+// render a name, category, up to two images, and variant price/stock — never
+// the story text or the rest of the images. Fetching the full PRODUCT_SELECT
+// for every listing multiplies egress by every image and the story blob on
+// every product, for data that's thrown away unrendered.
+const PRODUCT_LIST_SELECT =
+  'id, name, slug, description, health_benefits, is_featured, stock_status, created_at, categories(slug, name), product_variants(*), product_images(id, product_id, image_url, display_order, is_primary)';
+
 interface RawVariant {
   id: string;
   product_id: string;
@@ -134,19 +142,88 @@ export interface StorefrontCategory {
   image_url: string | null;
 }
 
-export async function fetchCategories(): Promise<StorefrontCategory[]> {
-  const { data, error } = await supabase
-    .from('categories')
-    .select('id, name, slug, image_url')
-    .order('display_order');
-  if (error) throw error;
-  return data || [];
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+// Header, Footer, and every page that lists products or categories fetch
+// independently on mount. Without this, navigating Home -> Shop -> Home
+// re-fetches the same catalog from Supabase every time, and several
+// components mounting together (Header + Footer + the page itself) each
+// fire their own request for the same data. Caching the result for a few
+// minutes, and sharing one in-flight request across concurrent callers,
+// cuts that down to a single network call per cache window.
+let categoriesCache: { data: StorefrontCategory[]; expiresAt: number } | null = null;
+let categoriesInFlight: Promise<StorefrontCategory[]> | null = null;
+
+export function fetchCategories(forceRefresh = false): Promise<StorefrontCategory[]> {
+  if (!forceRefresh && categoriesCache && Date.now() < categoriesCache.expiresAt) {
+    return Promise.resolve(categoriesCache.data);
+  }
+  if (!forceRefresh && categoriesInFlight) return categoriesInFlight;
+
+  categoriesInFlight = (async () => {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('id, name, slug, image_url')
+      .order('display_order');
+    categoriesInFlight = null;
+    if (error) throw error;
+    categoriesCache = { data: data || [], expiresAt: Date.now() + CACHE_TTL_MS };
+    return categoriesCache.data;
+  })();
+  return categoriesInFlight;
 }
 
-export async function fetchProductsWithDetails(): Promise<ProductWithDetails[]> {
-  const { data, error } = await supabase.from('products').select(PRODUCT_SELECT);
+let productListCache: { data: ProductWithDetails[]; expiresAt: number } | null = null;
+let productListInFlight: Promise<ProductWithDetails[]> | null = null;
+
+// Lightweight fetch for grid/listing views - see PRODUCT_LIST_SELECT.
+export function fetchProductsForListing(forceRefresh = false): Promise<ProductWithDetails[]> {
+  if (!forceRefresh && productListCache && Date.now() < productListCache.expiresAt) {
+    return Promise.resolve(productListCache.data);
+  }
+  if (!forceRefresh && productListInFlight) return productListInFlight;
+
+  productListInFlight = (async () => {
+    const { data, error } = await supabase
+      .from('products')
+      .select(PRODUCT_LIST_SELECT)
+      .order('is_primary', { foreignTable: 'product_images', ascending: false })
+      .order('display_order', { foreignTable: 'product_images', ascending: true })
+      .limit(2, { foreignTable: 'product_images' });
+    productListInFlight = null;
+    if (error) throw error;
+    const products = ((data as unknown as RawProduct[]) || []).map((row) =>
+      normalizeProduct({ ...row, product_stories: null })
+    );
+    productListCache = { data: products, expiresAt: Date.now() + CACHE_TTL_MS };
+    return products;
+  })();
+  return productListInFlight;
+}
+
+// Targeted "related products" fetch - only pulls the handful of products in
+// the same category, instead of the whole catalog filtered client-side.
+export async function fetchRelatedProducts(
+  categorySlug: string,
+  excludeProductId: string,
+  limit = 4
+): Promise<ProductWithDetails[]> {
+  if (!categorySlug) return [];
+  const { data, error } = await supabase
+    .from('products')
+    .select(
+      'id, name, slug, description, health_benefits, is_featured, stock_status, created_at, categories!inner(slug, name), product_variants(*), product_images(id, product_id, image_url, display_order, is_primary)'
+    )
+    .eq('categories.slug', categorySlug)
+    .neq('id', excludeProductId)
+    .order('is_primary', { foreignTable: 'product_images', ascending: false })
+    .order('display_order', { foreignTable: 'product_images', ascending: true })
+    .limit(2, { foreignTable: 'product_images' })
+    .limit(limit);
   if (error) throw error;
-  return (data as unknown as RawProduct[] || []).map(normalizeProduct);
+  return ((data as unknown as RawProduct[]) || []).map((row) =>
+    normalizeProduct({ ...row, product_stories: null })
+  );
 }
 
 export async function fetchProductBySlug(slug: string): Promise<ProductWithDetails | null> {

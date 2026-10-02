@@ -5,7 +5,7 @@ import type { Recipe } from '../types/recipe';
 import { formatIngredient, formatTime } from '../lib/recipe-utils';
 import { productsForRecipe } from '../lib/recipeMatch';
 import { recipeImage } from '../lib/recipeImages';
-import { fetchProductsWithDetails } from '../lib/products';
+import { fetchProductsForListing } from '../lib/products';
 import type { ProductWithDetails } from '../types';
 
 interface RecipeDetailPageProps {
@@ -32,7 +32,7 @@ export default function RecipeDetailPage({
       // Fetch the live catalog and match ingredients to products.
       // Fails silently — if the match section can't populate, the rest
       // of the recipe still works.
-      fetchProductsWithDetails()
+      fetchProductsForListing()
         .then((products) => setShopThese(productsForRecipe(r, products)))
         .catch(() => setShopThese([]));
     }

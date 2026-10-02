@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchProductsWithDetails, fetchCategories, StorefrontCategory } from '../lib/products';
+import { fetchProductsForListing, fetchCategories, StorefrontCategory } from '../lib/products';
 import { ProductWithDetails } from '../types';
 import CategoryCard from '../components/CategoryCard';
 import HeroSlider from '../components/HeroSlider';
@@ -65,7 +65,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
 
   const fetchProducts = async () => {
     try {
-      const productsWithDetails = await fetchProductsWithDetails();
+      const productsWithDetails = await fetchProductsForListing();
 
       const bestsellersData = productsWithDetails.filter((p) => p.is_bestseller);
       setBestsellers(bestsellersData.slice(0, 8));
