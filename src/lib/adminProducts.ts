@@ -114,15 +114,12 @@ export async function deleteCategory(id: string): Promise<void> {
   if (error) throw error;
 }
 
-// Uploads a category image to the public storage bucket and returns its full
-// public URL, ready to store directly in categories.image_url.
+// Uploads a category image to R2 and returns its full public URL, ready to
+// store directly in categories.image_url.
 export async function uploadCategoryImage(file: File): Promise<string> {
-  const safeName = `category-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
-  const { error: uploadError } = await supabase.storage
-    .from(IMAGE_BUCKET)
-    .upload(safeName, file, { cacheControl: '31536000', upsert: false });
-  if (uploadError) throw uploadError;
-  return supabase.storage.from(IMAGE_BUCKET).getPublicUrl(safeName).data.publicUrl;
+  const key = await uploadToR2(file, 'category-');
+  if (IMAGE_CDN) return `${IMAGE_CDN}/${encodeURIComponent(key)}`;
+  return supabase.storage.from(IMAGE_BUCKET).getPublicUrl(key).data.publicUrl;
 }
 
 export async function listAdminProducts(): Promise<AdminProduct[]> {
@@ -241,6 +238,29 @@ export async function upsertProductStory(
 }
 
 const IMAGE_BUCKET = 'Product Image';
+const IMAGE_CDN = import.meta.env.VITE_IMAGE_CDN_URL as string | undefined;
+
+// Uploads straight to Cloudflare R2 via the upload-image edge function, so
+// new images never land on Supabase Storage (which is what the "cached
+// egress" billing metric measures). Returns the R2 object key.
+async function uploadToR2(file: File, prefix = ''): Promise<string> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token;
+  if (!token) throw new Error('Not signed in');
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('prefix', prefix);
+
+  const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-image`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+  const result = await res.json();
+  if (!res.ok) throw new Error(result.error || 'Upload failed');
+  return result.key as string;
+}
 
 export async function uploadProductImage(
   productId: string,
@@ -248,12 +268,7 @@ export async function uploadProductImage(
   isPrimary: boolean,
   displayOrder: number
 ): Promise<void> {
-  const safeName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from(IMAGE_BUCKET)
-    .upload(safeName, file, { cacheControl: '31536000', upsert: false });
-  if (uploadError) throw uploadError;
+  const key = await uploadToR2(file);
 
   if (isPrimary) {
     await supabase
@@ -264,7 +279,7 @@ export async function uploadProductImage(
 
   const { error: insertError } = await supabase.from('product_images').insert({
     product_id: productId,
-    image_url: `/${safeName}`,
+    image_url: `/${key}`,
     alt_text: null,
     display_order: displayOrder,
     is_primary: isPrimary,
