@@ -35,3 +35,9 @@
 
 /product/*
   Cache-Control: public, max-age=300, must-revalidate
+
+/admin
+  Cache-Control: no-cache, must-revalidate
+
+/admin/*
+  Cache-Control: no-cache, must-revalidate
