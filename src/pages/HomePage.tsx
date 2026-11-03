@@ -100,7 +100,7 @@ export default function HomePage({ onNavigateToProduct, onNavigateToShop }: Home
       <HeroSlider
         labels={['Grown in purity, refined by hand', 'Use less. Taste more. Waste less.']}
         slides={[
-      <div key="hero" className="relative flex-1 overflow-hidden bg-gradient-to-b from-ink via-ink to-[#223822] text-cream pt-24 pb-20 px-4">
+      <div key="hero" className="relative flex-1 overflow-hidden bg-gradient-to-b from-ink via-ink to-[#223822] text-cream pt-24 pb-20 px-4 md:px-16">
         <SpiceDrift />
 
         <div className="relative max-w-[1400px] mx-auto">

@@ -6,31 +6,31 @@ export default {
       colors: {
         'brand-green': '#1D4F2C',
         ink: {
-          DEFAULT: '#1B2A1C',
-          light: '#2A3F29',
+          DEFAULT: '#142318',
+          light: '#243a28',
         },
         saffron: {
-          DEFAULT: '#B85C2E',
-          light: '#D97F52',
-          dark: '#8A3D1D',
+          DEFAULT: '#C17D1E',
+          light: '#DDA04A',
+          dark: '#8F5A12',
         },
         ochre: {
-          DEFAULT: '#C9A227',
-          light: '#DDBE5C',
+          DEFAULT: '#8A8B3C',
+          light: '#A8AA5E',
         },
         moss: {
           DEFAULT: '#5B7052',
           light: '#7C9470',
         },
         cream: {
-          DEFAULT: '#FBF6EC',
-          soft: '#F2EEDF',
+          DEFAULT: '#F5F6F0',
+          soft: '#E8EBDF',
         },
         'sage-tint': '#E7EEE3',
-        charcoal: '#2B2B28',
+        charcoal: '#282D25',
       },
       fontFamily: {
-        serif: ['"Fraunces"', 'Georgia', 'serif'],
+        serif: ['"Playfair Display"', 'Georgia', 'serif'],
         sans: ['"Inter"', 'system-ui', 'sans-serif'],
       },
       keyframes: {

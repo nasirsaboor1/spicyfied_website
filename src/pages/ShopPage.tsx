@@ -133,7 +133,7 @@ export default function ShopPage({ onNavigateToProduct, initialCategory, searchQ
           </h1>
           <p className="text-cream/75 text-lg">
             {selectedCategory === 'all'
-              ? 'Hand-cleaned and packed to protect their aroma — nothing added, nothing hidden, ready for everyday cooking.'
+              ? 'Hand-cleaned and packed to protect their aroma, nothing added, nothing hidden, ready for everyday cooking.'
               : 'Hand-cleaned and packed to protect their aroma, ready for everyday cooking.'}
           </p>
         </div>
