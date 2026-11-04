@@ -21,5 +21,10 @@
 # but this acts as a safety net if requests arrive with alternate paths).
 /index.html              /                         301
 
+# sitemap.xml is generated live by a Supabase Edge Function, not a static
+# file - without this proxy rule the request falls through to the SPA
+# fallback below and Googlebot gets index.html instead of XML.
+/sitemap.xml             https://dzayzvouvbjzthneakdv.supabase.co/functions/v1/sitemap   200
+
 # SPA fallback — every other unknown route renders the React app shell.
 /*                       /index.html               200
