@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import { getDeliveryFee } from '../lib/delivery';
 import BulkPricingNote from '../components/BulkPricingNote';
 import { INDIAN_STATES } from '../lib/indianStates';
+import { trackBeginCheckout, trackPurchase } from '../lib/analytics';
 
 interface Address {
   id: string;
@@ -105,6 +106,15 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
 
     loadAddresses();
   }, [user, authLoading, cart]);
+
+  // Fires once with the cart as it stood when checkout was entered - the top
+  // of the funnel GA4 needs, separate from later cart edits on this page.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (cart.length > 0) {
+      trackBeginCheckout(cart, getTotalPrice());
+    }
+  }, []);
 
   useEffect(() => {
     if (deliveryType === 'pickup') {
@@ -285,6 +295,7 @@ export default function CheckoutPage({ onNavigateToOrders, onNavigateToLogin }: 
         supabase.functions
           .invoke('notify-new-order', { body: { orderId: order.id } })
           .catch((err) => console.error('New-order admin alert failed:', err));
+        trackPurchase(order.order_number, totalAmount, shippingFee, cart);
       };
 
       if (deliveryType === 'delivery' && paymentMethod !== 'cod') {

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { CartItem } from '../types';
+import { trackAddToCart } from '../lib/analytics';
 
 interface CartContextType {
   cart: CartItem[];
@@ -27,6 +28,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [cart]);
 
   const addToCart = (item: CartItem) => {
+    trackAddToCart(item);
     setCart((prevCart) => {
       const existingItemIndex = prevCart.findIndex(
         (cartItem) =>

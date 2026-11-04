@@ -4,6 +4,7 @@ import { getDeliveryFee } from '../lib/delivery';
 import { supabase } from '../lib/supabase';
 import { ProductWithDetails } from '../types';
 import { useCart } from '../context/CartContext';
+import { trackViewItem } from '../lib/analytics';
 import { useAuth } from '../context/AuthContext';
 import { ChevronLeft, ChevronRight, Check, ShoppingCart, Star, BellRing } from 'lucide-react';
 import ProductReviews from '../components/ProductReviews';
@@ -114,6 +115,10 @@ export default function ProductDetailPage({
 
       setProduct(productData);
       setLoading(false);
+
+      if (productData.variants.length > 0) {
+        trackViewItem(productData, productData.variants[0]);
+      }
 
       fetchProductRatingSummary(productData.id).then(setRating);
 
